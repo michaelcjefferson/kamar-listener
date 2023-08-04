@@ -37,9 +37,10 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 	maxBytes := 52_428_800
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
-	// Prevent unknown fields in the JSON body, returning an error if one is found rather than ignoring it
 	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
+
+	// Prevent unknown fields in the JSON body, returning an error if one is found rather than ignoring it
+	// dec.DisallowUnknownFields()
 
 	// Decode the request body into the target destination. This will be a pointer to an instantiated variable, in order to work with the Decode function
 	err := dec.Decode(dst)

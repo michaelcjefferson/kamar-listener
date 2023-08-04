@@ -1,0 +1,17 @@
+{
+	"SMSDirectoryData": {
+		"datetime": 20230930131754,
+		"sync": "check",
+		"sms": "KAMAR",
+		"version": 1453,
+		"infourl": "https://moggle.com/",
+		"privacystatement": "data privacy statement",
+		"schools":[{
+			"index": 1,
+			"moeCode": "0123",
+			"name": "My Sample School",
+			"type": 32,
+			"authoritative": true
+		}]
+	}
+}

@@ -13,6 +13,7 @@ func (app *application) routes() http.Handler {
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	router.HandlerFunc(http.MethodGet, "/healthcheck", app.healthcheckHandler)
+	router.HandlerFunc(http.MethodPost, "/kamar-refresh", app.kamarRefreshHandler)
 
 	return app.recoverPanic(app.rateLimit(router))
 }

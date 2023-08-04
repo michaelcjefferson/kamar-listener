@@ -1,0 +1,19 @@
+{
+	"SMSDirectoryData": {
+		"datetime": 20200930131754,
+		"infourl": "https://help.mydomain.nz/",
+		"privacystatement": "data privacy statement",
+		"schools": [
+			{
+				"authoritative": true,
+				"index": 1,
+				"moeCode": "0123",
+				"name": "My Sample School",
+				"type": 32
+			}
+		],
+		"sms": "KAMAR",
+		"sync": "check",
+		"version": 1453
+	}
+}
