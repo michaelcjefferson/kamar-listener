@@ -27,6 +27,7 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 	output, _ := json.MarshalIndent(input, "", "\t")
 	// output, _ := json.Marshal(input)
 
+	// Check WriteFile summary - can leave file in partially written state if an error occurs. Check whether os.Create and io.Copy might be a better solution.
 	err = os.WriteFile("refresh.json", output, 0644)
 	if err != nil {
 		app.failedResponse(w, r)
