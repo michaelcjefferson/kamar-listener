@@ -12,7 +12,7 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		app.failedResponse(w, r)
 		return
 	}
 
@@ -20,13 +20,13 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 		"Data": fmt.Sprintf("%+v", input),
 	})
 
-	output, _ := json.MarshalIndent(input, "", "\t")
 	// MarshalIndent should be used for testing as it indents the JSON that it creates, making it more readable. However, Marshal should be used in practise instead because it consumes less resources (especially important due to the size of the JSON file that is created).
+	output, _ := json.MarshalIndent(input, "", "\t")
 	// output, _ := json.Marshal(input)
 
 	err = os.WriteFile("refresh.json", output, 0644)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.failedResponse(w, r)
 		return
 	}
 
@@ -35,10 +35,7 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 	headers.Set("Server", "WHS KAMAR Refresh/1.0")
 	headers.Set("Connection", "close")
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"SMSDirectoryData": "OK"}, headers)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-	}
+	app.successResponse(w, r)
 }
 
 // type requestMetadata struct {

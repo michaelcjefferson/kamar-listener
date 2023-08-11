@@ -5,6 +5,42 @@ import (
 	"net/http"
 )
 
+// The two responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
+func (app *application) successResponse(w http.ResponseWriter, r *http.Request) {
+	j := map[string]interface{}{
+		"error":  0,
+		"result": "OK",
+	}
+
+	env := envelope{"SMSDirectoryData": j}
+
+	err := app.writeJSON(w, http.StatusOK, env, nil)
+	if err != nil {
+		app.logError(r, err)
+		w.WriteHeader(500)
+	}
+}
+
+func (app *application) failedResponse(w http.ResponseWriter, r *http.Request) {
+	// Make an empty http.header map, and then add headers to meet KAMAR's requirements.
+	headers := make(http.Header)
+	headers.Set("Server", "WHS KAMAR Refresh/1.0")
+	headers.Set("Connection", "close")
+
+	j := map[string]interface{}{
+		"error":  403,
+		"result": "Authentication Failed",
+	}
+
+	env := envelope{"SMSDirectoryData": j}
+
+	err := app.writeJSON(w, http.StatusForbidden, env, nil)
+	if err != nil {
+		app.logError(r, err)
+		w.WriteHeader(500)
+	}
+}
+
 func (app *application) logError(r *http.Request, err error) {
 	app.logger.PrintError(err, map[string]string{
 		"request_method": r.Method,
