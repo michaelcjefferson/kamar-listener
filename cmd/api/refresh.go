@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 )
@@ -16,9 +15,13 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	app.logger.PrintInfo("request received:", map[string]string{
-		"Data": fmt.Sprintf("%+v", input),
-	})
+	// app.logger.PrintInfo("request received:", map[string]string{
+	// 	"Data": fmt.Sprintf("%+v", input),
+	// })
+
+	// app.logger.PrintInfo("request received:", map[string]string{
+	// 	"Type": fmt.Sprintf("%s", input.SMSDirectoryData.sync),
+	// })
 
 	// MarshalIndent should be used for testing as it indents the JSON that it creates, making it more readable. However, Marshal should be used in practise instead because it consumes less resources (especially important due to the size of the JSON file that is created).
 	output, _ := json.MarshalIndent(input, "", "\t")

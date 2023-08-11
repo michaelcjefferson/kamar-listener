@@ -7,6 +7,9 @@ import (
 
 // The two responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
 func (app *application) successResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "WHS KAMAR Refresh/1.0")
+	w.Header().Set("Connection", "close")
+
 	j := map[string]interface{}{
 		"error":  0,
 		"result": "OK",
@@ -21,11 +24,10 @@ func (app *application) successResponse(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// NOTE: The expected failed response here: https://directoryservices.kamar.nz/?listening-service/standard-response - includes a Content-Length: 123 header, whereas Content-Length is only 82 with this response.
 func (app *application) failedResponse(w http.ResponseWriter, r *http.Request) {
-	// Make an empty http.header map, and then add headers to meet KAMAR's requirements.
-	headers := make(http.Header)
-	headers.Set("Server", "WHS KAMAR Refresh/1.0")
-	headers.Set("Connection", "close")
+	w.Header().Set("Server", "WHS KAMAR Refresh/1.0")
+	w.Header().Set("Connection", "close")
 
 	j := map[string]interface{}{
 		"error":  403,
