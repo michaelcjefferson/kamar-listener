@@ -1,0 +1,28 @@
+{
+	"SMSDirectoryData": {
+		"datetime": 20200930131754,
+		"sync": "data",
+		"sms": "KAMAR",
+		"version": 1453,
+		"schools":["Wakatipu High School"],
+		"assessments": {
+			"count": 15,
+			"data": [
+				{
+					"type": "...",
+					"number": "...",
+					"version": 6,
+					"level": 3,
+					"credits": 8,
+					"weighting": 1,
+					"points": 8,
+					"title": "...",
+					"description": 2,
+					"purpose": 9,
+					"subfield": "...",
+					"internalexternal": "..."
+				}
+			]
+		}
+	}
+}

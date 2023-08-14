@@ -1,19 +1,30 @@
 {
 	"SMSDirectoryData": {
+		"assessments": {
+			"count": 15,
+			"data": [
+				{
+					"credits": 8,
+					"description": 2,
+					"internalexternal": "...",
+					"level": 3,
+					"number": "...",
+					"points": 8,
+					"purpose": 9,
+					"subfield": "...",
+					"title": "...",
+					"type": "...",
+					"version": 6,
+					"weighting": 1
+				}
+			]
+		},
 		"datetime": 20200930131754,
-		"infourl": "https://help.mydomain.nz/",
-		"privacystatement": "data privacy statement",
 		"schools": [
-			{
-				"authoritative": true,
-				"index": 1,
-				"moeCode": "0123",
-				"name": "My Sample School",
-				"type": 32
-			}
+			"Wakatipu High School"
 		],
 		"sms": "KAMAR",
-		"sync": "check",
+		"sync": "data",
 		"version": 1453
 	}
 }

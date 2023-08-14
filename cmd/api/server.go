@@ -72,8 +72,8 @@ func (app *application) serve() error {
 	})
 
 	// Shutdown causes an ErrServerClosed to be thrown, which is the desired outcome - only return an error that is not of this type.
-	err := srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
-	// err := srv.ListenAndServe()
+	// err := srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
