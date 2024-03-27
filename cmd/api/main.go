@@ -10,8 +10,9 @@ import (
 )
 
 type config struct {
-	port int
-	env  string
+	port     int
+	env      string
+	https_on bool
 	// rps (requests per second) must be float, burst must be int for limiter. enabled allows turning off the rate limiter for, for example load testing.
 	limiter struct {
 		rps     float64
@@ -43,6 +44,8 @@ func main() {
 
 	flag.StringVar(&cfg.credentials.username, "username", "username", "For authentication from KAMAR.")
 	flag.StringVar(&cfg.credentials.password, "password", "password", "For authentication from KAMAR.")
+
+	flag.BoolVar(&cfg.https_on, "https_on", true, "Turn server-side HTTPS on or off.")
 
 	flag.Parse()
 

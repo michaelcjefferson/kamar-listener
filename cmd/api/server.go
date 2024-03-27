@@ -43,7 +43,7 @@ func (app *application) serve() error {
 		// This will block until a signal is received
 		s := <-quit
 
-		app.logger.PrintInfo("shutting down server", map[string]string{
+		app.logger.PrintInfo("shutting down server", map[string]interface{}{
 			"signal": s.String(),
 		})
 
@@ -57,7 +57,7 @@ func (app *application) serve() error {
 			shutdownError <- err
 		}
 
-		app.logger.PrintInfo("completing background tasks", map[string]string{
+		app.logger.PrintInfo("completing background tasks", map[string]interface{}{
 			"addr": srv.Addr,
 		})
 
@@ -66,14 +66,19 @@ func (app *application) serve() error {
 		shutdownError <- nil
 	}()
 
-	app.logger.PrintInfo("starting server", map[string]string{
-		"addr": srv.Addr,
-		"env":  app.config.env,
+	app.logger.PrintInfo("starting server", map[string]interface{}{
+		"addr":     srv.Addr,
+		"env":      app.config.env,
+		"https_on": app.config.https_on,
 	})
 
 	// Shutdown causes an ErrServerClosed to be thrown, which is the desired outcome - only return an error that is not of this type.
-	// err := srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
-	err := srv.ListenAndServe()
+	var err error
+	if app.config.https_on {
+		err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	} else {
+		err = srv.ListenAndServe()
+	}
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -85,7 +90,7 @@ func (app *application) serve() error {
 	}
 
 	// Otherwise, Shutdown completed successfully - log that fact, and return nil.
-	app.logger.PrintInfo("stopped server", map[string]string{
+	app.logger.PrintInfo("stopped server", map[string]interface{}{
 		"addr": srv.Addr,
 	})
 

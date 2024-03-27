@@ -95,25 +95,29 @@ func (app *application) authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			app.failedResponse(w, r)
+			app.logger.PrintInfo("failed at authHeader", nil)
+			app.noCredentialsResponse(w, r)
 			return
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Basic" {
-			app.failedResponse(w, r)
+			app.logger.PrintInfo("failed at headerParts", nil)
+			app.authFailedResponse(w, r)
 			return
 		}
 
 		decodedAuth, err := base64.StdEncoding.DecodeString(headerParts[1])
 		if err != nil {
-			app.failedResponse(w, r)
+			app.logger.PrintInfo("failed at decodedAuth", nil)
+			app.authFailedResponse(w, r)
 			return
 		}
 
 		authCredentials := strings.Split(string(decodedAuth), ":")
 		if len(authCredentials) != 2 || authCredentials[0] != app.config.credentials.username || authCredentials[1] != app.config.credentials.password {
-			app.failedResponse(w, r)
+			app.logger.PrintInfo("failed at authCredentials", nil)
+			app.authFailedResponse(w, r)
 			return
 		}
 		next.ServeHTTP(w, r)

@@ -5,46 +5,8 @@ import (
 	"net/http"
 )
 
-// The two responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
-func (app *application) successResponse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "WHS KAMAR Refresh/1.0")
-	w.Header().Set("Connection", "close")
-
-	j := map[string]interface{}{
-		"error":  0,
-		"result": "OK",
-	}
-
-	env := envelope{"SMSDirectoryData": j}
-
-	err := app.writeJSON(w, http.StatusOK, env, nil)
-	if err != nil {
-		app.logError(r, err)
-		w.WriteHeader(500)
-	}
-}
-
-// NOTE: The expected failed response here: https://directoryservices.kamar.nz/?listening-service/standard-response - includes a Content-Length: 123 header, whereas Content-Length is only 82 with this response.
-func (app *application) failedResponse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "WHS KAMAR Refresh/1.0")
-	w.Header().Set("Connection", "close")
-
-	j := map[string]interface{}{
-		"error":  403,
-		"result": "Authentication Failed",
-	}
-
-	env := envelope{"SMSDirectoryData": j}
-
-	err := app.writeJSON(w, http.StatusForbidden, env, nil)
-	if err != nil {
-		app.logError(r, err)
-		w.WriteHeader(500)
-	}
-}
-
 func (app *application) logError(r *http.Request, err error) {
-	app.logger.PrintError(err, map[string]string{
+	app.logger.PrintError(err, map[string]interface{}{
 		"request_method": r.Method,
 		"request_url":    r.URL.String(),
 	})
