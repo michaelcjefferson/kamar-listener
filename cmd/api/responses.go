@@ -5,7 +5,7 @@ import (
 )
 
 func (app *application) kamarResponse(w http.ResponseWriter, r *http.Request, status int, j map[string]interface{}) {
-	w.Header().Set("Server", "WHS KAMAR Refresh/1.0")
+	w.Header().Set("Server", "WHS KAMAR Refresh")
 	w.Header().Set("Connection", "close")
 
 	env := envelope{"SMSDirectoryData": j}
@@ -22,6 +22,8 @@ func (app *application) successResponse(w http.ResponseWriter, r *http.Request) 
 	j := map[string]interface{}{
 		"error":  0,
 		"result": "OK",
+		"service": "WHS KAMAR Refresh",
+		"version": "1.0",
 	}
 
 	app.kamarResponse(w, r, http.StatusOK, j)
@@ -32,6 +34,8 @@ func (app *application) authFailedResponse(w http.ResponseWriter, r *http.Reques
 	j := map[string]interface{}{
 		"error":  403,
 		"result": "Authentication Failed",
+		"service": "WHS KAMAR Refresh",
+		"version": "1.0",
 	}
 
 	app.kamarResponse(w, r, http.StatusForbidden, j)
@@ -41,6 +45,8 @@ func (app *application) noCredentialsResponse(w http.ResponseWriter, r *http.Req
 	j := map[string]interface{}{
 		"error":  401,
 		"result": "No Credentials Provided",
+		"service": "WHS KAMAR Refresh",
+		"version": "1.0",
 	}
 
 	app.kamarResponse(w, r, http.StatusUnauthorized, j)
@@ -50,9 +56,11 @@ func (app *application) checkResponse(w http.ResponseWriter, r *http.Request) {
 	j := map[string]interface{}{
 		"error":            0,
 		"result":           "OK",
+		"service": "WHS KAMAR Refresh",
+		"version": "1.0",
 		"status":           "Ready",
-		"infourl":          "none",
-		"privacystatement": "To be stated.",
+		"infourl":          "https://wakatipu.school.nz/",
+		"privacystatement": "This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.",
 		"options": map[string]interface{}{
 			"common": map[string]interface{}{
 				"results": true,

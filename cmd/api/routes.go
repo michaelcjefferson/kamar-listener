@@ -17,5 +17,5 @@ func (app *application) routes() http.Handler {
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	router.HandlerFunc(http.MethodPost, "/kamar-refresh", app.authenticate(app.kamarRefreshHandler))
 
-	return app.recoverPanic(app.rateLimit(router))
+	return app.recoverPanic(app.rateLimit(app.processCORS(router)))
 }

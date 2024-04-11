@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rs/cors"
 	"golang.org/x/time/rate"
 )
 
@@ -63,6 +64,8 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	// Return a closure which creates a perpetuated clients map etc. when rateLimit is called (when the server is initialised), and allows the returned handler function to run each time a request is made - this function manipulates the clients map
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.config.limiter.enabled {
+			app.logger.PrintInfo(fmt.Sprintf("%s request received from %s", r.Method, r.RemoteAddr), nil)
+
 			ip, _, err := net.SplitHostPort(r.RemoteAddr)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
@@ -116,10 +119,31 @@ func (app *application) authenticate(next http.HandlerFunc) http.HandlerFunc {
 
 		authCredentials := strings.Split(string(decodedAuth), ":")
 		if len(authCredentials) != 2 || authCredentials[0] != app.config.credentials.username || authCredentials[1] != app.config.credentials.password {
-			app.logger.PrintInfo("failed at authCredentials", nil)
+			logInfo := make(map[string]interface{})
+			logInfo["creds"] = authCredentials
+			logInfo["creds_length"] = len(authCredentials)
+			logInfo["app_user"] = app.config.credentials.username
+			logInfo["app_pass"] = app.config.credentials.password
+			logInfo["req_user"] = authCredentials[0]
+			logInfo["req_pass"] = authCredentials[1]
+			app.logger.PrintInfo("failed at authCredentials", logInfo)
 			app.authFailedResponse(w, r)
 			return
 		}
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) processCORS(next http.Handler) http.Handler {
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"https://localhost", "https://10.100"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"Origin", "Authorization", "Content-Type"},
+		AllowedMethods:   []string{"POST"},
+		Debug:            true,
+	})
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c.Handler(next).ServeHTTP(w, r)
 	})
 }

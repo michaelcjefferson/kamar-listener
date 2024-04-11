@@ -21,3 +21,13 @@ To see a list of available flags that can be used in either of the above termina
 If the service is running,  in the terminal navigate to the /test directory inside this folder (from the same computer that the application is running on). Use the following command:
 `curl -X POST -d @./**filename**.json -H "Content-Type: application/json" --user "**username**:**password**" localhost:443/kamar-refresh`
 You may need to use https://localhost... if HTTPS is turned on.
+
+## Testing - 10-4-24
+- Had to use desktop IP address rather than localhost as address, and had to remember URL tag, eg. 192.168.1.84/kamar-refresh
+- When trying Check and Enable, server displayed the error "failed at authCredentials", and also logged "received and processed check request". KAMAR displayed the error "ERROR: No service name returned"
+- When trying Check and Enable with incorrect credentials (username:pa55word), server logged "failed at authCredentials" again, but this time didn't display "received and processed...". KAMAR displayed "ERROR: HTTP/1.1 403 Forbidden"
+- Got past "failed at authCredentials" by adding a couple more fields to the SMSDirectoryData field of the response. Now, KAMAR showing this error: "ERROR: Invalid Server - invalid/missing support info URL. Please contact the supplier to update."
+- KAMAR check now working - cause of areas was missing fields in the server response to KAMAR's check request. Final thing to add was a privacy statement that was more than just "none".
+
+## Testing - 11-4-24
+- TODO: Change port, as 443 might be too open by default, and is used for fmtp (required?)
