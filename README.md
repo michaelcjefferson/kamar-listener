@@ -22,6 +22,9 @@ If the service is running,  in the terminal navigate to the /test directory insi
 `curl -X POST -d @./**filename**.json -H "Content-Type: application/json" --user "**username**:**password**" localhost:443/kamar-refresh`
 You may need to use https://localhost... if HTTPS is turned on.
 
+## Database
+As only new results will be dumped each day, set up a database using SQLite to hold all data, and connect PowerBI to it.
+
 ## Testing - 10-4-24
 - Had to use desktop IP address rather than localhost as address, and had to remember URL tag, eg. 192.168.1.84/kamar-refresh
 - When trying Check and Enable, server displayed the error "failed at authCredentials", and also logged "received and processed check request". KAMAR displayed the error "ERROR: No service name returned"
