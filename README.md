@@ -1,12 +1,18 @@
 # WHS KAMAR Refresh
+This repository allows for a binary to be built that when executed, runs a server that listens for connections from KAMAR's directory services. It is able to receive datasets and save them to an SQLite database for consumption by PowerBI or another service.
 
 ## Setting up your dev environment
 Please download Go v1.20 from the following link and install on your computer:
 [Go Download Link](https://go.dev/dl/go1.20.14.windows-amd64.msi)
+Please also download SQLite Studio and install:
+[SQLite Studio Download Link](https://sqlitestudio.pl/)
+Once SQLite Studio is installed, open this directory in Windows Explorer, and open the /db folder. Copy and paste the template-kamar-directory-service.db file, then rename it to kamar-directory-service.db.
+Open SQLite Studio, then in the top left click Add Database, and add kamar-directory-service.db. Connect to it by double-clicking on it in the sidebar on the left. Double click on the Results table - you should now see its structure in the main window. Click on the data tab - for now it will be empty, but this is where data from KAMAR will be populated. You will most likely need to click the Refresh button (blue icon) to see new data once an upload has been completed.
 
 ## To build a new .exe binary
 Open terminal, navigate to this directory, and use the following command:
 `set CGO_ENABLED=0&& set goos=windows&& go build -o ./bin/kamarRefresh.exe ./cmd/api`
+This file should be copied across to (in this case) Mark's computer, to the C:\\Listener directory. It can then be double-clicked to run - a new terminal will open up, which will log any connections that the server receives.
 
 ## To run the program in dev mode
 Open terminal, navigate to this directory, and use the following command:
@@ -23,7 +29,7 @@ If the service is running,  in the terminal navigate to the /test directory insi
 You may need to use https://localhost... if HTTPS is turned on.
 
 ## Database
-As only new results will be dumped each day, set up a database using SQLite to hold all data, and connect PowerBI to it.
+As only new results will be dumped each day, an SQLite database is used to hold all data, which PowerBI can connect to and consume.
 
 ## Testing - 10-4-24
 - Had to use desktop IP address rather than localhost as address, and had to remember URL tag, eg. 192.168.1.84/kamar-refresh
