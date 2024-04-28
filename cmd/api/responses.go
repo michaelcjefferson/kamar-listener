@@ -17,7 +17,7 @@ func (app *application) kamarResponse(w http.ResponseWriter, r *http.Request, st
 	}
 }
 
-// The two responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
+// The three responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
 func (app *application) successResponse(w http.ResponseWriter, r *http.Request) {
 	j := map[string]interface{}{
 		"error":   0,

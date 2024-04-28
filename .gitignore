@@ -1,5 +1,5 @@
 bin/
 tls/
 .envrc
-db/kamar-directory-service.db
+*.db
 test/refresh.json

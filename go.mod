@@ -7,4 +7,7 @@ require (
 	golang.org/x/time v0.3.0
 )
 
-require github.com/rs/cors v1.10.1 // indirect
+require (
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/rs/cors v1.10.1 // indirect
+)
