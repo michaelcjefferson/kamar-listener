@@ -2,34 +2,39 @@ package data
 
 import (
 	"database/sql"
+	"strconv"
+	"strings"
 )
 
 type Result struct {
-	Code            any      `json:"code,omitempty"`
-	Comment         string   `json:"comment,omitempty"`
-	Course          string   `json:"course,omitempty"`
-	CurriculumLevel any      `json:"curriculumlevel,omitempty"`
-	Date            string   `json:"date,omitempty"`
-	Enrolled        bool     `json:"enrolled,omitempty"`
-	ID              int      `json:"id,omitempty"`
-	NSN             string   `json:"nsn,omitempty"`
-	Number          string   `json:"number,omitempty"`
-	Published       bool     `json:"published,omitempty"`
-	Result          string   `json:"result,omitempty"`
-	ResultData      []any    `json:"resultData,omitempty"`
-	Results         []string `json:"results,omitempty"`
-	Subject         string   `json:"subject,omitempty"`
-	Type            string   `json:"type,omitempty"`
-	Version         int      `json:"version,omitempty"`
-	Year            int      `json:"year,omitempty"`
-	YearLevel       int      `json:"yearlevel,omitempty"`
-}
-
-type ResultData struct {
+	Code            any    `json:"code,omitempty"`
+	Comment         string `json:"comment,omitempty"`
+	Course          string `json:"course,omitempty"`
+	CurriculumLevel any    `json:"curriculumlevel,omitempty"`
+	Date            string `json:"date,omitempty"`
+	Enrolled        bool   `json:"enrolled,omitempty"`
+	ID              int    `json:"id,omitempty"`
+	NSN             string `json:"nsn,omitempty"`
+	Number          string `json:"number,omitempty"`
+	Published       bool   `json:"published,omitempty"`
+	Result          string `json:"result,omitempty"`
+	// ResultData      []any    `json:"resultData,omitempty"`
+	// Results         []string `json:"results,omitempty"`
+	Subject   string `json:"subject,omitempty"`
+	TNV       string
+	Type      string `json:"type,omitempty"`
+	Version   int    `json:"version,omitempty"`
+	Year      int    `json:"year,omitempty"`
+	YearLevel int    `json:"yearlevel,omitempty"`
 }
 
 type ResultModel struct {
 	DB *sql.DB
+}
+
+func (r *Result) CreateTNV() {
+	tnv := strings.Join([]string{r.Type, r.Number, strconv.Itoa(r.Version)}, "_")
+	r.TNV = tnv
 }
 
 func (r ResultModel) InsertMany(results []Result) error {
@@ -41,7 +46,7 @@ func (r ResultModel) InsertMany(results []Result) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, subject, type, version, year, yearlevel) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`)
+	INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, subject, tnv, type, version, year, yearlevel) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`)
 	// INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, resultData, results, subject, type, version, year, yearlevel) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`)
 	if err != nil {
 		return err
@@ -56,7 +61,8 @@ func (r ResultModel) InsertMany(results []Result) error {
 
 		// Insert each entry
 		for _, result := range batch {
-			_, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.Subject, result.Type, result.Version, result.Year, result.YearLevel)
+			result.CreateTNV()
+			_, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
 			// _, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.Type, result.Version, result.Year, result.YearLevel)
 			if err != nil {
 				return err

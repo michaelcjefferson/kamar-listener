@@ -8,7 +8,7 @@ import (
 )
 
 type School struct {
-	Authoratitive bool   `json:"authoratitive,omitempty"`
+	Authoritative bool   `json:"authoritative,omitempty"`
 	Index         int    `json:"index,omitempty"`
 	MOECode       string `json:"moecode,omitempty"`
 	Name          string `json:"name,omitempty"`

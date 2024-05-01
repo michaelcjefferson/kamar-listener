@@ -106,21 +106,40 @@ func openDB(dbpath string) (*sql.DB, error) {
 	}
 
 	// If the results table doesn't already exist in the database, create it
+	// tableStmt := `CREATE TABLE IF NOT EXISTS results (
+	// 	code,			TEXT,
+	// 	comment         TEXT,
+	// 	course          TEXT,
+	// 	curriculumlevel,
+	// 	date            TEXT,
+	// 	enrolled,		INTEGER,
+	// 	id              INTEGER,
+	// 	nsn             TEXT,
+	// 	number          TEXT,
+	// 	published,		INTEGER,
+	// 	result          TEXT,
+	// 	subject         TEXT,
+	// 	type            TEXT,
+	// 	version         INTEGER,
+	// 	year            INTEGER,
+	// 	yearlevel       INTEGER
+	// )`
 	tableStmt := `CREATE TABLE IF NOT EXISTS results (
-		code,
+		code			TEXT,
 		comment         TEXT,
 		course          TEXT,
 		curriculumlevel,
 		date            TEXT,
-		enrolled,
+		enrolled		INTEGER,
 		id              INTEGER,
 		nsn             TEXT,
 		number          TEXT,
-		published,
+		published		INTEGER,
 		result          TEXT,
 		resultData,
 		results,
 		subject         TEXT,
+		tnv 			TEXT,
 		type            TEXT,
 		version         INTEGER,
 		year            INTEGER,
