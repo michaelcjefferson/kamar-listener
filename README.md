@@ -13,9 +13,11 @@ This repository allows for a binary to be built that when executed, runs a serve
 ### If there was an issue
 1. If the .exe process stopped (or you need to reset the computer or something), just double-click it to start again - it will reconnect to the same database without overwriting anything.
 2. If the problem persists, check IP addresses - kamarRefresh.exe is currently configured to only accept requests from either localhost or IP addresses beginning with 10.100. If this needs to be changed, you can do so on line 139 of middleware.go.
-3. 
 
 ### Starting over
+1. To start over with a fresh database, go to C:\\KamarListener\, and delete **both** kamarRefresh.exe **and** kamar-directory-service.db.
+2. Follow the steps in To build a new .exe binary.
+3. Copy kamarRefresh.exe over to C:\\KamarListener\, and run it - it will create a fresh database for you.
 
 ## Development
 ### Setting up your dev environment
