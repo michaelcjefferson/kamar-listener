@@ -50,7 +50,7 @@ func main() {
 
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second.")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst.")
-	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter.")
+	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", false, "Enable rate limiter.")
 
 	flag.StringVar(&cfg.credentials.username, "username", "username", "For authentication from KAMAR.")
 	flag.StringVar(&cfg.credentials.password, "password", "password", "For authentication from KAMAR.")

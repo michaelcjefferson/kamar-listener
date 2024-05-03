@@ -65,7 +65,7 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.PrintInfo("attempting to write results to database...", map[string]interface{}{
 		"count": kamarData.Data.Results.Count,
-		// "data":    kamarData.Data.Results.Data,
+		"data":  kamarData.Data.Results.Data,
 		// "schools": kamarData.Data.Schools,
 	})
 	err = app.models.Results.InsertMany(kamarData.Data.Results.Data)
