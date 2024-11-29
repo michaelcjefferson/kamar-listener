@@ -23,7 +23,7 @@ type KAMARData struct {
 type SMSDirectoryData struct {
 	DateTime         int          `json:"datetime,omitempty"`
 	FullSync         int          `json:"fullsync,omitempty"`
-	InforURL         string       `json:"infourl,omitempty"`
+	InfoURL          string       `json:"infourl,omitempty"`
 	Results          ResultsField `json:"results,omitempty"`
 	PrivacyStatement string       `json:"privacystatement,omitempty"`
 	Schools          []School     `json:"schools,omitempty"`
@@ -40,12 +40,14 @@ type ResultsField struct {
 func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Request) {
 	var kamarData KAMARData
 
+	// Response if KAMAR JSON is malformed/incomplete
 	err := app.readJSON(w, r, &kamarData)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
+	// Establish the type of request from KAMAR
 	syncType := kamarData.Data.Sync
 	if syncType == "" {
 		app.logger.PrintError(errors.New("failed to get syncType from input"), map[string]interface{}{
@@ -55,6 +57,7 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
 	if syncType == "check" {
 		app.checkResponse(w, r)
 		app.logger.PrintInfo("received and processed check request", map[string]interface{}{
@@ -63,9 +66,30 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// TODO: either check the value of "sync", or check for the existence of various keys in the struct, to decide which database queries to run
+	// ? Seeing as the struct will omit empty fields in the JSON file, it may be more efficient to just write everything that exists to the DB without checking which fields have been received
+	/* "sync" contains the type of data that the message includes.
+	it also reflects which keys exist in the SMSDirectoryData JSON file.
+
+	"sync" types:
+	- assessments
+	- results
+	- attendance
+	- bookings
+	- calendar (key="calendars")
+	- notices
+	- pastoral
+	- photos/staffphotos (keys="photos", "staffphotos")
+	- full/part (keys="staff", "students")
+	- subjects
+	- studenttimetables/stafftimetables (key="timetables")
+	*/
+
+	// If syncType is populated, but it's value is not "check", then it contains data. syncType will indicate the type of data included
 	app.logger.PrintInfo("attempting to write results to database...", map[string]interface{}{
 		"count": kamarData.Data.Results.Count,
-		"data":  kamarData.Data.Results.Data,
+		// "data":  kamarData.Data.Results.Data,
+		"sync": syncType,
 		// "schools": kamarData.Data.Schools,
 	})
 	err = app.models.Results.InsertMany(kamarData.Data.Results.Data)

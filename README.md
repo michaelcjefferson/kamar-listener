@@ -6,7 +6,7 @@ This repository allows for a binary to be built that when executed, runs a serve
 1. Build a new .exe file, by following the steps in **To build a new .exe binary**.
 2. Copy the kamarRefresh.exe across to C:\\KamarListener\ on whichever computer will be running the listener service. Please also download SQLite Studio and install:
 [SQLite Studio Download Link](https://sqlitestudio.pl/). You can open kamar-directory-service.db with this program and view the data it contains.
-3. Double-click kamarRefresh.exe to begin. It will automatically create a database file called kamar-directory-service.db in the same folder, and set up a results table inside it. It will also open a terminal window which will log any requests the it receives. kamarRefresh.exe is a web server - it will receive HTTP requests from KAMAR, process them, and then push them to the database.
+3. Double-click kamarRefresh.exe to begin. It will automatically create a database file called kamar-directory-service.db in the same folder, and set up a results table inside it. It will also open a terminal window which will log any requests that it receives. kamarRefresh.exe is a web server - it will receive HTTP requests from KAMAR, process them, and then push them to the database.
 4. Open KAMAR, and go to Setup --> Server --> Directory Services. Fill out the details there (refer to [this page](https://directoryservices.kamar.nz/?listening-service) for help), then click Check and Run, then tick required fields (eg. Results, setting it up with the timeframe required), then click Update to start the preliminary upload. You should see logs appearing in the terminal window running kamarRefresh.exe, as well as rows of results starting to appear in SQLite Studio (need to click the blue refresh button on the Data tab).
 5. To connect PowerBI to this data, first download and install the [SQLite ODBC Driver](http://ch-werner.de/sqliteodbc/). Then, follow the instructions in [this video](https://www.youtube.com/watch?v=n5ELoULhQIo).
 
@@ -16,7 +16,7 @@ This repository allows for a binary to be built that when executed, runs a serve
 
 ### Starting over
 1. To start over with a fresh database, go to C:\\KamarListener\, and delete **both** kamarRefresh.exe **and** kamar-directory-service.db.
-2. Follow the steps in To build a new .exe binary.
+2. Follow the steps in **To build a new .exe binary**.
 3. Copy kamarRefresh.exe over to C:\\KamarListener\, and run it - it will create a fresh database for you.
 
 ## Development
@@ -36,7 +36,7 @@ When running `go run ./cmd/api` to test the project, you first need to ensure th
 Ensure that [TDM-GCC](https://jmeubank.github.io/tdm-gcc/articles/2021-05/10.3.0-release) is installed on your computer.
 Open PowerShell, navigate to this directory, and use the following command:
 `set CGO_ENABLED=1&& set goos=windows&& go build -o ./bin/kamarRefresh.exe ./cmd/api`
-This file (which will be in the /bin/ folder in this directory) should be copied across to (in this case) Mark's computer, to the C:\\KamarListener\ directory. It can then be double-clicked to run - a new terminal will open up, which will log any connections that the server receives.
+Copy this file (which will be in the /bin/ folder in this directory) across to (in this case) Mark's computer, to the C:\\KamarListener\ directory. It can then be double-clicked to run - a new terminal will open up, which will log any connections that the server receives.
 
 ### To run the program in dev mode
 Open terminal, navigate to this directory, and use the following command:
@@ -64,3 +64,8 @@ As only new results will be dumped each day, an SQLite database is used to hold 
 
 ### Testing - 11-4-24
 - TODO: Change port, as 443 might be too open by default, and is used for fmtp (required?)
+
+### Expanding listening service
+- data/ - create new ___.go to represent the new field. Use results.go as a template
+- models.go - add new model
+- refresh.go - create ___Field structs for each new field
