@@ -66,6 +66,14 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// If syncType is populated, but its value is not "check", then it contains data. syncType will indicate the type of data included
+	app.logger.PrintInfo("attempting to write results to database...", map[string]interface{}{
+		"count": kamarData.Data.Results.Count,
+		// "data":  kamarData.Data.Results.Data,
+		"sync": syncType,
+		// "schools": kamarData.Data.Schools,
+	})
+
 	// TODO: either check the value of "sync", or check for the existence of various keys in the struct, to decide which database queries to run
 	// ? Seeing as the struct will omit empty fields in the JSON file, it may be more efficient to just write everything that exists to the DB without checking which fields have been received
 	/* "sync" contains the type of data that the message includes.
@@ -76,23 +84,20 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 	- results
 	- attendance
 	- bookings
-	- calendar (key="calendars")
+	- calendar (json key="calendars")
 	- notices
 	- pastoral
-	- photos/staffphotos (keys="photos", "staffphotos")
-	- full/part (keys="staff", "students")
+	- photos/staffphotos (json keys="photos", "staffphotos")
+	- full/part (json keys="staff", "students")
 	- subjects
-	- studenttimetables/stafftimetables (key="timetables")
+	- studenttimetables/stafftimetables (json key="timetables")
 	*/
-
-	// If syncType is populated, but it's value is not "check", then it contains data. syncType will indicate the type of data included
-	app.logger.PrintInfo("attempting to write results to database...", map[string]interface{}{
-		"count": kamarData.Data.Results.Count,
-		// "data":  kamarData.Data.Results.Data,
-		"sync": syncType,
-		// "schools": kamarData.Data.Schools,
-	})
-	err = app.models.Results.InsertMany(kamarData.Data.Results.Data)
+	switch syncType {
+	case "results":
+		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
+	default:
+		err = errors.New("sync type wasn't recognised")
+	}
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		app.authFailedResponse(w, r)

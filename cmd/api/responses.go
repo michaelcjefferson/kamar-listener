@@ -54,13 +54,14 @@ func (app *application) noCredentialsResponse(w http.ResponseWriter, r *http.Req
 
 func (app *application) checkResponse(w http.ResponseWriter, r *http.Request) {
 	j := map[string]any{
-		"error":            0,
-		"result":           "OK",
-		"service":          "WHS KAMAR Refresh",
-		"version":          "1.0",
-		"status":           "Ready",
-		"infourl":          "https://wakatipu.school.nz/",
-		"privacystatement": "This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.",
+		"error":             0,
+		"result":            "OK",
+		"service":           "WHS KAMAR Refresh",
+		"version":           "1.1",
+		"status":            "Ready",
+		"infourl":           "https://wakatipu.school.nz/",
+		"privacystatement":  "This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.",
+		"countryDataStored": "New Zealand",
 		"options": map[string]any{
 			"ics": true,
 			"students": map[string]any{

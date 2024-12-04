@@ -48,8 +48,8 @@ func main() {
 
 	flag.StringVar(&cfg.dbpath, "db-path", "./kamar-directory-service.db", "Path to SQLite .db (database) file.")
 
-	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second.")
-	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst.")
+	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 4, "Rate limiter maximum requests per second.")
+	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 8, "Rate limiter maximum burst.")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", false, "Enable rate limiter.")
 
 	flag.StringVar(&cfg.credentials.username, "username", "username", "For authentication from KAMAR.")
@@ -136,8 +136,8 @@ func openDB(dbpath string) (*sql.DB, error) {
 		number          TEXT,
 		published		INTEGER,
 		result          TEXT,
-		resultData,
-		results,
+		resultData TEXT,
+		results TEXT,
 		subject         TEXT,
 		tnv 			TEXT,
 		type            TEXT,
