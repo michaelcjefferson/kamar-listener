@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -96,7 +97,7 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 	case "results":
 		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
 	default:
-		err = errors.New("sync type wasn't recognised")
+		err = fmt.Errorf("sync type wasn't recognised. sync type: %s", syncType)
 	}
 	if err != nil {
 		app.logger.PrintError(err, nil)

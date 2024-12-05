@@ -24,6 +24,7 @@ type Assessment struct {
 	Weighting        any    `json:"weighting",omitempty`
 }
 
+// Use json.RawMessage to allow the result and resultdata fields, which are arrays with varying values and datatypes within, to still be written to SQLite. JSON can be written to SQLite as TEXT
 type Result struct {
 	Code            any             `json:"code,omitempty"`
 	Comment         string          `json:"comment,omitempty"`
