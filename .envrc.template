@@ -1,0 +1,4 @@
+# Duplicate this file, rename it to ".envrc". KDS_USERNAME and KDS_PASSWORD need to reflect those entered in KAMAR Directory Service
+export KDS_USERNAME=""
+export KDS_PASSWORD=""
+export KAMAR_IP=""
