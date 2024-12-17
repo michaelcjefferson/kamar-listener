@@ -2,4 +2,4 @@ bin/
 tls/
 .envrc
 *.db
-test/refresh.json
+test/refresh-test.json
