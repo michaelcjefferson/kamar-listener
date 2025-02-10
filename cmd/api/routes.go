@@ -24,19 +24,22 @@ func (app *application) routes() http.Handler {
 	}
 
 	// create asset handler for embedded files
-	assetHandler := http.FileServer(http.FS(f))
+	app.assetHandler = http.FileServer(http.FS(f))
 
 	router.HandlerFunc(http.MethodGet, "/healthcheck", app.healthcheckHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	router.HandlerFunc(http.MethodPost, "/kamar-refresh", app.authenticate(app.kamarRefreshHandler))
 
+	router.HandlerFunc(http.MethodGet, "/register", app.registerPageHandler)
+	router.HandlerFunc(http.MethodPost, "/register", app.registerUserHandler)
+
 	// serve assets from /ui (httprouter's wild cards require a variable to be created, in this case filepath, to represent the value of the wildcard)
 	router.HandlerFunc(http.MethodGet, "/assets/*filepath", func(w http.ResponseWriter, r *http.Request) {
-		assetHandler.ServeHTTP(w, r)
+		app.assetHandler.ServeHTTP(w, r)
 	})
 	// serve index.html from /ui
-	router.Handler(http.MethodGet, "/", assetHandler)
+	router.Handler(http.MethodGet, "/", app.assetHandler)
 
 	return app.recoverPanic(app.rateLimit(app.processCORS(router)))
 }

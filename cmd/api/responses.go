@@ -4,6 +4,9 @@ import (
 	"net/http"
 )
 
+// ------------General Responses------------ //
+
+// ------------KAMAR Responses------------ //
 func (app *application) kamarResponse(w http.ResponseWriter, r *http.Request, status int, j map[string]interface{}) {
 	w.Header().Set("Server", "WHS KAMAR Refresh")
 	w.Header().Set("Connection", "close")

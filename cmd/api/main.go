@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -10,7 +11,8 @@ import (
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
+	// _ "github.com/mattn/go-sqlite3"
 )
 
 type config struct {
@@ -36,10 +38,12 @@ type config struct {
 }
 
 type application struct {
-	config config
-	logger *jsonlog.Logger
-	models data.Models
-	wg     sync.WaitGroup
+	assetHandler http.Handler
+	config       config
+	logger       *jsonlog.Logger
+	models       data.Models
+	userExists   bool
+	wg           sync.WaitGroup
 }
 
 func main() {
@@ -71,7 +75,7 @@ func main() {
 
 	logger.PrintInfo("attempting to set up SQLite db", nil)
 
-	db, err := openDB(cfg.dbpath)
+	db, userExists, err := openDB(cfg.dbpath)
 	if err != nil {
 		logger.PrintFatal(err, nil)
 		time.Sleep(20 * time.Second)
@@ -82,9 +86,10 @@ func main() {
 	logger.PrintInfo("database connection established", nil)
 
 	app := &application{
-		config: cfg,
-		logger: logger,
-		models: data.NewModels(db),
+		config:     cfg,
+		logger:     logger,
+		models:     data.NewModels(db),
+		userExists: userExists,
 	}
 
 	err = app.serve()
