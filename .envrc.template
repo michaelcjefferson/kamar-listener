@@ -2,3 +2,13 @@
 export KDS_USERNAME=""
 export KDS_PASSWORD=""
 export KAMAR_IP=""
+
+# Name of database to create
+export SMS_DB_NAME=""
+# Name of user that will have database access priveleges
+export SMS_DB_USER=""
+# Password for user that will have database access priveleges
+export SMS_DB_PASSWORD=""
+export SMS_DB_HOST=""
+export SMS_DB_PORT=5432
+export SMS_DB_DSN=postgres://${SMS_DB_USER}:${SMS_DB_PASSWORD}@${SMS_DB_HOST}:${SMS_DB_PORT}/${SMS_DB_NAME}?sslmode=disable

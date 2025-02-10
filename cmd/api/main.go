@@ -45,7 +45,7 @@ type application struct {
 func main() {
 	var cfg config
 
-	flag.IntVar(&cfg.port, "port", 443, "API server port.")
+	flag.IntVar(&cfg.port, "port", 8085, "API server port.")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production).")
 
 	flag.StringVar(&cfg.dbpath, "db-path", "./kamar-directory-service.db", "Path to SQLite .db (database) file.")

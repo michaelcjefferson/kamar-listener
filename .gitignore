@@ -3,3 +3,4 @@ tls/
 .envrc
 *.db
 test/refresh-test.json
+cmd/api/ui/
