@@ -30,10 +30,11 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 		return nil, false, err
 	}
 
-	// Check to see whether a user already exists in the database - if not, a user must be created before the admin dashboard can be used
-	exists, err := userExists(db)
+	// Set up tokens table
+	err = createTokenTable(db)
 	if err != nil {
-		log.Fatal(err)
+		db.Close()
+		return nil, false, err
 	}
 
 	// Set up tables for data to be consumed from SMS
@@ -41,6 +42,12 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 	if err != nil {
 		db.Close()
 		return nil, false, err
+	}
+
+	// Check to see whether a user already exists in the database - if not, a user must be created before the admin dashboard can be used
+	exists, err := userExists(db)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return db, exists, nil
@@ -55,6 +62,18 @@ func createUserTable(db *sql.DB) error {
 	)`
 
 	_, err := db.Exec(userTableStmt)
+
+	return err
+}
+
+func createTokenTable(db *sql.DB) error {
+	tokenTableStmt := `CREATE TABLE IF NOT EXISTS tokens (
+		hash BLOB PRIMARY KEY, 
+		user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, 
+		expiry TEXT NOT NULL
+	);`
+
+	_, err := db.Exec(tokenTableStmt)
 
 	return err
 }

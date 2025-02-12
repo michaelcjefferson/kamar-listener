@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"errors"
 	"time"
@@ -14,6 +15,9 @@ var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
+// For clients that have not provided an Authentication token as an Authorization header, allowing them to make user requests without being authenticated.
+var AnonymousUser = &User{}
+
 // Use the json:"-" tag to prevent these fields from appearing in any output when encoded to JSON.
 type User struct {
 	ID        int64    `json:"id"`
@@ -22,28 +26,37 @@ type User struct {
 	Password  password `json:"-"`
 }
 
+// Any user object can call this function which will return true if the user object doesn't have a username, password, and ID associated with it.
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
+
 // Using a pointer to plaintext allows differentiation between a password that hasn't been provided and a password that is an empty string, because nil value of a string is "" whereas nil value of a pointer is nil.
 type password struct {
 	plaintext *string
 	hash      []byte
 }
 
+// Hash plaintext password from form, and set both plaintext and hashed passwords as values on User struct
 func (p *password) Set(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
 		return err
 	}
 
+	// Set p.plaintext to be the value of the provided plaintextPassword, rather than the actual plaintextPassword in memory
 	p.plaintext = &plaintextPassword
 	p.hash = hash
 
 	return nil
 }
 
+// Check whether the provided plaintextPassword, once hashed, matches the hashed password attached to the user struct. eg. on sign-in, GetByUsername() is called to retrieve a user struct matching the provided username, and their associated password.hash is compared below with the plaintext password provided
 func (p *password) Matches(plaintextPassword string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
 	if err != nil {
 		switch {
+		// If passwords don't match, return false but no error
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			return false, nil
 		default:
@@ -52,6 +65,34 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ValidateUsername(v *validator.Validator, username string) {
+	v.Check(username != "", "name", "must be provided")
+	v.Check(len(username) <= 500, "name", "must not be more than 500 bytes long")
+}
+
+func ValidatePasswordPlaintext(v *validator.Validator, password string) {
+	v.Check(password != "", "password", "must be provided")
+	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
+	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+}
+
+func ValidateUser(v *validator.Validator, user *User) {
+	ValidateUsername(v, user.Username)
+
+	if user.Password.plaintext != nil {
+		ValidatePasswordPlaintext(v, *user.Password.plaintext)
+	}
+
+	// If user's password hash is ever nil, it is an issue with our codebase rather than the user, so raise a panic rather than creating a validation error message.
+	if user.Password.hash == nil {
+		panic("missing password hash for user")
+	}
+}
+
+type UserModel struct {
+	DB *sql.DB
 }
 
 func (m UserModel) Insert(user *User) error {
@@ -69,7 +110,7 @@ func (m UserModel) Insert(user *User) error {
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID)
 	if err != nil {
 		switch {
-		case err.Error() == `Error while executing SQL query on database 'sms': UNIQUE constraint failed: users.email`:
+		case err.Error() == `Error while executing SQL query on database 'sms': UNIQUE constraint failed: users.username`:
 			return ErrUserAlreadyExists
 		default:
 			return err
@@ -110,6 +151,46 @@ func (m UserModel) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
+func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
+	// This returns an array ([32]byte, specified length) rather than a slice ([]byte, unspecified length)
+	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
+
+	// INNER JOIN returns only the rows in the inner (overlapping) section of the Venn diagram created when users and tokens are joined on id. i.e., only rows with a matching id/user_id in both tables will exist in the join table.
+	query := `
+		SELECT users.id, users.created_at, users.username, users.password_hash
+		FROM users
+		INNER JOIN tokens
+		ON users.id = tokens.user_id
+		WHERE tokens.hash = $1
+		AND tokens.expiry > datetime('now')`
+
+	// Use [:] to convert the tokenHash [32]byte to a []byte. This is to match with SQLite's blob type, which tokens are stored as.
+	args := []interface{}{tokenHash[:]}
+
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(
+		&user.ID,
+		&user.CreatedAt,
+		&user.Username,
+		&user.Password.hash,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
+}
+
+// Get number of users registered in database
 func (m UserModel) GetUserCount() (int, error) {
 	query := `
 		SELECT COUNT(*) FROM users
@@ -145,7 +226,7 @@ func (m UserModel) Update(user User) error {
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.Username)
 	if err != nil {
 		switch {
-		case err.Error() == `Error while executing SQL query on database 'sms': UNIQUE constraint failed: users.email`:
+		case err.Error() == `Error while executing SQL query on database 'sms': UNIQUE constraint failed: users.username`:
 			return ErrUserAlreadyExists
 		default:
 			return err
@@ -153,28 +234,4 @@ func (m UserModel) Update(user User) error {
 	}
 
 	return nil
-}
-
-func ValidatePasswordPlaintext(v *validator.Validator, password string) {
-	v.Check(password != "", "password", "must be provided")
-	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
-}
-
-func ValidateUser(v *validator.Validator, user *User) {
-	v.Check(user.Username != "", "name", "must be provided")
-	v.Check(len(user.Username) <= 500, "name", "must not be more than 500 bytes long")
-
-	if user.Password.plaintext != nil {
-		ValidatePasswordPlaintext(v, *user.Password.plaintext)
-	}
-
-	// If user's password hash is ever nil, it is an issue with our codebase rather than the user, so raise a panic rather than creating a validation error message.
-	if user.Password.hash == nil {
-		panic("missing password hash for user")
-	}
-}
-
-type UserModel struct {
-	DB *sql.DB
 }

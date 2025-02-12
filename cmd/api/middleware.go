@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mjefferson-whs/listener/internal/data"
+	"github.com/mjefferson-whs/listener/internal/validator"
 	"github.com/rs/cors"
 	"golang.org/x/time/rate"
 )
@@ -94,7 +97,8 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) authenticate(next http.HandlerFunc) http.HandlerFunc {
+// Authenticate requests received from KAMAR itself, using the required Basic authentication
+func (app *application) authenticateKAMAR(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
@@ -130,6 +134,71 @@ func (app *application) authenticate(next http.HandlerFunc) http.HandlerFunc {
 			app.authFailedResponse(w, r)
 			return
 		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// If a valid auth token is provided, set "user" value in request context to a struct containing the corresponding user's data. If an invalid token is provided, send an error.
+func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// The Vary: Authorization header indicates to any (browser?) caches that the response may Vary based on Authorization provided in the request, and in doing so perhaps prevents cached data from no-longer-valid authorization from being loaded.
+		w.Header().Add("Vary", "Authorization")
+
+		// Returns "" if no Authorization header found in request
+		authorizationHeader := r.Header.Get("Authorization")
+
+		// In the above case, set request context with an AnonymousUser user value
+		if authorizationHeader == "" {
+			r = app.contextSetUser(r, data.AnonymousUser)
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// The token is expected to be provided in the Authorization header in the format "Bearer <token>", so attempt to split the header to isolate the token, and if the result is unexpected, return an error.
+		headerParts := strings.Split(authorizationHeader, " ")
+		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+			app.invalidAuthenticationTokenResponse(w, r)
+			return
+		}
+
+		token := headerParts[1]
+
+		v := validator.New()
+
+		if data.ValidateTokenPlaintext(v, token); !v.Valid() {
+			app.invalidAuthenticationTokenResponse(w, r)
+			return
+		}
+
+		// Retrieve user data from user table based on the token provided.
+		user, err := app.models.Users.GetForToken(token)
+		if err != nil {
+			switch {
+			case errors.Is(err, data.ErrRecordNotFound):
+				app.invalidAuthenticationTokenResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+			return
+		}
+
+		// Attach user data to context
+		r = app.contextSetUser(r, user)
+
+		// Call next handler in the chain.
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(w, r)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
