@@ -15,7 +15,6 @@ type userInput struct {
 }
 
 func (app *application) registerPageHandler(w http.ResponseWriter, r *http.Request) {
-	app.logger.PrintInfo("registerPageHandler hit", nil)
 	if app.userExists {
 		http.Redirect(w, r, "/sign-in", http.StatusForbidden)
 		return
@@ -66,7 +65,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	token, err := app.models.Tokens.New(user.ID, 24*time.Hour)
+	err = app.createAndSetAdminTokenCookie(w, user.ID, 24*time.Hour)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -74,15 +73,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.userExists = true
 
-	err = app.writeJSON(w, http.StatusAccepted, envelope{"authentication_token": token}, nil)
+	err = app.writeJSON(w, http.StatusAccepted, envelope{"authenticated": true}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *application) signInPageHandler(w http.ResponseWriter, r *http.Request) {
-	app.logger.PrintInfo("signInPageHandler hit", nil)
-
 	// Update URL path to reflect file path in embedded file system
 	r.URL.Path = "sign-in.html"
 
@@ -132,6 +129,12 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	err = app.createAndSetAdminTokenCookie(w, user.ID, 24*time.Hour)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -147,4 +150,24 @@ func (app *application) getUserCount() (int, error) {
 	}
 
 	return userCount, err
+}
+
+// TODO: https://www.alexedwards.net/blog/working-with-cookies-in-go - add features
+func (app *application) createAndSetAdminTokenCookie(w http.ResponseWriter, id int64, ttl time.Duration) error {
+	token, err := app.models.Tokens.New(id, ttl)
+	if err != nil {
+		return err
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "listener_admin_auth_token",
+		Value:    token.Plaintext,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   app.config.https_on,
+		SameSite: http.SameSiteStrictMode,
+		Expires:  time.Now().Add(ttl),
+	})
+
+	return nil
 }

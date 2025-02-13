@@ -141,27 +141,43 @@ func (app *application) authenticateKAMAR(next http.HandlerFunc) http.HandlerFun
 // If a valid auth token is provided, set "user" value in request context to a struct containing the corresponding user's data. If an invalid token is provided, send an error.
 func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// The Vary: Authorization header indicates to any (browser?) caches that the response may Vary based on Authorization provided in the request, and in doing so perhaps prevents cached data from no-longer-valid authorization from being loaded.
-		w.Header().Add("Vary", "Authorization")
+		// Use the below logic when Authorization headers are required for auth, eg. from mobile apps. For now, as it is a browser-based app, http cookies are a better choice
+		// // The Vary: Authorization header indicates to any (browser?) caches that the response may Vary based on Authorization provided in the request, and in doing so perhaps prevents cached data from no-longer-valid authorization from being loaded.
+		// w.Header().Add("Vary", "Authorization")
 
-		// Returns "" if no Authorization header found in request
-		authorizationHeader := r.Header.Get("Authorization")
+		// // Returns "" if no Authorization header found in request
+		// authorizationHeader := r.Header.Get("Authorization")
 
-		// In the above case, set request context with an AnonymousUser user value
-		if authorizationHeader == "" {
+		// // In the above case, set request context with an AnonymousUser user value
+		// if authorizationHeader == "" {
+		// 	r = app.contextSetUser(r, data.AnonymousUser)
+		// 	next.ServeHTTP(w, r)
+		// 	return
+		// }
+
+		// // The token is expected to be provided in the Authorization header in the format "Bearer <token>", so attempt to split the header to isolate the token, and if the result is unexpected, return an error.
+		// headerParts := strings.Split(authorizationHeader, " ")
+		// if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		// 	app.invalidAuthenticationTokenResponse(w, r)
+		// 	return
+		// }
+
+		// token := headerParts[1]
+
+		// Get the http-only cookie containing the token from the request, and convert to a string
+		cookie, err := r.Cookie("listener_admin_auth_token")
+
+		// If the cookie can't be found, the user is not authenticated and should be set as an anonymous user
+		if err == http.ErrNoCookie {
 			r = app.contextSetUser(r, data.AnonymousUser)
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		// The token is expected to be provided in the Authorization header in the format "Bearer <token>", so attempt to split the header to isolate the token, and if the result is unexpected, return an error.
-		headerParts := strings.Split(authorizationHeader, " ")
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			app.invalidAuthenticationTokenResponse(w, r)
-			return
-		}
-
-		token := headerParts[1]
+		token := cookie.Value
+		app.logger.PrintInfo("auth token found", map[string]interface{}{
+			"token": token,
+		})
 
 		v := validator.New()
 
@@ -190,9 +206,18 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 	})
 }
 
+// TODO: Add activation and requireActivatedUser for new user registrations after initial set-up - admins can go to an add user page, and enter an email address to send an activation code to. This creates an activation token in the database, and provides it as part of a link for the admin to copy and paste into an email to the new user. The new user can follow that link to be brought to an activation page, where they create a username and password, and a new account is created. Activation tokens valid for 24 (?) hours
+
+// Runs after authenticate, only needed on protected routes - checks the context for the value of the user set by authenticate, and at this point only ensures that one exists, as it means that someone is logged in and can access protected routes
 func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
+
+		app.logger.PrintInfo("requireAuth middleware hit", map[string]interface{}{
+			"username":   user.Username,
+			"id":         user.ID,
+			"anonymous?": user.IsAnonymous(),
+		})
 
 		if user.IsAnonymous() {
 			app.authenticationRequiredResponse(w, r)
@@ -203,13 +228,16 @@ func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.Han
 	})
 }
 
+// TODO: Add to config for app, including instructions to find IP address of KAMAR instance
 func (app *application) processCORS(next http.Handler) http.Handler {
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://localhost", "https://10.100"},
+		AllowedOrigins: []string{"https://localhost", "https://0.0.0.0"},
+		// AllowedOrigins:   []string{"https://localhost", "https://10.100"},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"Origin", "Authorization", "Content-Type"},
-		AllowedMethods:   []string{"POST"},
-		Debug:            true,
+		AllowedMethods:   []string{"GET", "POST"},
+		// AllowedMethods:   []string{"POST"},
+		Debug: true,
 	})
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

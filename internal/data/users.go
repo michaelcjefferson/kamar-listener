@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/mjefferson-whs/listener/internal/validator"
@@ -157,7 +158,7 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
 
 	// INNER JOIN returns only the rows in the inner (overlapping) section of the Venn diagram created when users and tokens are joined on id. i.e., only rows with a matching id/user_id in both tables will exist in the join table.
 	query := `
-		SELECT users.id, users.created_at, users.username, users.password_hash
+		SELECT users.id, users.created_at, users.username, users.password_hash, tokens.expiry
 		FROM users
 		INNER JOIN tokens
 		ON users.id = tokens.user_id
@@ -168,6 +169,7 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
 	args := []interface{}{tokenHash[:]}
 
 	var user User
+	var tokenExpiry string
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -177,6 +179,7 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
 		&user.CreatedAt,
 		&user.Username,
 		&user.Password.hash,
+		&tokenExpiry,
 	)
 	if err != nil {
 		switch {
@@ -186,6 +189,9 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
 			return nil, err
 		}
 	}
+
+	// TODO: create func refreshToken() - if token has only a short time before expiry, create a new token for that user
+	fmt.Printf("token expiry: %v", tokenExpiry)
 
 	return &user, nil
 }

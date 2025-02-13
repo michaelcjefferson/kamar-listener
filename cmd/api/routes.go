@@ -37,7 +37,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/sign-in", app.authenticateUser(app.signInPageHandler))
 	router.HandlerFunc(http.MethodPost, "/sign-in", app.authenticateUser(app.signInUserHandler))
 
-	router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
+	// router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
 
 	// serve assets from /ui (httprouter's wild cards require a variable to be created, in this case filepath, to represent the value of the wildcard)
 	router.HandlerFunc(http.MethodGet, "/assets/*filepath", app.authenticateUser(app.requireAuthenticatedUser(func(w http.ResponseWriter, r *http.Request) {
