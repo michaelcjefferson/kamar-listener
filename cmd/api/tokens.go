@@ -71,3 +71,24 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) initiateTokenDeletionCycle() {
+	app.background(func() {
+		ticker := time.NewTicker(time.Minute)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				app.logger.PrintInfo("attempting to delete expired tokens...", nil)
+				err := app.models.Tokens.DeleteExpiredTokens()
+				if err != nil {
+					app.logger.PrintError(err, nil)
+				}
+			case <-app.isShuttingDown:
+				app.logger.PrintInfo("token deletion cycle ending - shut down signal received", nil)
+				return
+			}
+		}
+	})
+}

@@ -164,6 +164,8 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 
 		// token := headerParts[1]
 
+		// TODO: Add a check for r.Context().Value("isAuthenticated").(bool) to prevent extra look-ups if user is already authenticated, and set the isAuthenticated value below once user has been found. Ensure that isAuthenticated doesn't lead to leaky security, where this can be parsed as true even if user has no or an expired token.
+
 		// Get the http-only cookie containing the token from the request, and convert to a string
 		cookie, err := r.Cookie("listener_admin_auth_token")
 
@@ -175,9 +177,6 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 		}
 
 		token := cookie.Value
-		app.logger.PrintInfo("auth token found", map[string]interface{}{
-			"token": token,
-		})
 
 		v := validator.New()
 
@@ -187,7 +186,7 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 		}
 
 		// Retrieve user data from user table based on the token provided.
-		user, err := app.models.Users.GetForToken(token)
+		user, tokenExpiry, err := app.models.Users.GetForToken(token)
 		if err != nil {
 			switch {
 			case errors.Is(err, data.ErrRecordNotFound):
@@ -196,6 +195,26 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 				app.serverErrorResponse(w, r, err)
 			}
 			return
+		}
+
+		// If token has only a short time before expiry, create a new token for that user
+		fmt.Printf("token expiry: %v\n", tokenExpiry)
+		expiryTime, err := time.Parse(time.RFC3339, tokenExpiry)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		expiryTimeFrame := time.Now().Add(app.config.tokens.refresh)
+
+		// Check if the token expiry is within the timeframe, and if so, generate a new token and return it
+		if expiryTime.Before(expiryTimeFrame) {
+			app.logger.PrintInfo("token near expiry - creating new token and sending to user", map[string]interface{}{
+				"user id":           user.ID,
+				"expiry time":       tokenExpiry,
+				"expiry time frame": expiryTimeFrame,
+			})
+			app.createAndSetAdminTokenCookie(w, user.ID, app.config.tokens.expiry)
 		}
 
 		// Attach user data to context
@@ -212,12 +231,6 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
-
-		app.logger.PrintInfo("requireAuth middleware hit", map[string]interface{}{
-			"username":   user.Username,
-			"id":         user.ID,
-			"anonymous?": user.IsAnonymous(),
-		})
 
 		if user.IsAnonymous() {
 			app.authenticationRequiredResponse(w, r)

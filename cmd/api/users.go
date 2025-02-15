@@ -65,7 +65,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.createAndSetAdminTokenCookie(w, user.ID, 24*time.Hour)
+	err = app.createAndSetAdminTokenCookie(w, user.ID, app.config.tokens.expiry)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -129,7 +129,7 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = app.createAndSetAdminTokenCookie(w, user.ID, 24*time.Hour)
+	err = app.createAndSetAdminTokenCookie(w, user.ID, app.config.tokens.expiry)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

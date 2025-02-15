@@ -35,15 +35,20 @@ type config struct {
 		certPath string
 		keyPath  string
 	}
+	tokens struct {
+		expiry  time.Duration
+		refresh time.Duration
+	}
 }
 
 type application struct {
-	assetHandler http.Handler
-	config       config
-	logger       *jsonlog.Logger
-	models       data.Models
-	userExists   bool
-	wg           sync.WaitGroup
+	assetHandler   http.Handler
+	config         config
+	isShuttingDown chan struct{}
+	logger         *jsonlog.Logger
+	models         data.Models
+	userExists     bool
+	wg             sync.WaitGroup
 }
 
 func main() {
@@ -70,6 +75,9 @@ func main() {
 	cfg.tls.certPath = "./tls/cert.pem"
 	cfg.tls.keyPath = "./tls/key.pem"
 
+	cfg.tokens.expiry = 24 * time.Hour
+	cfg.tokens.refresh = 6 * time.Hour
+
 	// Instantiate logger that will log anything at or above info level. To write from a different level, change this parameter.
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
@@ -86,10 +94,11 @@ func main() {
 	logger.PrintInfo("database connection established", nil)
 
 	app := &application{
-		config:     cfg,
-		logger:     logger,
-		models:     data.NewModels(db),
-		userExists: userExists,
+		config:         cfg,
+		isShuttingDown: make(chan struct{}),
+		logger:         logger,
+		models:         data.NewModels(db),
+		userExists:     userExists,
 	}
 
 	err = app.serve()

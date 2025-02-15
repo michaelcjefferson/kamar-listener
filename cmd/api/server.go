@@ -47,6 +47,8 @@ func (app *application) serve() error {
 			"signal": s.String(),
 		})
 
+		close(app.isShuttingDown)
+
 		// Create a context with a 5 second timeout. This is due to an open bug here: https://github.com/golang/go/issues/33191, which causes problems above 5 seconds - otherwise, something like 20 seconds would be more appropriate.
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -65,6 +67,8 @@ func (app *application) serve() error {
 		app.wg.Wait()
 		shutdownError <- nil
 	}()
+
+	app.initiateTokenDeletionCycle()
 
 	app.logger.PrintInfo("starting server", map[string]interface{}{
 		"addr":     srv.Addr,

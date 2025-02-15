@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/mjefferson-whs/listener/internal/validator"
@@ -152,7 +151,7 @@ func (m UserModel) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
+func (m UserModel) GetForToken(tokenPlaintext string) (*User, string, error) {
 	// This returns an array ([32]byte, specified length) rather than a slice ([]byte, unspecified length)
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
 
@@ -184,17 +183,16 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, ErrRecordNotFound
+			return nil, "", ErrRecordNotFound
 		default:
-			return nil, err
+			return nil, "", err
 		}
 	}
 
-	// TODO: create func refreshToken() - if token has only a short time before expiry, create a new token for that user
-	fmt.Printf("token expiry: %v", tokenExpiry)
-
-	return &user, nil
+	return &user, tokenExpiry, nil
 }
+
+// Create a new token for the user and return it
 
 // Get number of users registered in database
 func (m UserModel) GetUserCount() (int, error) {
