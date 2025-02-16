@@ -192,7 +192,9 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, string, error) {
 	return &user, tokenExpiry, nil
 }
 
-// Create a new token for the user and return it
+// func (m UserModel) LogOutUser(id int64) (error) {
+
+// }
 
 // Get number of users registered in database
 func (m UserModel) GetUserCount() (int, error) {

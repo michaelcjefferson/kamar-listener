@@ -51,15 +51,25 @@ func (app *application) invalidCredentialsReponse(w http.ResponseWriter, r *http
 
 func (app *application) invalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
 	// This header informs the user that a bearer token should be used to authenticate.
-	w.Header().Set("WWW-Authenticate", "Bearer")
+	// w.Header().Set("WWW-Authenticate", "Bearer")
+	// TODO: Clear previously used cookie (SetCookie() with MaxAge: -1)
 
 	message := "invalid or missing authentication token"
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
+// For browser requests - redirect the client to the sign-in page
+func (app *application) authenticationRequiredRedirectResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Location", "/sign-in")
+
+	message := "you must be authenticated to access this resource"
+	app.errorResponse(w, r, http.StatusSeeOther, message)
+}
+
+// For API requests - respond with Forbidden status code
 func (app *application) authenticationRequiredResponse(w http.ResponseWriter, r *http.Request) {
 	message := "you must be authenticated to access this resource"
-	app.errorResponse(w, r, http.StatusUnauthorized, message)
+	app.errorResponse(w, r, http.StatusForbidden, message)
 }
 
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {

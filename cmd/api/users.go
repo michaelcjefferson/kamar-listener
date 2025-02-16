@@ -16,8 +16,12 @@ type userInput struct {
 
 func (app *application) registerPageHandler(w http.ResponseWriter, r *http.Request) {
 	if app.userExists {
-		http.Redirect(w, r, "/sign-in", http.StatusForbidden)
-		return
+		user := app.contextGetUser(r)
+
+		if user.IsAnonymous() {
+			app.authenticationRequiredRedirectResponse(w, r)
+			return
+		}
 	}
 
 	// Update URL path to reflect file path in embedded file system
@@ -27,7 +31,16 @@ func (app *application) registerPageHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: if app.userExists, ensure user is authenticated
+	// If app.userExists, ensure user is authenticated
+	if app.userExists {
+		user := app.contextGetUser(r)
+
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(w, r)
+			return
+		}
+	}
+
 	input := userInput{}
 
 	err := app.readJSON(w, r, &input)
@@ -139,6 +152,38 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request) {
+	u := app.contextGetUser(r)
+	id := u.ID
+
+	err := app.models.Tokens.DeleteAllForUser(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.invalidCredentialsReponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// Set the user for this request session to an anonymous user, and expire previously set cookies
+	r = app.contextSetUser(r, data.AnonymousUser)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "listener_admin_auth_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
+
+	http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+	// err = app.writeJSON(w, http.StatusAccepted, nil, nil)
+	// if err != nil {
+	// 	app.serverErrorResponse(w, r, err)
+	// }
 }
 
 func (app *application) getUserCount() (int, error) {

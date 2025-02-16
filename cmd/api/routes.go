@@ -37,6 +37,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/sign-in", app.authenticateUser(app.signInPageHandler))
 	router.HandlerFunc(http.MethodPost, "/sign-in", app.authenticateUser(app.signInUserHandler))
 
+	// The user must be authenticated in order to be logged out successfully
+	router.HandlerFunc(http.MethodPost, "/log-out", app.authenticateUser(app.requireAuthenticatedUser(app.logoutUserHandler)))
+
 	// router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
 
 	// serve assets from /ui (httprouter's wild cards require a variable to be created, in this case filepath, to represent the value of the wildcard)

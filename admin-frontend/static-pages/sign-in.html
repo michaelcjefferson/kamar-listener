@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+</head>
+<body>
+  <h2>Sign In</h2>
+  <p>Only registered users are able to access the dashboard.</p>
+  <p>If at least one admin has already been created, they will need to register any new users from their account.</p>
+  <form id="sign-in-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button type="submit">Sign In</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("sign-in-form").addEventListener("submit", async function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const response = await fetch("/sign-in", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (response.ok) {
+        window.location.href = "/"; // Redirect to homepage
+      } else {
+        const errorMessage = await response.text();
+        document.getElementById("message").textContent = errorMessage;
+      }
+    });
+  </script>
+</body>
+</html>

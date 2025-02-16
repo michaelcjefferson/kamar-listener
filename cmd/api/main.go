@@ -57,7 +57,7 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 8085, "API server port.")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production).")
 
-	flag.StringVar(&cfg.dbpath, "db-path", "./kamar-directory-service.db", "Path to SQLite .db (database) file.")
+	flag.StringVar(&cfg.dbpath, "db-path", "./db/kamar-directory-service.db", "Path to SQLite .db (database) file.")
 
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 4, "Rate limiter maximum requests per second.")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 8, "Rate limiter maximum burst.")

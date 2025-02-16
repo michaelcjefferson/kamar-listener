@@ -40,6 +40,7 @@ build/frontend:
 	@echo Building Svelte frontend for admin dashboard...
 	rm -rf ./cmd/api/ui
 	cd ./admin-frontend && npm run build
+	cp -r ./admin-frontend/static-pages/* ./cmd/api/ui
 
 #==================================================================================== #
 # DEVELOPMENT

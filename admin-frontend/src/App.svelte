@@ -9,8 +9,33 @@
   });
 
   async function pingListenerService() {
-    let m = await fetch('/healthcheck')
-    healthcheckInfo = await m.json()
+    let res = await fetch('/healthcheck')
+    healthcheckInfo = await res.json()
+  }
+
+  async function logOutUser() {
+    let res = await fetch('/log-out', {
+      method: 'POST',
+      credentials: 'include'
+    })
+    
+    if (res.status === 303) {
+      // Get the redirect URL from the Location header
+      let redirectUrl = res.headers.get('Location');
+      // Redirect the user manually
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    // Check if response is OK (status 200-299)
+    if (res.ok) {
+      console.log('Successfully logged out.');
+    } else {
+      // If it's not a redirect or successful response, check for JSON error
+      let error = await res.json();
+      console.error('Logout error:', error.message);
+      alert('Logout failed: ' + error.message);
+    }
   }
 </script>
 
@@ -24,6 +49,10 @@
 
   <div class="card">
     <Counter />
+  </div>
+
+  <div class="card">
+    <button onclick={logOutUser}>Log Out</button>
   </div>
 </main>
 

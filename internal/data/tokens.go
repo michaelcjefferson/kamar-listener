@@ -84,12 +84,15 @@ func (m TokenModel) Insert(token *Token) error {
 func (m TokenModel) DeleteAllForUser(userID int64) error {
 	query := `
 		DELETE FROM tokens
-		WHERE user_id = $1`
+		WHERE user_id = $1
+	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err := m.DB.ExecContext(ctx, query, userID)
+	result, err := m.DB.ExecContext(ctx, query, userID)
+	r, _ := result.RowsAffected()
+	fmt.Printf("user id %v logged out. tokens deleted: %v\n", userID, r)
 	return err
 }
 
@@ -104,6 +107,6 @@ func (m TokenModel) DeleteExpiredTokens() error {
 
 	result, err := m.DB.ExecContext(ctx, query)
 	r, _ := result.RowsAffected()
-	fmt.Printf("tokens deleted: %v\n", r)
+	fmt.Printf("purging expired tokens. tokens deleted: %v\n", r)
 	return err
 }
