@@ -80,11 +80,13 @@ func (app *application) initiateTokenDeletionCycle() {
 		for {
 			select {
 			case <-ticker.C:
-				app.logger.PrintInfo("attempting to delete expired tokens...", nil)
-				err := app.models.Tokens.DeleteExpiredTokens()
+				err, deleted := app.models.Tokens.DeleteExpiredTokens()
 				if err != nil {
 					app.logger.PrintError(err, nil)
 				}
+				app.logger.PrintInfo("purged expired tokens", map[string]interface{}{
+					"tokensDeleted": deleted,
+				})
 			case <-app.isShuttingDown:
 				app.logger.PrintInfo("token deletion cycle ending - shut down signal received", nil)
 				return

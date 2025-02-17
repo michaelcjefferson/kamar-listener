@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -16,10 +17,11 @@ import (
 )
 
 type config struct {
-	port     int
-	env      string
-	dbpath   string
-	https_on bool
+	port      int
+	env       string
+	dblogs_on bool
+	dbpath    string
+	https_on  bool
 	// rps (requests per second) must be float, burst must be int for limiter. enabled allows turning off the rate limiter for, for example load testing.
 	limiter struct {
 		rps     float64
@@ -67,6 +69,7 @@ func main() {
 	flag.StringVar(&cfg.credentials.password, "password", "password", "For authentication from KAMAR.")
 
 	flag.BoolVar(&cfg.https_on, "https_on", true, "Turn server-side HTTPS on or off.")
+	flag.BoolVar(&cfg.dblogs_on, "dblogs_on", true, "Turn writing logs to database on or off.")
 
 	flag.Parse()
 
@@ -78,26 +81,32 @@ func main() {
 	cfg.tokens.expiry = 24 * time.Hour
 	cfg.tokens.refresh = 6 * time.Hour
 
-	// Instantiate logger that will log anything at or above info level. To write from a different level, change this parameter.
-	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
-
-	logger.PrintInfo("attempting to set up SQLite db", nil)
+	fmt.Println("attempting to set up SQLite db")
 
 	db, userExists, err := openDB(cfg.dbpath)
 	if err != nil {
-		logger.PrintFatal(err, nil)
+		fmt.Printf("error setting up databaes: %v\n", err)
 		time.Sleep(20 * time.Second)
 	}
 
 	defer db.Close()
 
+	models := data.NewModels(db)
+
+	// Instantiate logger that will log anything at or above info level. To write from a different level, change this parameter.
+	var logger *jsonlog.Logger
+	if cfg.dblogs_on {
+		logger = jsonlog.New(os.Stdout, jsonlog.LevelInfo, &models.Logs)
+	} else {
+		logger = jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
+	}
 	logger.PrintInfo("database connection established", nil)
 
 	app := &application{
 		config:         cfg,
 		isShuttingDown: make(chan struct{}),
 		logger:         logger,
-		models:         data.NewModels(db),
+		models:         models,
 		userExists:     userExists,
 	}
 

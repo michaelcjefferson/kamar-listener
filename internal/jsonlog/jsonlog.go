@@ -7,6 +7,8 @@ import (
 	"runtime/debug"
 	"sync"
 	"time"
+
+	"github.com/mjefferson-whs/listener/internal/data"
 )
 
 type Level int8
@@ -32,17 +34,19 @@ func (l Level) String() string {
 	}
 }
 
-// The mutex (mutual exclusion lock) prevents two log triggers from trying to write at the same time (which would lead to jumbled log messages).
+// The mutex (mutual exclusion lock) prevents two log triggers from trying to write at the same time (which would lead to jumbled log messages). logModel is optional, and provides the ability to simultaneously write logs to the database if logModel exists.
 type Logger struct {
 	out      io.Writer
 	minLevel Level
 	mu       sync.Mutex
+	logModel *data.LogModel
 }
 
-func New(out io.Writer, minLevel Level) *Logger {
+func New(out io.Writer, minLevel Level, logModel *data.LogModel) *Logger {
 	return &Logger{
 		out:      out,
 		minLevel: minLevel,
+		logModel: logModel,
 	}
 }
 
@@ -66,22 +70,40 @@ func (l *Logger) print(level Level, message string, properties map[string]interf
 		return 0, nil
 	}
 
-	aux := struct {
-		Level      string                 `json:"level"`
-		Time       string                 `json:"time"`
-		Message    string                 `json:"message"`
-		Properties map[string]interface{} `json:"properties,omitempty"`
-		Trace      string                 `json:"trace,omitempty"`
-	}{
+	aux := data.Log{
 		Level:      level.String(),
 		Time:       time.Now().UTC().Format(time.RFC3339),
 		Message:    message,
 		Properties: properties,
 	}
 
+	// aux := struct {
+	// 	Level      string                 `json:"level"`
+	// 	Time       string                 `json:"time"`
+	// 	Message    string                 `json:"message"`
+	// 	Properties map[string]interface{} `json:"properties,omitempty"`
+	// 	Trace      string                 `json:"trace,omitempty"`
+	// }{
+	// 	Level:      level.String(),
+	// 	Time:       time.Now().UTC().Format(time.RFC3339),
+	// 	Message:    message,
+	// 	Properties: properties,
+	// }
+
 	// If log is at least error level, include a stacktrace in the log
 	if level >= LevelError {
 		aux.Trace = string(debug.Stack())
+	}
+
+	// Write log to database in secondary thread, if logModel exists
+	if l.logModel != nil {
+		go func() {
+			err := l.logModel.Insert(&aux)
+			if err != nil {
+				mes := []byte(LevelError.String() + "failed to write log to database:" + err.Error())
+				l.out.Write(mes)
+			}
+		}()
 	}
 
 	// Create the line constituting the log and populate it with all info in aux marshalled to JSON. If that fails, create a log line recording that error instead.

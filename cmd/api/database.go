@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -20,6 +21,13 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 
 	err = db.PingContext(ctx)
 	if err != nil {
+		return nil, false, err
+	}
+
+	// Set up logs table
+	err = createLogsTable(db)
+	if err != nil {
+		db.Close()
 		return nil, false, err
 	}
 
@@ -51,6 +59,42 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 	}
 
 	return db, exists, nil
+}
+
+func createLogsTable(db *sql.DB) error {
+	userTableStmt := `CREATE TABLE IF NOT EXISTS logs (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		level TEXT NOT NULL,
+		time TEXT NOT NULL DEFAULT (datetime('now')),
+		message TEXT NOT NULL,
+		properties TEXT,
+		trace TEXT
+	)`
+
+	_, err := db.Exec(userTableStmt)
+
+	if err != nil {
+		return err
+	}
+
+	// Create an indexed column based on any logs that come with an attached user id, to make it easier to query for logs regarding a specific user. VIRTUAL allows the column to store NULL values without errors, and NULL values are ignored in indexes
+	alterTableStmt := `ALTER TABLE logs
+		ADD COLUMN userID INTEGER
+		GENERATED ALWAYS AS (json_extract(properties, '$.userID')) VIRTUAL`
+
+	_, err = db.Exec(alterTableStmt)
+	// Alter table doesn't support IF NOT EXISTS, so ignore the error thrown if this column already exists
+	if err != nil && !strings.Contains(err.Error(), "duplicate column name") {
+		return err
+	}
+
+	createIndexStmt := `
+		CREATE INDEX IF NOT EXISTS idx_logs_userID ON logs(userID)
+	`
+
+	_, err = db.Exec(createIndexStmt)
+
+	return err
 }
 
 func createUserTable(db *sql.DB) error {

@@ -159,7 +159,7 @@ func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request
 	u := app.contextGetUser(r)
 	id := u.ID
 
-	err := app.models.Tokens.DeleteAllForUser(id)
+	err, deleted := app.models.Tokens.DeleteAllForUser(id)
 	if err != nil {
 		switch {
 		// TODO: This case currently cannot be triggered as DeleteAllForUser doesn't return this type of error
@@ -170,6 +170,11 @@ func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request
 		}
 		return
 	}
+
+	app.logger.PrintInfo("user logged out", map[string]interface{}{
+		"userID":        id,
+		"tokensDeleted": deleted,
+	})
 
 	// Set the user for this request session to an anonymous user, and expire previously set cookies
 	r = app.contextSetUser(r, data.AnonymousUser)

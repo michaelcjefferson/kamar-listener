@@ -81,7 +81,7 @@ func (m TokenModel) Insert(token *Token) error {
 	return err
 }
 
-func (m TokenModel) DeleteAllForUser(userID int64) error {
+func (m TokenModel) DeleteAllForUser(userID int64) (error, int64) {
 	query := `
 		DELETE FROM tokens
 		WHERE user_id = $1
@@ -93,10 +93,10 @@ func (m TokenModel) DeleteAllForUser(userID int64) error {
 	result, err := m.DB.ExecContext(ctx, query, userID)
 	r, _ := result.RowsAffected()
 	fmt.Printf("user id %v logged out. tokens deleted: %v\n", userID, r)
-	return err
+	return err, r
 }
 
-func (m TokenModel) DeleteExpiredTokens() error {
+func (m TokenModel) DeleteExpiredTokens() (error, int64) {
 	query := `
 		DELETE FROM tokens
 		WHERE expiry < strftime('%Y-%m-%dT%H:%M:%SZ', 'now')
@@ -108,5 +108,5 @@ func (m TokenModel) DeleteExpiredTokens() error {
 	result, err := m.DB.ExecContext(ctx, query)
 	r, _ := result.RowsAffected()
 	fmt.Printf("purging expired tokens. tokens deleted: %v\n", r)
-	return err
+	return err, r
 }
