@@ -198,7 +198,6 @@ func (app *application) authenticateUser(next http.HandlerFunc) http.HandlerFunc
 		}
 
 		// If token has only a short time before expiry, create a new token for that user
-		fmt.Printf("token expiry: %v\n", tokenExpiry)
 		expiryTime, err := time.Parse(time.RFC3339, tokenExpiry)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)

@@ -13,15 +13,17 @@
     healthcheckInfo = await res.json()
   }
 
+  // Use 'redirect: "follow"' to force fetch() to process redirects (which it doesn't by default). Alternatively, use traditional HTML form submission to get redirects to work - HTML forms cause browsers to follow redirects, and don't rely on JS, but this means less capacity for responsive feedback to the user upon error
   async function logOutUser() {
     let res = await fetch('/log-out', {
       method: 'POST',
-      credentials: 'include'
+      credentials: 'include',
+      redirect: 'follow'
     })
-    
-    if (res.status === 303) {
+
+    if (res.redirected) {
       // Get the redirect URL from the Location header
-      let redirectUrl = res.headers.get('Location');
+      let redirectUrl = res.url;
       // Redirect the user manually
       window.location.href = redirectUrl;
       return;

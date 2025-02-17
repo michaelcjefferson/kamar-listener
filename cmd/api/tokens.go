@@ -74,7 +74,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 
 func (app *application) initiateTokenDeletionCycle() {
 	app.background(func() {
-		ticker := time.NewTicker(time.Minute)
+		ticker := time.NewTicker(time.Hour)
 		defer ticker.Stop()
 
 		for {

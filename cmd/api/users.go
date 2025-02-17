@@ -92,6 +92,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// TODO: Prevent user from accessing sign in page and handler if they are already logged in?
 func (app *application) signInPageHandler(w http.ResponseWriter, r *http.Request) {
 	// Update URL path to reflect file path in embedded file system
 	r.URL.Path = "sign-in.html"
@@ -161,6 +162,7 @@ func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request
 	err := app.models.Tokens.DeleteAllForUser(id)
 	if err != nil {
 		switch {
+		// TODO: This case currently cannot be triggered as DeleteAllForUser doesn't return this type of error
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.invalidCredentialsReponse(w, r)
 		default:
