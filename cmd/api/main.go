@@ -12,8 +12,8 @@ import (
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 
-	_ "modernc.org/sqlite"
-	// _ "github.com/mattn/go-sqlite3"
+	// _ "modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type config struct {
@@ -85,7 +85,7 @@ func main() {
 
 	db, userExists, err := openDB(cfg.dbpath)
 	if err != nil {
-		fmt.Printf("error setting up databaes: %v\n", err)
+		fmt.Printf("error setting up database: %v\n", err)
 		time.Sleep(20 * time.Second)
 	}
 

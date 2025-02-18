@@ -8,9 +8,10 @@ import (
 	"time"
 )
 
+// SQLite config for reads and writes (avoid SQLITE BUSY error): https://kerkour.com/sqlite-for-servers
 func openDB(dbpath string) (*sql.DB, bool, error) {
 	// Either connect to or create (if it doesn't exist) the database at the provided path
-	db, err := sql.Open("sqlite", dbpath)
+	db, err := sql.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, false, err
 	}

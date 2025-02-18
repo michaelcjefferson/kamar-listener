@@ -80,7 +80,7 @@ func (app *application) initiateTokenDeletionCycle() {
 		for {
 			select {
 			case <-ticker.C:
-				err, deleted := app.models.Tokens.DeleteExpiredTokens()
+				deleted, err := app.models.Tokens.DeleteExpiredTokens()
 				if err != nil {
 					app.logger.PrintError(err, nil)
 				}

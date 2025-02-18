@@ -14,6 +14,8 @@ import (
 )
 
 // Create and serve an httpserver based on app parameters. Before starting the server, run a goroutine that listens for Interrupt and Terminate signals, and attempts to shut down the server and any background goroutines gracefully.
+// InsecureSkipVerify prevents errors caused by using self-signed certificates (as is the case for this application)
+// TODO: Implement VerifyConnection to improve security
 func (app *application) serve() error {
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},

@@ -92,8 +92,15 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// TODO: Prevent user from accessing sign in page and handler if they are already logged in?
+// Prevent user from accessing sign in page and handler if they are already logged in
 func (app *application) signInPageHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.contextGetUser(r)
+
+	if !user.IsAnonymous() {
+		app.signOutRequiredRedirectResponse(w, r)
+		return
+	}
+
 	// Update URL path to reflect file path in embedded file system
 	r.URL.Path = "sign-in.html"
 
@@ -101,6 +108,13 @@ func (app *application) signInPageHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request) {
+	u := app.contextGetUser(r)
+
+	if !u.IsAnonymous() {
+		app.signOutRequiredResponse(w, r)
+		return
+	}
+
 	input := userInput{}
 
 	err := app.readJSON(w, r, &input)
@@ -149,6 +163,10 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	app.logger.PrintInfo("user logged out", map[string]interface{}{
+		"userID": user.ID,
+	})
+
 	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -156,10 +174,9 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request) {
-	u := app.contextGetUser(r)
-	id := u.ID
+	user := app.contextGetUser(r)
 
-	err, deleted := app.models.Tokens.DeleteAllForUser(id)
+	deleted, err := app.models.Tokens.DeleteAllForUser(user.ID)
 	if err != nil {
 		switch {
 		// TODO: This case currently cannot be triggered as DeleteAllForUser doesn't return this type of error
@@ -172,7 +189,7 @@ func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	app.logger.PrintInfo("user logged out", map[string]interface{}{
-		"userID":        id,
+		"userID":        user.ID,
 		"tokensDeleted": deleted,
 	})
 

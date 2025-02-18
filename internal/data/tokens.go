@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
-	"fmt"
 	"time"
 
 	"github.com/mjefferson-whs/listener/internal/validator"
@@ -81,7 +80,7 @@ func (m TokenModel) Insert(token *Token) error {
 	return err
 }
 
-func (m TokenModel) DeleteAllForUser(userID int64) (error, int64) {
+func (m TokenModel) DeleteAllForUser(userID int64) (int64, error) {
 	query := `
 		DELETE FROM tokens
 		WHERE user_id = $1
@@ -92,11 +91,10 @@ func (m TokenModel) DeleteAllForUser(userID int64) (error, int64) {
 
 	result, err := m.DB.ExecContext(ctx, query, userID)
 	r, _ := result.RowsAffected()
-	fmt.Printf("user id %v logged out. tokens deleted: %v\n", userID, r)
-	return err, r
+	return r, err
 }
 
-func (m TokenModel) DeleteExpiredTokens() (error, int64) {
+func (m TokenModel) DeleteExpiredTokens() (int64, error) {
 	query := `
 		DELETE FROM tokens
 		WHERE expiry < strftime('%Y-%m-%dT%H:%M:%SZ', 'now')
@@ -107,6 +105,5 @@ func (m TokenModel) DeleteExpiredTokens() (error, int64) {
 
 	result, err := m.DB.ExecContext(ctx, query)
 	r, _ := result.RowsAffected()
-	fmt.Printf("purging expired tokens. tokens deleted: %v\n", r)
-	return err, r
+	return r, err
 }

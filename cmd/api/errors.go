@@ -72,6 +72,20 @@ func (app *application) authenticationRequiredResponse(w http.ResponseWriter, r 
 	app.errorResponse(w, r, http.StatusForbidden, message)
 }
 
+// For browser requests - redirect the client to the sign-in page
+func (app *application) signOutRequiredRedirectResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Location", "/")
+
+	message := "you must be signed out to access this resource"
+	app.errorResponse(w, r, http.StatusSeeOther, message)
+}
+
+// For API requests - respond with Forbidden status code
+func (app *application) signOutRequiredResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you must be signed out to access this resource"
+	app.errorResponse(w, r, http.StatusForbidden, message)
+}
+
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }

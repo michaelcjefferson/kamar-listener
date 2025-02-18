@@ -21,10 +21,11 @@ confirm:
 # ==================================================================================== #
 
 ## build/linux: remove previously built binaries and build a linux binary
+# GOOS=linux CGO_ENABLED=0 go build -o=./bin/listenerService ./cmd/api
 .PHONY: build/linux
 build/linux: remove build/frontend
 	@echo Building listener service Linux binary...
-	GOOS=linux CGO_ENABLED=0 go build -o=./bin/listenerService ./cmd/api
+	go build -tags "linux" -o=./bin/listenerService ./cmd/api
 	@echo Done
 
 ## build/windows: remove previously built binaries and build a windows binary
@@ -74,6 +75,11 @@ clean:
 
 ## remove: run go clean and remove built binaries
 .PHONY: remove
-remove: clean confirm
+remove: confirm clean
 	@echo 'Removing built binaries...'
-	rm -r ./bin/*
+	@if [ -d "./bin" ] && [ "$(ls -A ./bin)" ]; then \
+		rm -rf ./bin/*; \
+		echo "Binaries removed."; \
+	else \
+		echo "No binaries to remove."; \
+	fi
