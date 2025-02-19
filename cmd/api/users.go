@@ -163,7 +163,7 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	app.logger.PrintInfo("user logged out", map[string]interface{}{
+	app.logger.PrintInfo("user logged in", map[string]interface{}{
 		"userID": user.ID,
 	})
 

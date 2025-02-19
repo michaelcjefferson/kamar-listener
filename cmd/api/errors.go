@@ -7,6 +7,15 @@ import (
 
 func (app *application) logError(r *http.Request, err error) {
 	app.logger.PrintError(err, map[string]interface{}{
+		"request_ip":     r.RemoteAddr,
+		"request_method": r.Method,
+		"request_url":    r.URL.String(),
+	})
+}
+
+func (app *application) logRequest(r *http.Request, message string) {
+	app.logger.PrintInfo(message, map[string]interface{}{
+		"request_ip":     r.RemoteAddr,
 		"request_method": r.Method,
 		"request_url":    r.URL.String(),
 	})
@@ -41,21 +50,31 @@ func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 
 func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
 	message := "rate limit exceeded"
+	app.logRequest(r, message)
 	app.errorResponse(w, r, http.StatusTooManyRequests, message)
 }
 
 func (app *application) invalidCredentialsReponse(w http.ResponseWriter, r *http.Request) {
 	message := "invalid authentication credentials"
+	app.logRequest(r, "log in attempt failed")
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
 func (app *application) invalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
 	// This header informs the user that a bearer token should be used to authenticate.
 	// w.Header().Set("WWW-Authenticate", "Bearer")
-	// TODO: Clear previously used cookie (SetCookie() with MaxAge: -1)
+	w.Header().Set("Location", "/sign-in")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "listener_admin_auth_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
 
 	message := "invalid or missing authentication token"
-	app.errorResponse(w, r, http.StatusUnauthorized, message)
+	app.errorResponse(w, r, http.StatusSeeOther, message)
+	// app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
 // For browser requests - redirect the client to the sign-in page
