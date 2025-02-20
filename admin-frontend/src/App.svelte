@@ -1,17 +1,5 @@
 <script lang="ts">
-  import Counter from './lib/Counter.svelte'
-
-  let healthcheckInfo = $state({
-    "status": "",
-    "system_info": {
-      "environment": ""
-    }
-  });
-
-  async function pingListenerService() {
-    let res = await fetch('/healthcheck')
-    healthcheckInfo = await res.json()
-  }
+  import Home from "./pages/Home.svelte"
 
   // Use 'redirect: "follow"' to force fetch() to process redirects (which it doesn't by default). Alternatively, use traditional HTML form submission to get redirects to work - HTML forms cause browsers to follow redirects, and don't rely on JS, but this means less capacity for responsive feedback to the user upon error
   async function logOutUser() {
@@ -42,16 +30,23 @@
 </script>
 
 <main>
+  <nav>
+    <ul>
+      <li class="nav-item">
+        <button class="nav-link">Home</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link">Config</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link">Logs</button>
+      </li>
+    </ul>
+  </nav>
+
   <h1>KAMAR Refresh Dashboard</h1>
 
-  <div class="healthcheck-card">
-    <button onclick={pingListenerService}>Ping Listener Service</button>
-    <p><strong>RESPONSE: </strong>{healthcheckInfo.status}</p>
-  </div>
-
-  <div class="card">
-    <Counter />
-  </div>
+  <Home />
 
   <div class="card">
     <button onclick={logOutUser}>Log Out</button>
