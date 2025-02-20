@@ -1,0 +1,14 @@
+package views
+
+import "github.com/mjefferson-whs/listener/ui/components"
+
+templ Base() {
+  <!doctype html>
+  <html lang="en">
+    @components.Head()
+    <body>
+      { children... }
+      @components.Footer()
+    </body>
+  </html>
+}

@@ -35,6 +35,13 @@ build/windows: remove build/frontend
 	set CGO_ENABLED=0&& set goos=windows&& go build -o ./bin/listenerService.exe ./cmd/api
 	@echo Done
 
+## build/templates: build templ files in /ui
+.PHONY: build/templates
+build/templates:
+	@echo 'Generating templ templates...'
+	cd ./ui && templ generate
+	@echo 'Done'
+
 ## build/frontend: remove previously built frontend files and build new files to cmd/web/ui, to be packaged with go binary
 .PHONY: build/frontend
 build/frontend:
@@ -66,6 +73,17 @@ run/api:
 # ==================================================================================== #
 # QUALITY CONTROL
 # ==================================================================================== #
+
+# go mod vendor stores the source code for any dependencies in a vendor folder in the project it's run in, preventing any issues that might arise if source code for a dependency is removed from its primary repository and/or any proxy hosts.
+# go mod vendor doesn't verify that the checksums of dependencies in the module cache match those in the go.sum file, so it's important to run go mod verify regularly as well, hence the go mod verify rule above go mod vendor.
+## vendor: tidy and vendor dependencies
+.PHONY: vendor
+vendor:
+	@echo 'Tidying and verifying module dependencies...'
+	go mod tidy
+	go mod verify
+	@echo 'Vendoring dependencies...'
+	go mod vendor
 
 ## clean: clear the cache
 .PHONY: clean
