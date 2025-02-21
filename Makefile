@@ -66,7 +66,7 @@ install/frontend:
 
 ## run/api: run the listener api service in dev mode
 .PHONY: run/api
-run/api:
+run/api: build/templates
 	@echo Running KAMAR Refresh API...
 	go run ./cmd/api
 

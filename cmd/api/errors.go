@@ -3,68 +3,87 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
-func (app *application) logError(r *http.Request, err error) {
+func (app *application) logError(c echo.Context, err error) {
 	app.logger.PrintError(err, map[string]interface{}{
-		"request_ip":     r.RemoteAddr,
-		"request_method": r.Method,
-		"request_url":    r.URL.String(),
+		"request_ip":     c.RealIP(),
+		"request_method": c.Request().Method,
+		"request_url":    c.Request().URL,
 	})
 }
 
-func (app *application) logRequest(r *http.Request, message string) {
+func (app *application) logRequest(c echo.Context, message string) {
 	app.logger.PrintInfo(message, map[string]interface{}{
-		"request_ip":     r.RemoteAddr,
-		"request_method": r.Method,
-		"request_url":    r.URL.String(),
+		"request_ip":     c.RealIP(),
+		"request_method": c.Request().Method,
+		"request_url":    c.Request().URL,
 	})
 }
 
-func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
+func (app *application) errorResponse(c echo.Context, status int, message interface{}) error {
 	env := envelope{"error": message}
 
-	err := app.writeJSON(w, status, env, nil)
+	err := c.JSON(status, env)
 	if err != nil {
-		app.logError(r, err)
-		w.WriteHeader(500)
+		app.logError(c, err)
+		return c.NoContent(http.StatusInternalServerError)
 	}
+	return nil
 }
 
-func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	app.logError(r, err)
+// If the client accepts JSON (which will be the case when using fetch() in the browser for API calls, CURL etc.), provide a JSON response including a status code, redirect path to follow if desired by the client, and error message - otherwise respond with a redirect
+func (app *application) redirectErrorResponse(c echo.Context, path string, jsonStatus int, message interface{}) error {
+	var err error
+	if strings.Contains(c.Request().Header.Get("Accept"), "application/json") {
+		env := envelope{"error": message, "redirect": path}
+		err = c.JSON(jsonStatus, env)
+	} else {
+		err = c.Redirect(http.StatusSeeOther, path)
+	}
+	if err != nil {
+		app.logError(c, err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return err
+}
+
+func (app *application) serverErrorResponse(c echo.Context, err error) error {
+	app.logError(c, err)
 
 	message := "the server encountered a problem and could not process your request"
-	app.errorResponse(w, r, http.StatusInternalServerError, message)
+	return app.errorResponse(c, http.StatusInternalServerError, message)
 }
 
-func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
+func (app *application) notFoundResponse(c echo.Context) error {
 	message := "the requested resource could not be found"
-	app.errorResponse(w, r, http.StatusNotFound, message)
+	return app.errorResponse(c, http.StatusNotFound, message)
 }
 
-func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
-	message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
-	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
+func (app *application) methodNotAllowedResponse(c echo.Context) error {
+	message := fmt.Sprintf("the %s method is not supported for this resource", c.Request().Method)
+	return app.errorResponse(c, http.StatusMethodNotAllowed, message)
 }
 
-func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
+func (app *application) rateLimitExceededResponse(c echo.Context) error {
 	message := "rate limit exceeded"
-	app.logRequest(r, message)
-	app.errorResponse(w, r, http.StatusTooManyRequests, message)
+	app.logRequest(c, message)
+	return app.errorResponse(c, http.StatusTooManyRequests, message)
 }
 
-func (app *application) invalidCredentialsReponse(w http.ResponseWriter, r *http.Request) {
+func (app *application) invalidCredentialsReponse(c echo.Context) error {
 	message := "invalid authentication credentials"
-	app.logRequest(r, "log in attempt failed")
-	app.errorResponse(w, r, http.StatusUnauthorized, message)
+	app.logRequest(c, "log in attempt failed")
+	return app.errorResponse(c, http.StatusUnauthorized, message)
 }
 
-func (app *application) invalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
+func (app *application) invalidAuthenticationTokenResponse(c echo.Context) error {
 	// This header informs the user that a bearer token should be used to authenticate.
 	// w.Header().Set("WWW-Authenticate", "Bearer")
-	w.Header().Set("Location", "/sign-in")
-	http.SetCookie(w, &http.Cookie{
+	c.SetCookie(&http.Cookie{
 		Name:     "listener_admin_auth_token",
 		Value:    "",
 		Path:     "/",
@@ -73,42 +92,25 @@ func (app *application) invalidAuthenticationTokenResponse(w http.ResponseWriter
 	})
 
 	message := "invalid or missing authentication token"
-	app.errorResponse(w, r, http.StatusSeeOther, message)
-	// app.errorResponse(w, r, http.StatusUnauthorized, message)
+	return app.redirectErrorResponse(c, "/sign-in", http.StatusUnauthorized, message)
 }
 
 // For browser requests - redirect the client to the sign-in page
-func (app *application) authenticationRequiredRedirectResponse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Location", "/sign-in")
-
+func (app *application) authenticationRequiredResponse(c echo.Context) error {
 	message := "you must be authenticated to access this resource"
-	app.errorResponse(w, r, http.StatusSeeOther, message)
-}
-
-// For API requests - respond with Forbidden status code
-func (app *application) authenticationRequiredResponse(w http.ResponseWriter, r *http.Request) {
-	message := "you must be authenticated to access this resource"
-	app.errorResponse(w, r, http.StatusForbidden, message)
+	return app.redirectErrorResponse(c, "/sign-in", http.StatusForbidden, message)
 }
 
 // For browser requests - redirect the client to the sign-in page
-func (app *application) signOutRequiredRedirectResponse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Location", "/")
-
+func (app *application) signOutRequiredResponse(c echo.Context) error {
 	message := "you must be signed out to access this resource"
-	app.errorResponse(w, r, http.StatusSeeOther, message)
+	return app.redirectErrorResponse(c, "/", http.StatusForbidden, message)
 }
 
-// For API requests - respond with Forbidden status code
-func (app *application) signOutRequiredResponse(w http.ResponseWriter, r *http.Request) {
-	message := "you must be signed out to access this resource"
-	app.errorResponse(w, r, http.StatusForbidden, message)
+func (app *application) badRequestResponse(c echo.Context, err error) error {
+	return app.errorResponse(c, http.StatusBadRequest, err.Error())
 }
 
-func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
-}
-
-func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
-	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+func (app *application) failedValidationResponse(c echo.Context, errors map[string]string) error {
+	return app.errorResponse(c, http.StatusUnprocessableEntity, errors)
 }

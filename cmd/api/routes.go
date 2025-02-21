@@ -25,6 +25,10 @@ func (app *application) routes() http.Handler {
 	// TODO: Set up CORS
 
 	router.GET("/healthcheck", app.healthcheckHandler)
+	router.GET("/", app.dashboardHandler)
+
+	// authGroup := router.Group("/", app.authenticateUser)
+	// authGroup.GET("/", app.dashboardHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	// router.HandlerFunc(http.MethodPost, "/kamar-refresh", app.authenticateKAMAR(app.kamarRefreshHandler))

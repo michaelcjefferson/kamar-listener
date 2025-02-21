@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
 )
 
@@ -38,13 +38,14 @@ type ResultsField struct {
 	Data  []data.Result `json:"data,omitempty"`
 }
 
-func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) kamarRefreshHandler(c echo.Context) {
 	var kamarData KAMARData
 
 	// Response if KAMAR JSON is malformed/incomplete
-	err := app.readJSON(w, r, &kamarData)
+	err := c.Bind(&kamarData)
+	// err := app.readJSON(c, &kamarData)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		app.badRequestResponse(c, err)
 		return
 	}
 
@@ -54,13 +55,13 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 		app.logger.PrintError(errors.New("failed to get syncType from input"), map[string]interface{}{
 			"data": kamarData.Data,
 		})
-		app.authFailedResponse(w, r)
+		app.authFailedResponse(c)
 		return
 	}
 
 	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
 	if syncType == "check" {
-		app.checkResponse(w, r)
+		app.checkResponse(c)
 		app.logger.PrintInfo("received and processed check request", map[string]interface{}{
 			"data": kamarData.Data,
 		})
@@ -101,12 +102,12 @@ func (app *application) kamarRefreshHandler(w http.ResponseWriter, r *http.Reque
 	}
 	if err != nil {
 		app.logger.PrintError(err, nil)
-		app.authFailedResponse(w, r)
+		app.authFailedResponse(c)
 		return
 	}
 
 	app.logger.PrintInfo("data successfully received from KAMAR and written to the SQLite database", nil)
-	app.successResponse(w, r)
+	app.successResponse(c)
 
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?
 

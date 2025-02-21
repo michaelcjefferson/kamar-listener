@@ -5,20 +5,21 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/validator"
 )
 
-func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createAuthenticationTokenHandler(c echo.Context) {
 	var input struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 
 	// Process JSON from client request into "input" struct
-	err := app.readJSON(w, r, &input)
+	err := c.Bind(&input)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		app.badRequestResponse(c, err)
 		return
 	}
 
@@ -29,7 +30,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	data.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		app.failedValidationResponse(c, v.Errors)
 		return
 	}
 
@@ -38,9 +39,9 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			app.invalidCredentialsReponse(w, r)
+			app.invalidCredentialsReponse(c)
 		default:
-			app.serverErrorResponse(w, r, err)
+			app.serverErrorResponse(c, err)
 		}
 
 		return
@@ -49,26 +50,26 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	// Compare plaintext password provided by the client with hashed password from row retrieved from user table (SECURITY RISK - MAN-IN-MIDDLE/FAKE WEBSITE ATTACK??)
 	match, err := user.Password.Matches(input.Password)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(c, err)
 		return
 	}
 
 	if !match {
-		app.invalidCredentialsReponse(w, r)
+		app.invalidCredentialsReponse(c)
 		return
 	}
 
 	// Create an "authentication" token valid for 24 hours
 	token, err := app.models.Tokens.New(user.ID, 24*time.Hour)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(c, err)
 		return
 	}
 
 	// Return auth token to client
-	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": token}, nil)
+	err = c.JSON(http.StatusCreated, envelope{"authentication_token": token})
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(c, err)
 	}
 }
 
