@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"net/http"
 
 	"golang.org/x/time/rate"
@@ -8,6 +9,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+//go:embed assets/*
+var embeddedAssets embed.FS
 
 func (app *application) routes() http.Handler {
 	router := echo.New()
@@ -24,11 +28,19 @@ func (app *application) routes() http.Handler {
 	}
 	// TODO: Set up CORS
 
-	router.GET("/healthcheck", app.healthcheckHandler)
-	router.GET("/", app.dashboardHandler)
+	// TO SET UP EMBEDDED ASSETS OR FILES WITH ECHO,
+	// 1) the assets must be in the same directory as main.go, so the go:embed can find them (as far as I can tell)
+	// 2) use echo.MustSubFS() to clean route-file matching, eg. the html is searching for url.com/style.css - seeing as that file is in the /assets folder, MustSubFS navigates the file system inside of /assets
+	// 3) then, use router.StaticFS to attach the files as static routes
+	assetFS := echo.MustSubFS(embeddedAssets, "assets")
 
-	// authGroup := router.Group("/", app.authenticateUser)
-	// authGroup.GET("/", app.dashboardHandler)
+	router.GET("/healthcheck", app.healthcheckHandler)
+
+	// Routes that require authentication
+	// To set middleware on any route branching off of "/", including the "/" route itself, echo requires the route group to be set on "" rather than "/" as it appends a trailing slash.
+	authGroup := router.Group("", app.authenticateUser)
+	authGroup.StaticFS("/", assetFS)
+	authGroup.GET("/", app.dashboardHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	// router.HandlerFunc(http.MethodPost, "/kamar-refresh", app.authenticateKAMAR(app.kamarRefreshHandler))

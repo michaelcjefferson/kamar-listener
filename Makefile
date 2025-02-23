@@ -35,10 +35,13 @@ build/windows: remove build/frontend
 	set CGO_ENABLED=0&& set goos=windows&& go build -o ./bin/listenerService.exe ./cmd/api
 	@echo Done
 
+# TODO: the following two commands need to first check for the existance of the folder they're attempting to copy into, and then create it if necessary
 ## build/templates: build templ files in /ui
 .PHONY: build/templates
 build/templates:
 	@echo 'Generating templ templates...'
+	rm -rf ./cmd/api/assets
+	cp -r ./ui/assets ./cmd/api
 	cd ./ui && templ generate
 	@echo 'Done'
 

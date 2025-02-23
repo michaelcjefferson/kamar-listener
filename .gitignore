@@ -4,3 +4,4 @@ tls/
 *.db
 test/refresh-test.json
 cmd/api/ui/
+cmd/api/assets/

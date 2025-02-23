@@ -8,6 +8,5 @@ import (
 )
 
 func (app *application) dashboardHandler(c echo.Context) error {
-	app.logger.PrintInfo("hit dashboardHandler", nil)
 	return app.Render(c, http.StatusOK, views.Dashboard())
 }
