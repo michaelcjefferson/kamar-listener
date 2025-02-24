@@ -7,8 +7,10 @@ templ Base() {
   <html lang="en">
     @components.Head()
     <body>
-      { children... }
-      @components.Footer()
+      <div id="app">
+        { children... }
+        @components.Footer()
+      </div>
     </body>
   </html>
 }

@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/mjefferson-whs/listener/internal/data"
+	"github.com/mjefferson-whs/listener/internal/validator"
+	views "github.com/mjefferson-whs/listener/ui/views"
 )
 
 type userInput struct {
@@ -12,164 +16,152 @@ type userInput struct {
 	Password string `json:"password"`
 }
 
-// func (app *application) registerPageHandler(c echo.Context) error {
-// 	if app.userExists {
-// 		user := app.contextGetUser(c)
+func (app *application) registerPageHandler(c echo.Context) error {
+	if app.userExists {
+		user := app.contextGetUser(c)
 
-// 		if user.IsAnonymous() {
-// 			app.authenticationRequiredResponse(c)
-// 			return
-// 		}
-// 	}
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(c)
+			return nil
+		}
+	}
 
-// 	// Update URL path to reflect file path in embedded file system
-// 	c.URL.Path = "register.html"
+	return app.Render(c, http.StatusAccepted, views.Register())
+}
 
-// 	app.assetHandler.ServeHTTP(w, r)
-// }
+func (app *application) registerUserHandler(c echo.Context) error {
+	// If app.userExists, ensure user is authenticated
+	if app.userExists {
+		user := app.contextGetUser(c)
 
-// func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
-// 	// If app.userExists, ensure user is authenticated
-// 	if app.userExists {
-// 		user := app.contextGetUser(r)
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(c)
+			return nil
+		}
+	}
 
-// 		if user.IsAnonymous() {
-// 			app.authenticationRequiredResponse(w, r)
-// 			return
-// 		}
-// 	}
+	input := userInput{}
 
-// 	input := userInput{}
+	err := c.Bind(&input)
+	if err != nil {
+		app.badRequestResponse(c, err)
+		return nil
+	}
 
-// 	err := app.readJSON(w, r, &input)
-// 	if err != nil {
-// 		app.badRequestResponse(w, r, err)
-// 		return
-// 	}
+	user := &data.User{
+		Username: input.Username,
+	}
 
-// 	user := &data.User{
-// 		Username: input.Username,
-// 	}
+	err = user.Password.Set(input.Password)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return nil
+	}
 
-// 	err = user.Password.Set(input.Password)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 		return
-// 	}
+	v := validator.New()
 
-// 	v := validator.New()
+	if data.ValidateUser(v, user); !v.Valid() {
+		app.failedValidationResponse(c, v.Errors)
+		return nil
+	}
 
-// 	if data.ValidateUser(v, user); !v.Valid() {
-// 		app.failedValidationResponse(w, r, v.Errors)
-// 		return
-// 	}
+	err = app.models.Users.Insert(user)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrUserAlreadyExists):
+			v.AddError("username", "a user with this username already exists")
+			app.failedValidationResponse(c, v.Errors)
+		default:
+			app.serverErrorResponse(c, err)
+		}
+		return nil
+	}
 
-// 	err = app.models.Users.Insert(user)
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, data.ErrUserAlreadyExists):
-// 			v.AddError("username", "a user with this username already exists")
-// 			app.failedValidationResponse(w, r, v.Errors)
-// 		default:
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+	err = app.createAndSetAdminTokenCookie(c, user.ID, app.config.tokens.expiry)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return nil
+	}
 
-// 	err = app.createAndSetAdminTokenCookie(w, user.ID, app.config.tokens.expiry)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 		return
-// 	}
+	app.userExists = true
 
-// 	app.userExists = true
-
-// 	err = app.writeJSON(w, http.StatusAccepted, envelope{"authenticated": true}, nil)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 	}
-// }
+	return c.JSON(http.StatusAccepted, envelope{"authenticated": true})
+}
 
 // Prevent user from accessing sign in page and handler if they are already logged in
-// func (app *application) signInPageHandler(w http.ResponseWriter, r *http.Request) {
-// 	user := app.contextGetUser(r)
+func (app *application) signInPageHandler(c echo.Context) error {
+	user := app.contextGetUser(c)
 
-// 	if !user.IsAnonymous() {
-// 		app.signOutRequiredRedirectResponse(w, r)
-// 		return
-// 	}
+	if !user.IsAnonymous() {
+		app.signOutRequiredResponse(c)
+		return nil
+	}
 
-// 	// Update URL path to reflect file path in embedded file system
-// 	r.URL.Path = "sign-in.html"
+	return app.Render(c, http.StatusAccepted, views.SignIn())
+}
 
-// 	app.assetHandler.ServeHTTP(w, r)
-// }
+func (app *application) signInUserHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
 
-// func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request) {
-// 	u := app.contextGetUser(r)
+	if !u.IsAnonymous() {
+		app.signOutRequiredResponse(c)
+		return nil
+	}
 
-// 	if !u.IsAnonymous() {
-// 		app.signOutRequiredResponse(w, r)
-// 		return
-// 	}
+	input := userInput{}
 
-// 	input := userInput{}
+	err := c.Bind(&input)
+	if err != nil {
+		app.badRequestResponse(c, err)
+		return nil
+	}
 
-// 	err := app.readJSON(w, r, &input)
-// 	if err != nil {
-// 		app.badRequestResponse(w, r, err)
-// 		return
-// 	}
+	v := validator.New()
 
-// 	v := validator.New()
+	data.ValidateUsername(v, input.Username)
+	data.ValidatePasswordPlaintext(v, input.Password)
 
-// 	data.ValidateUsername(v, input.Username)
-// 	data.ValidatePasswordPlaintext(v, input.Password)
+	if !v.Valid() {
+		app.failedValidationResponse(c, v.Errors)
+		return nil
+	}
 
-// 	if !v.Valid() {
-// 		app.failedValidationResponse(w, r, v.Errors)
-// 		return
-// 	}
+	// Retrieve row from users table that matches the provided username
+	user, err := app.models.Users.GetByUsername(input.Username)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.invalidCredentialsReponse(c)
+		default:
+			app.serverErrorResponse(c, err)
+		}
+		return nil
+	}
 
-// 	// Retrieve row from users table that matches the provided username
-// 	user, err := app.models.Users.GetByUsername(input.Username)
-// 	if err != nil {
-// 		switch {
-// 		case errors.Is(err, data.ErrRecordNotFound):
-// 			app.invalidCredentialsReponse(w, r)
-// 		default:
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+	// Compare plaintext password provided by the client with hashed password from row retrieved from user table (SECURITY RISK - MAN-IN-MIDDLE/FAKE WEBSITE ATTACK??)
+	match, err := user.Password.Matches(input.Password)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return nil
+	}
 
-// 	// Compare plaintext password provided by the client with hashed password from row retrieved from user table (SECURITY RISK - MAN-IN-MIDDLE/FAKE WEBSITE ATTACK??)
-// 	match, err := user.Password.Matches(input.Password)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 		return
-// 	}
+	if !match {
+		app.invalidCredentialsReponse(c)
+		return nil
+	}
 
-// 	if !match {
-// 		app.invalidCredentialsReponse(w, r)
-// 		return
-// 	}
+	err = app.createAndSetAdminTokenCookie(c, user.ID, app.config.tokens.expiry)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return nil
+	}
 
-// 	err = app.createAndSetAdminTokenCookie(w, user.ID, app.config.tokens.expiry)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 		return
-// 	}
+	app.logger.PrintInfo("user logged in", map[string]interface{}{
+		"userID": user.ID,
+	})
 
-// 	app.logger.PrintInfo("user logged in", map[string]interface{}{
-// 		"userID": user.ID,
-// 	})
-
-// 	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
-// 	if err != nil {
-// 		app.serverErrorResponse(w, r, err)
-// 	}
-// }
+	return c.JSON(http.StatusAccepted, envelope{"user": user})
+}
 
 // func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request) {
 // 	user := app.contextGetUser(r)

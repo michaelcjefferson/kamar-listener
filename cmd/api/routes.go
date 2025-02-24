@@ -39,6 +39,12 @@ func (app *application) routes() http.Handler {
 	// Routes that require authentication
 	// To set middleware on any route branching off of "/", including the "/" route itself, echo requires the route group to be set on "" rather than "/" as it appends a trailing slash.
 	authGroup := router.Group("", app.authenticateUser)
+	authGroup.GET("/register", app.registerPageHandler)
+	authGroup.POST("/register", app.registerUserHandler)
+
+	authGroup.GET("/sign-in", app.signInPageHandler)
+	authGroup.POST("/sign-in", app.signInUserHandler)
+
 	authGroup.StaticFS("/", assetFS)
 	authGroup.GET("/", app.dashboardHandler)
 
