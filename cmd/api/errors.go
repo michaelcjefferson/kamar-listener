@@ -39,9 +39,11 @@ func (app *application) errorResponse(c echo.Context, status int, message interf
 func (app *application) redirectErrorResponse(c echo.Context, path string, jsonStatus int, message interface{}) error {
 	var err error
 	if strings.Contains(c.Request().Header.Get("Accept"), "application/json") {
+		app.logger.PrintInfo("accepts json", nil)
 		env := envelope{"error": message, "redirect": path}
 		err = c.JSON(jsonStatus, env)
 	} else {
+		app.logger.PrintInfo("doesn't accept json, sending c.Redirect", nil)
 		err = c.Redirect(http.StatusSeeOther, path)
 	}
 	if err != nil {

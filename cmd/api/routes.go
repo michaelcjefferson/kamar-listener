@@ -48,17 +48,15 @@ func (app *application) routes() http.Handler {
 	authGroup.StaticFS("/", assetFS)
 	authGroup.GET("/", app.dashboardHandler)
 
-	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
-	// router.HandlerFunc(http.MethodPost, "/kamar-refresh", app.authenticateKAMAR(app.kamarRefreshHandler))
-
-	// router.HandlerFunc(http.MethodGet, "/register", app.authenticateUser(app.registerPageHandler))
-	// router.HandlerFunc(http.MethodPost, "/register", app.authenticateUser(app.registerUserHandler))
-
-	// router.HandlerFunc(http.MethodGet, "/sign-in", app.authenticateUser(app.signInPageHandler))
-	// router.HandlerFunc(http.MethodPost, "/sign-in", app.authenticateUser(app.signInUserHandler))
-
+	// Routes that require the user to be successfully authenticated
+	// All routes in this group first pass through authenticateUser, as it is defined on top of the authGroup.Group
+	isAuthenticatedGroup := authGroup.Group("", app.requireAuthenticatedUser)
 	// The user must be authenticated in order to be logged out successfully
-	// router.HandlerFunc(http.MethodPost, "/log-out", app.authenticateUser(app.requireAuthenticatedUser(app.logoutUserHandler)))
+	isAuthenticatedGroup.POST("/log-out", app.logoutUserHandler)
+
+	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
+	kamarAuthGroup := router.Group("/kamar-refresh", app.authenticateKAMAR)
+	kamarAuthGroup.POST("/", app.kamarRefreshHandler)
 
 	// router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
 

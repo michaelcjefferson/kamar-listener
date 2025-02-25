@@ -160,45 +160,45 @@ func (app *application) signInUserHandler(c echo.Context) error {
 		"userID": user.ID,
 	})
 
-	return c.JSON(http.StatusAccepted, envelope{"user": user})
+	return app.redirectResponse(c, "/", http.StatusAccepted, envelope{"user": user})
 }
 
-// func (app *application) logoutUserHandler(w http.ResponseWriter, r *http.Request) {
-// 	user := app.contextGetUser(r)
+func (app *application) logoutUserHandler(c echo.Context) error {
+	user := app.contextGetUser(c)
 
-// 	deleted, err := app.models.Tokens.DeleteAllForUser(user.ID)
-// 	if err != nil {
-// 		switch {
-// 		// TODO: This case currently cannot be triggered as DeleteAllForUser doesn't return this type of error
-// 		case errors.Is(err, data.ErrRecordNotFound):
-// 			app.invalidCredentialsReponse(w, r)
-// 		default:
-// 			app.serverErrorResponse(w, r, err)
-// 		}
-// 		return
-// 	}
+	if user.IsAnonymous() {
+		return app.invalidAuthenticationTokenResponse(c)
+	}
 
-// 	app.logger.PrintInfo("user logged out", map[string]interface{}{
-// 		"userID":        user.ID,
-// 		"tokensDeleted": deleted,
-// 	})
+	deleted, err := app.models.Tokens.DeleteAllForUser(user.ID)
+	if err != nil {
+		switch {
+		// TODO: This case currently cannot be triggered as DeleteAllForUser doesn't return this type of error
+		case errors.Is(err, data.ErrRecordNotFound):
+			return app.invalidCredentialsReponse(c)
+		default:
+			return app.serverErrorResponse(c, err)
+		}
+	}
 
-// 	// Set the user for this request session to an anonymous user, and expire previously set cookies
-// 	r = app.contextSetUser(r, data.AnonymousUser)
-// 	http.SetCookie(w, &http.Cookie{
-// 		Name:     "listener_admin_auth_token",
-// 		Value:    "",
-// 		Path:     "/",
-// 		HttpOnly: true,
-// 		MaxAge:   -1,
-// 	})
+	app.logger.PrintInfo("user logged out", map[string]interface{}{
+		"userID":         user.ID,
+		"tokens deleted": deleted,
+	})
 
-// 	http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
-// 	// err = app.writeJSON(w, http.StatusAccepted, nil, nil)
-// 	// if err != nil {
-// 	// 	app.serverErrorResponse(w, r, err)
-// 	// }
-// }
+	// Set the user for this request session to an anonymous user, and expire previously set cookies
+	// TODO: Refactor into function
+	app.contextSetUser(c, data.AnonymousUser)
+	c.SetCookie(&http.Cookie{
+		Name:     "listener_admin_auth_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
+
+	return app.redirectResponse(c, "/sign-in", http.StatusAccepted, "successfully logged out")
+}
 
 func (app *application) getUserCount() (int, error) {
 	var userCount int

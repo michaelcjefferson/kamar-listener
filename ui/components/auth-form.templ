@@ -17,7 +17,9 @@ templ AuthForm(newUser bool) {
     }
   </form>
 
-  <p id="message"></p>
+  <div id="error-container">
+    <p id="message"></p>
+  </div>
 
   <script>
     document.getElementById("auth-form").addEventListener("submit", async function(event) {
@@ -40,20 +42,59 @@ templ AuthForm(newUser bool) {
         urlString = "/sign-in"
       }
 
-      const response = await fetch(urlString, {
+      const res = await fetch(urlString, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         },
         body: JSON.stringify({ username, password })
       });
 
-      if (response.ok) {
-        window.location.href = redirectString; // Redirect to appropriate page
-      } else {
-        const errorMessage = await response.text();
-        document.getElementById("message").textContent = errorMessage;
+      if (res.redirected) {
+        // Get the redirect URL from the Location header
+        let redirectUrl = res.url;
+        // Redirect the user manually
+        window.location.href = redirectUrl;
+        return;
       }
+
+      let j = await res.json();
+
+      // Check if response is OK (status 200-299)
+      if (res.ok) {
+        console.log('Successfully logged in.');
+      } else {
+        // If it's not a redirect or successful response, check for JSON error
+        console.error('Login error:', j.error);
+        // TODO: Convert to templ component which is retrieved via HTMX
+        if (typeof j.error === "string") {
+          document.getElementById("message").textContent = j.error;
+        }
+        // TODO: Only works for first error response
+        if (typeof j.error === "object") {
+          const errorContainer = document.getElementById("error-container");
+          errorContainer.innerHTML = "<ul class='error-list'></ul>";
+          const ul = errorContainer.querySelector("ul");
+
+          Object.entries(j.error).forEach(([key, value]) => {
+              const li = document.createElement("li");
+              li.textContent = `${key}: ${value}`;
+              ul.appendChild(li);
+          });
+        }
+        // alert('Login failed: ' + j.error);
+      }
+      if (j.redirect) {
+        window.location.href = j.redirect;
+      }
+
+      // if (response.ok) {
+      //   window.location.href = redirectString; // Redirect to appropriate page
+      // } else {
+      //   const errorMessage = await response.text();
+      //   document.getElementById("message").textContent = errorMessage;
+      // }
     });
   </script>
 }

@@ -2,9 +2,26 @@ package main
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
+
+// ------------General Responses------------ //
+func (app *application) redirectResponse(c echo.Context, path string, jsonStatus int, message interface{}) error {
+	var err error
+	if strings.Contains(c.Request().Header.Get("Accept"), "application/json") {
+		env := envelope{"message": message, "redirect": path}
+		err = c.JSON(jsonStatus, env)
+	} else {
+		err = c.Redirect(http.StatusSeeOther, path)
+	}
+	if err != nil {
+		app.logError(c, err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return err
+}
 
 // ------------KAMAR Responses------------ //
 func (app *application) kamarResponse(c echo.Context, status int, j map[string]interface{}) error {
@@ -22,7 +39,7 @@ func (app *application) kamarResponse(c echo.Context, status int, j map[string]i
 }
 
 // The three responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
-func (app *application) successResponse(c echo.Context) {
+func (app *application) successResponse(c echo.Context) error {
 	j := map[string]interface{}{
 		"error":   0,
 		"result":  "OK",
@@ -30,11 +47,11 @@ func (app *application) successResponse(c echo.Context) {
 		"version": "1.0",
 	}
 
-	app.kamarResponse(c, http.StatusOK, j)
+	return app.kamarResponse(c, http.StatusOK, j)
 }
 
 // NOTE: The expected failed response here: https://directoryservices.kamar.nz/?listening-service/standard-response - includes a Content-Length: 123 header, whereas Content-Length is only 82 with this response.
-func (app *application) authFailedResponse(c echo.Context) {
+func (app *application) authFailedResponse(c echo.Context) error {
 	j := map[string]interface{}{
 		"error":   403,
 		"result":  "Authentication Failed",
@@ -42,10 +59,10 @@ func (app *application) authFailedResponse(c echo.Context) {
 		"version": "1.0",
 	}
 
-	app.kamarResponse(c, http.StatusForbidden, j)
+	return app.kamarResponse(c, http.StatusForbidden, j)
 }
 
-func (app *application) noCredentialsResponse(c echo.Context) {
+func (app *application) noCredentialsResponse(c echo.Context) error {
 	j := map[string]interface{}{
 		"error":   401,
 		"result":  "No Credentials Provided",
@@ -53,10 +70,10 @@ func (app *application) noCredentialsResponse(c echo.Context) {
 		"version": "1.0",
 	}
 
-	app.kamarResponse(c, http.StatusUnauthorized, j)
+	return app.kamarResponse(c, http.StatusUnauthorized, j)
 }
 
-func (app *application) checkResponse(c echo.Context) {
+func (app *application) checkResponse(c echo.Context) error {
 	j := map[string]any{
 		"error":             0,
 		"result":            "OK",
@@ -93,5 +110,5 @@ func (app *application) checkResponse(c echo.Context) {
 		},
 	}
 
-	app.kamarResponse(c, http.StatusOK, j)
+	return app.kamarResponse(c, http.StatusOK, j)
 }

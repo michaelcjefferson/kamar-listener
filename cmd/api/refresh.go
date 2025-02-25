@@ -38,15 +38,17 @@ type ResultsField struct {
 	Data  []data.Result `json:"data,omitempty"`
 }
 
-func (app *application) kamarRefreshHandler(c echo.Context) {
+func (app *application) kamarRefreshHandler(c echo.Context) error {
 	var kamarData KAMARData
 
 	// Response if KAMAR JSON is malformed/incomplete
 	err := c.Bind(&kamarData)
 	// err := app.readJSON(c, &kamarData)
 	if err != nil {
-		app.badRequestResponse(c, err)
-		return
+		app.logger.PrintError(errors.New("failed to bind data from KAMAR to Go structs"), map[string]interface{}{
+			"request body": c.Request().Body,
+		})
+		return app.badRequestResponse(c, err)
 	}
 
 	// Establish the type of request from KAMAR
@@ -55,17 +57,15 @@ func (app *application) kamarRefreshHandler(c echo.Context) {
 		app.logger.PrintError(errors.New("failed to get syncType from input"), map[string]interface{}{
 			"data": kamarData.Data,
 		})
-		app.authFailedResponse(c)
-		return
+		return app.authFailedResponse(c)
 	}
 
 	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
 	if syncType == "check" {
-		app.checkResponse(c)
 		app.logger.PrintInfo("received and processed check request", map[string]interface{}{
 			"data": kamarData.Data,
 		})
-		return
+		return app.checkResponse(c)
 	}
 
 	// If syncType is populated, but its value is not "check", then it contains data. syncType will indicate the type of data included
@@ -101,13 +101,12 @@ func (app *application) kamarRefreshHandler(c echo.Context) {
 		err = fmt.Errorf("sync type wasn't recognised. sync type: %s", syncType)
 	}
 	if err != nil {
-		app.logger.PrintError(err, nil)
-		app.authFailedResponse(c)
-		return
+		app.logError(c, err)
+		return app.authFailedResponse(c)
 	}
 
 	app.logger.PrintInfo("data successfully received from KAMAR and written to the SQLite database", nil)
-	app.successResponse(c)
+	return app.successResponse(c)
 
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?
 
