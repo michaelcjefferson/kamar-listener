@@ -1,0 +1,17 @@
+package views
+
+import "github.com/mjefferson-whs/listener/ui/components"
+
+// templ Dashboard() {
+//   @Base() {
+//     @components.NavBar("home")
+//     @components.Hero("center")
+//     @components.LogOutButton()
+//   }
+// }
+
+templ DashboardPage() {
+  @Authenticated() {
+    @components.Hero("center")
+  }
+}

@@ -45,14 +45,18 @@ func (app *application) routes() http.Handler {
 	authGroup.GET("/sign-in", app.signInPageHandler)
 	authGroup.POST("/sign-in", app.signInUserHandler)
 
+	// Auth not required to request assets
+	// TODO: Separate assets for authed and unauthed, and only serve unauthed assets to unauthed users
 	authGroup.StaticFS("/", assetFS)
-	authGroup.GET("/", app.dashboardHandler)
 
 	// Routes that require the user to be successfully authenticated
 	// All routes in this group first pass through authenticateUser, as it is defined on top of the authGroup.Group
 	isAuthenticatedGroup := authGroup.Group("", app.requireAuthenticatedUser)
-	// The user must be authenticated in order to be logged out successfully
+	// The user must be authenticated in order to be logged out successfully, and to reach the dashboard
 	isAuthenticatedGroup.POST("/log-out", app.logoutUserHandler)
+	isAuthenticatedGroup.GET("/config", app.configPageHandler)
+	isAuthenticatedGroup.GET("/logs", app.logsPageHandler)
+	isAuthenticatedGroup.GET("/", app.dashboardPageHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	kamarAuthGroup := router.Group("/kamar-refresh", app.authenticateKAMAR)
@@ -60,15 +64,5 @@ func (app *application) routes() http.Handler {
 
 	// router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
 
-	// serve assets from /ui (httprouter's wild cards require a variable to be created, in this case filepath, to represent the value of the wildcard)
-	// router.HandlerFunc(http.MethodGet, "/assets/*filepath", app.authenticateUser(app.requireAuthenticatedUser(func(w http.ResponseWriter, r *http.Request) {
-	// 	app.assetHandler.ServeHTTP(w, r)
-	// })))
-	// serve index.html from /ui if user is authenticated
-	// router.HandlerFunc(http.MethodGet, "/", app.authenticateUser(app.requireAuthenticatedUser(func(w http.ResponseWriter, r *http.Request) {
-	// 	app.assetHandler.ServeHTTP(w, r)
-	// })))
-
 	return router
-	// return app.recoverPanic(app.rateLimit(app.processCORS(router)))
 }

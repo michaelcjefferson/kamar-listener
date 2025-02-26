@@ -7,6 +7,14 @@ import (
 	views "github.com/mjefferson-whs/listener/ui/views"
 )
 
-func (app *application) dashboardHandler(c echo.Context) error {
-	return app.Render(c, http.StatusOK, views.Dashboard())
+func (app *application) dashboardPageHandler(c echo.Context) error {
+	return app.Render(c, http.StatusOK, views.DashboardPage())
+}
+
+func (app *application) logsPageHandler(c echo.Context) error {
+	return app.Render(c, http.StatusOK, views.LogsPage())
+}
+
+func (app *application) configPageHandler(c echo.Context) error {
+	return app.Render(c, http.StatusOK, views.ConfigPage())
 }

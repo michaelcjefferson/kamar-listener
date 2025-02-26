@@ -35,15 +35,13 @@ func (app *application) errorResponse(c echo.Context, status int, message interf
 	return nil
 }
 
-// If the client accepts JSON (which will be the case when using fetch() in the browser for API calls, CURL etc.), provide a JSON response including a status code, redirect path to follow if desired by the client, and error message - otherwise respond with a redirect
+// If the client accepts JSON (which will be the case when using fetch() in the browser for API calls, CURL etc.), provide a JSON response including a status code, redirect path to follow if desired by the client, and error message - otherwise respond with an http.Redirect. http.Redirect will occur if a client tries to access a page via its URL - it is a GET request and doesn't include the Accepts JSON header
 func (app *application) redirectErrorResponse(c echo.Context, path string, jsonStatus int, message interface{}) error {
 	var err error
 	if strings.Contains(c.Request().Header.Get("Accept"), "application/json") {
-		app.logger.PrintInfo("accepts json", nil)
 		env := envelope{"error": message, "redirect": path}
 		err = c.JSON(jsonStatus, env)
 	} else {
-		app.logger.PrintInfo("doesn't accept json, sending c.Redirect", nil)
 		err = c.Redirect(http.StatusSeeOther, path)
 	}
 	if err != nil {

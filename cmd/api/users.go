@@ -26,7 +26,7 @@ func (app *application) registerPageHandler(c echo.Context) error {
 		}
 	}
 
-	return app.Render(c, http.StatusAccepted, views.Register())
+	return app.Render(c, http.StatusAccepted, views.RegisterPage())
 }
 
 func (app *application) registerUserHandler(c echo.Context) error {
@@ -97,7 +97,7 @@ func (app *application) signInPageHandler(c echo.Context) error {
 		return nil
 	}
 
-	return app.Render(c, http.StatusAccepted, views.SignIn())
+	return app.Render(c, http.StatusAccepted, views.SignInPage())
 }
 
 func (app *application) signInUserHandler(c echo.Context) error {
