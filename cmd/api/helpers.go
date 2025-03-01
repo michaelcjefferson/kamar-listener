@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -16,6 +17,17 @@ func (app *application) Render(c echo.Context, statusCode int, t templ.Component
 	c.Response().Writer.WriteHeader(statusCode)
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
 	return t.Render(c.Request().Context(), c.Response().Writer)
+}
+
+func (app *application) readIDParam(c echo.Context) (int, error) {
+	param := c.Param("id")
+
+	id, err := strconv.ParseInt(param, 10, 0)
+	if err != nil || id < 1 {
+		return 0, errors.New("invalid id parameter")
+	}
+
+	return int(id), nil
 }
 
 type envelope map[string]interface{}

@@ -25,14 +25,14 @@ confirm:
 .PHONY: build/linux
 build/linux: remove build/frontend
 	@echo Building listener service Linux binary...
-	go build -tags "linux" -o=./bin/listenerService ./cmd/api
+	go build -tags "linux sqlite_fts5" -o=./bin/listenerService ./cmd/api
 	@echo Done
 
 ## build/windows: remove previously built binaries and build a windows binary
 .PHONY: build/windows
 build/windows: remove build/frontend
 	@echo Building listener service Windows binary...
-	set CGO_ENABLED=0&& set goos=windows&& go build -o ./bin/listenerService.exe ./cmd/api
+	set CGO_ENABLED=0&& set goos=windows&& go build -tags "sqlite_fts5" -o ./bin/listenerService.exe ./cmd/api
 	@echo Done
 
 # TODO: the following two commands need to first check for the existance of the folder they're attempting to copy into, and then create it if necessary
@@ -71,7 +71,7 @@ install/frontend:
 .PHONY: run/api
 run/api: build/templates
 	@echo Running KAMAR Refresh API...
-	go run ./cmd/api
+	go run -tags "sqlite_fts5" ./cmd/api
 
 # ==================================================================================== #
 # QUALITY CONTROL

@@ -98,7 +98,7 @@ func createLogsTable(db *sql.DB) error {
 	// FTS5 tables are optimised for text search, and allow in this case for more efficiently searching for logs containing key words
 	// This particular FTS5 table is only set up to allow for searching for text in log messages only, as defined by the message param
 	createFTSTableStmt := `
-		CREATE VIRTUAL TABLE logs_fts
+		CREATE VIRTUAL TABLE IF NOT EXISTS logs_fts
 		USING fts5(message, content='logs', content_rowid='id');
 	`
 

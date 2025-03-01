@@ -61,9 +61,9 @@ func (r *Result) CreateTNV() {
 	r.TNV = tnv
 }
 
-func (r ResultModel) InsertManyAssessments(assessments []Assessment) error {
+func (m ResultModel) InsertManyAssessments(assessments []Assessment) error {
 	// Start a transaction (tx)
-	tx, err := r.DB.Begin()
+	tx, err := m.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -104,9 +104,9 @@ func (r ResultModel) InsertManyAssessments(assessments []Assessment) error {
 	return nil
 }
 
-func (r ResultModel) InsertManyResults(results []Result) error {
+func (m ResultModel) InsertManyResults(results []Result) error {
 	// Start a transaction (tx)
-	tx, err := r.DB.Begin()
+	tx, err := m.DB.Begin()
 	if err != nil {
 		return err
 	}

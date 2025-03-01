@@ -3,14 +3,10 @@ package views
 import "github.com/mjefferson-whs/listener/ui/components"
 import "github.com/mjefferson-whs/listener/internal/data"
 
-templ LogsPage(logs []data.Log) {
+templ IndividualLogPage(log data.Log) {
   @Authenticated() {
     <h2>Logs Page</h2>
 
-    if len(logs) > 0 {
-      for _, log := range logs {
-        @components.LogDetail(log)
-      }
-    }
+    @components.LogDetail(log)
   }
 }
