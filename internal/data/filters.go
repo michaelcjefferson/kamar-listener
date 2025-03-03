@@ -8,10 +8,17 @@ import (
 )
 
 type Filters struct {
+	LogFilters   LogFilters
 	Page         int
 	PageSize     int
 	Sort         string
 	SortSafeList []string
+}
+
+type LogFilters struct {
+	Level  string
+	Search string
+	UserID int
 }
 
 type Metadata struct {

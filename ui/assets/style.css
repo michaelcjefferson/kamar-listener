@@ -97,3 +97,15 @@ nav a.active {
   color: #acb0fc;
   pointer-events: none;
 }
+
+/* LOGS */
+.log-card {
+  border: 1px solid rgb(62, 62, 230);
+  display: flex;
+  justify-content: space-between;
+}
+
+.page-navigation-controls {
+  display: flex;
+  justify-content: space-between;
+}

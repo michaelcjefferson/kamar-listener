@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -99,27 +100,46 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 	return &log, nil
 }
 
-func (m *LogModel) GetAll(searchTerm string, filters Filters) ([]*Log, Metadata, error) {
+func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 	// It's not possible to interpolate ORDER BY column or direction into an SQL query using $ values, so use Sprintf to create the query.
 	// Subquery SELECT COUNT(*) FROM logs_fts provides the total number of rows returned by the query, and appends it to each row in the location specified (in this case, it is the last column of each row, i.e. after trace)
 	// The JOIN also uses the logs_fts table to perform a search for messages that contain the provided searchTerm
-	query := fmt.Sprintf(`
+	// query := fmt.Sprintf(`
+	// 	SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.userID,
+	// 		(SELECT COUNT(*) FROM logs_fts WHERE logs_fts MATCH ?)
+	// 		AS total_count
+	// 	FROM logs
+	// 	JOIN logs_fts ON logs.id = logs_fts.rowid
+	// 	WHERE logs_fts MATCH ?
+	// 	AND level = ?
+	// 	AND userID = ?
+	// 	ORDER BY %s %s, id ASC
+	// 	LIMIT ? OFFSET ?
+	// `, filters.sortColumn(), filters.sortDirection())
+
+	var queryBuilder strings.Builder
+	args := []interface{}{}
+
+	queryBuilder.WriteString(`
 		SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.userID,
-			(SELECT COUNT(*) FROM logs_fts WHERE logs_fts MATCH ?)
-			AS total_count
-		FROM logs
-		JOIN logs_fts ON logs.id = logs_fts.rowid
-		WHERE logs_fts MATCH ?
-		ORDER BY %s %s, id ASC
-		LIMIT ? OFFSET ?
-	`, filters.sortColumn(), filters.sortDirection())
+			(SELECT COUNT(*) FROM logs WHERE 1=1
+	`)
+
+	getAllLogsFilterQueryHelper(queryBuilder, args, filters)
+
+	queryBuilder.WriteString(") AS total_count FROM logs JOIN logs_fts ON logs.id = logs_fts.rowid WHERE 1=1")
+
+	getAllLogsFilterQueryHelper(queryBuilder, args, filters)
+
+	queryBuilder.WriteString(fmt.Sprintf(" ORDER BY %s %s, id ASC LIMIT ? OFFSET ?", filters.sortColumn(), filters.sortDirection()))
+	args = append(args, filters.limit(), filters.offset())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	args := []interface{}{searchTerm, searchTerm, filters.limit(), filters.offset()}
+	// args := []interface{}{messageTerm, messageTerm, level, userID, filters.limit(), filters.offset()}
 
-	rows, err := m.DB.QueryContext(ctx, query, args...)
+	rows, err := m.DB.QueryContext(ctx, queryBuilder.String(), args...)
 	if err != nil {
 		return nil, Metadata{}, err
 	}
@@ -128,19 +148,20 @@ func (m *LogModel) GetAll(searchTerm string, filters Filters) ([]*Log, Metadata,
 	defer rows.Close()
 
 	totalRecords := 0
-	logs := []*Log{}
+	logs := []Log{}
 
 	for rows.Next() {
 		var log Log
 		var propertiesJSON string
+		var userID *int
 
 		err := rows.Scan(
 			&log.ID,
-			&log.Time,
 			&log.Level,
+			&log.Time,
 			&log.Message,
 			&propertiesJSON,
-			&log.UserID,
+			&userID,
 			&totalRecords,
 		)
 		if err != nil {
@@ -155,7 +176,12 @@ func (m *LogModel) GetAll(searchTerm string, filters Filters) ([]*Log, Metadata,
 			return nil, Metadata{}, err
 		}
 
-		logs = append(logs, &log)
+		// Attach value of userID if it isn't nil
+		if userID != nil {
+			log.UserID = *userID
+		}
+
+		logs = append(logs, log)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -165,4 +191,19 @@ func (m *LogModel) GetAll(searchTerm string, filters Filters) ([]*Log, Metadata,
 	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
 
 	return logs, metadata, nil
+}
+
+func getAllLogsFilterQueryHelper(q strings.Builder, args []interface{}, filters Filters) {
+	if filters.LogFilters.Search != "" {
+		q.WriteString(" AND logs_fts MATCH ?")
+		args = append(args, filters.LogFilters.Search)
+	}
+	if filters.LogFilters.Level != "" {
+		q.WriteString(" AND level = ?")
+		args = append(args, filters.LogFilters.Level)
+	}
+	if filters.LogFilters.UserID != 0 {
+		q.WriteString(" AND userID = ?")
+		args = append(args, filters.LogFilters.UserID)
+	}
 }

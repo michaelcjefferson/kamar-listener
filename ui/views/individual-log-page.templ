@@ -7,6 +7,8 @@ templ IndividualLogPage(log data.Log) {
   @Authenticated() {
     <h2>Logs Page</h2>
 
+    <a href="/logs">BACK</a>
+
     @components.LogDetail(log)
   }
 }

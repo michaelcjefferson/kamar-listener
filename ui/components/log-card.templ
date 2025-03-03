@@ -1,0 +1,14 @@
+package components
+
+import (
+  "github.com/mjefferson-whs/listener/internal/data"
+	"fmt"
+)
+
+templ LogCard(log data.Log) {
+  <a class="log-card" href={ templ.URL(fmt.Sprintf("/logs/%v", log.ID)) }>
+    <p><strong>ID:</strong>{ fmt.Sprintf("%v", log.ID) }</p>
+    <h3>{ log.Message }</h3>
+    <h4>{ log.Time }</h4>
+  </a>
+}
