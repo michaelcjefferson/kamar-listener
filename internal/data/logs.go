@@ -131,7 +131,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 
 	getAllLogsFilterQueryHelper(queryBuilder, args, filters)
 
-	queryBuilder.WriteString(fmt.Sprintf(" ORDER BY %s %s, id ASC LIMIT ? OFFSET ?", filters.sortColumn(), filters.sortDirection()))
+	queryBuilder.WriteString(fmt.Sprintf(" ORDER BY %s %s, id DESC LIMIT ? OFFSET ?", filters.sortColumn(), filters.sortDirection()))
 	args = append(args, filters.limit(), filters.offset())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

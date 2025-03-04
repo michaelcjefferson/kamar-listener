@@ -17,6 +17,10 @@ import (
 // InsecureSkipVerify prevents errors caused by using self-signed certificates (as is the case for this application)
 // TODO: Implement VerifyConnection to improve security
 func (app *application) serve() error {
+	// if err := sslcerts.GenerateSSLCert(app.logger); err != nil {
+	// 	app.logger.PrintFatal(err, nil)
+	// }
+
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}

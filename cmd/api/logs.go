@@ -12,7 +12,7 @@ import (
 )
 
 func (app *application) logsPageHandler(c echo.Context) error {
-	logs, metadata, err := app.models.Logs.GetAll(data.Filters{
+	filters := data.Filters{
 		LogFilters: data.LogFilters{
 			Level:  "",
 			Search: "",
@@ -20,11 +20,39 @@ func (app *application) logsPageHandler(c echo.Context) error {
 		},
 		Page:         1,
 		PageSize:     10,
-		Sort:         "time",
-		SortSafeList: []string{"level", "time", "userID"},
-	})
+		Sort:         "-time",
+		SortSafeList: []string{"level", "time", "userID", "-level", "-time", "-userID"},
+	}
+
+	filters.LogFilters.Level = c.QueryParam("level")
+	filters.LogFilters.Search = c.QueryParam("message")
+	if u := c.QueryParam("userid"); u != "" {
+		u, err := strconv.Atoi(u)
+		if err != nil {
+			app.badRequestResponse(c, err)
+			return err
+		}
+		filters.LogFilters.UserID = u
+	}
+
+	// TODO: Refer to movies.go in greenlight to allow client-based sorting etc.
+	if p := c.QueryParam("page"); p != "" {
+		p, err := strconv.Atoi(p)
+		if err != nil {
+			app.badRequestResponse(c, err)
+			return err
+		}
+		filters.Page = p
+	}
+
+	v := validator.New()
+	if data.ValidateFilters(v, filters); !v.Valid() {
+		return app.failedValidationResponse(c, v.Errors)
+	}
+
+	logs, metadata, err := app.models.Logs.GetAll(filters)
 	if err != nil {
-		app.serverErrorResponse(c, err)
+		return app.serverErrorResponse(c, err)
 	}
 
 	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata))
