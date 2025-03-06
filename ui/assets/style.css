@@ -79,6 +79,19 @@ button:focus-visible {
   }
 }
 
+/* TEXT */
+.info-text {
+  color: greenyellow;
+}
+
+.error-text {
+  color: orange;
+}
+
+.fatal-text {
+  color: red;
+}
+
 /* NAV BAR */
 nav {
   text-align: center;
@@ -101,6 +114,7 @@ nav a.active {
 /* LOGS */
 .log-card {
   border: 1px solid rgb(62, 62, 230);
+  color: #ddd;
   display: flex;
   justify-content: space-between;
 }

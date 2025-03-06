@@ -55,8 +55,8 @@ func (app *application) routes() http.Handler {
 	// The user must be authenticated in order to be logged out successfully, and to reach the dashboard
 	isAuthenticatedGroup.POST("/log-out", app.logoutUserHandler)
 	isAuthenticatedGroup.GET("/config", app.configPageHandler)
-	isAuthenticatedGroup.GET("/logs/:id", app.getLogHandler)
-	isAuthenticatedGroup.GET("/logs", app.logsPageHandler)
+	isAuthenticatedGroup.GET("/logs/:id", app.getIndividualLogPageHandler)
+	isAuthenticatedGroup.GET("/logs", app.getFilteredLogsPageHandler)
 	isAuthenticatedGroup.GET("/", app.dashboardPageHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.

@@ -11,7 +11,7 @@ import (
 	views "github.com/mjefferson-whs/listener/ui/views"
 )
 
-func (app *application) logsPageHandler(c echo.Context) error {
+func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 	filters := data.Filters{
 		LogFilters: data.LogFilters{
 			Level:  "",
@@ -43,6 +43,8 @@ func (app *application) logsPageHandler(c echo.Context) error {
 			return err
 		}
 		filters.Page = p
+	} else {
+		filters.Page = 1
 	}
 
 	v := validator.New()
@@ -58,7 +60,7 @@ func (app *application) logsPageHandler(c echo.Context) error {
 	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata))
 }
 
-func (app *application) getLogHandler(c echo.Context) error {
+func (app *application) getIndividualLogPageHandler(c echo.Context) error {
 	id, err := app.readIDParam(c)
 	if err != nil {
 		app.notFoundResponse(c)
@@ -76,7 +78,9 @@ func (app *application) getLogHandler(c echo.Context) error {
 		return err
 	}
 
-	return app.Render(c, http.StatusAccepted, views.IndividualLogPage(*log))
+	referer := c.Request().Header.Get("Referer")
+
+	return app.Render(c, http.StatusAccepted, views.IndividualLogPage(*log, referer))
 }
 
 func (app *application) listLogsHandler(c echo.Context) error {

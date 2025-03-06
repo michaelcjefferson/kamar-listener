@@ -5,12 +5,13 @@ import (
 
   "github.com/mjefferson-whs/listener/internal/data"
 	"fmt"
+	"strings"
 )
 
 templ LogDetail(log data.Log) {
   <div class="log-detail-container">
     <p><strong>ID:</strong>{ strconv.Itoa(log.ID) }</p>
-    <p>{ log.Level }</p>
+    <p class={ strings.ToLower(log.Level) + "-text" }>{ log.Level }</p>
     <h3>{ log.Message }</h3>
     <h4>{ log.Time }</h4>
     if len(log.Properties) > 0 {

@@ -79,9 +79,18 @@ func createLogsTable(db *sql.DB) error {
 	}
 
 	// Create an indexed column based on any logs that come with an attached user id, to make it easier to query for logs regarding a specific user. VIRTUAL allows the column to store NULL values without errors, and NULL values are ignored in indexes
-	alterTableStmt := `ALTER TABLE logs
-		ADD COLUMN userID INTEGER
-		GENERATED ALWAYS AS (json_extract(properties, '$.userID')) VIRTUAL`
+	// Check the datatype of $.userID before extracting, as otherwise in some cases the value of this column can be set to a single " and cause errors
+	// NOTE: Even with the below query, properties with a userID value of "" still cause malformed JSON errors (specifically the logs created by logsPage query params)
+	alterTableStmt := `ALTER TABLE logs ADD COLUMN userID INTEGER
+	GENERATED ALWAYS AS (
+    CASE 
+			WHEN json_valid(properties) 
+				AND json_type(json_extract(properties, '$.userID')) = 'integer' 
+				AND json_extract(properties, '$.userID') != '' 
+			THEN json_extract(properties, '$.userID') 
+			ELSE NULL 
+    END
+	) VIRTUAL;`
 
 	_, err = db.Exec(alterTableStmt)
 	// Alter table doesn't support IF NOT EXISTS, so ignore the error thrown if this column already exists

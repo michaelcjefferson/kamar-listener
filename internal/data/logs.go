@@ -125,19 +125,17 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 			(SELECT COUNT(*) FROM logs WHERE 1=1
 	`)
 
-	getAllLogsFilterQueryHelper(queryBuilder, args, filters)
+	getAllLogsFilterQueryHelper(&queryBuilder, &args, filters)
 
 	queryBuilder.WriteString(") AS total_count FROM logs JOIN logs_fts ON logs.id = logs_fts.rowid WHERE 1=1")
 
-	getAllLogsFilterQueryHelper(queryBuilder, args, filters)
+	getAllLogsFilterQueryHelper(&queryBuilder, &args, filters)
 
 	queryBuilder.WriteString(fmt.Sprintf(" ORDER BY %s %s, id DESC LIMIT ? OFFSET ?", filters.sortColumn(), filters.sortDirection()))
 	args = append(args, filters.limit(), filters.offset())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-
-	// args := []interface{}{messageTerm, messageTerm, level, userID, filters.limit(), filters.offset()}
 
 	rows, err := m.DB.QueryContext(ctx, queryBuilder.String(), args...)
 	if err != nil {
@@ -193,17 +191,17 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 	return logs, metadata, nil
 }
 
-func getAllLogsFilterQueryHelper(q strings.Builder, args []interface{}, filters Filters) {
+func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filters Filters) {
 	if filters.LogFilters.Search != "" {
 		q.WriteString(" AND logs_fts MATCH ?")
-		args = append(args, filters.LogFilters.Search)
+		*args = append(*args, filters.LogFilters.Search)
 	}
 	if filters.LogFilters.Level != "" {
 		q.WriteString(" AND level = ?")
-		args = append(args, filters.LogFilters.Level)
+		*args = append(*args, filters.LogFilters.Level)
 	}
 	if filters.LogFilters.UserID != 0 {
 		q.WriteString(" AND userID = ?")
-		args = append(args, filters.LogFilters.UserID)
+		*args = append(*args, filters.LogFilters.UserID)
 	}
 }

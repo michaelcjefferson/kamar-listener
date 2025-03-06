@@ -3,11 +3,15 @@ package views
 import "github.com/mjefferson-whs/listener/ui/components"
 import "github.com/mjefferson-whs/listener/internal/data"
 
-templ IndividualLogPage(log data.Log) {
+templ IndividualLogPage(log data.Log, ref string) {
   @Authenticated() {
     <h2>Logs Page</h2>
 
-    <a href="/logs">BACK</a>
+    if ref != "" {
+      <a href={ templ.SafeURL(ref) }>BACK</a>
+    } else {
+      <a href="/logs">BACK</a>
+    }
 
     @components.LogDetail(log)
   }
