@@ -26,12 +26,24 @@ type LogModel struct {
 
 // Insert an individual log into the logs table, as well as a reference to the log message for text search into the logs_fts table
 func (m *LogModel) Insert(log *Log) error {
+	// Get userID if it exists to add to logs_metadata table
+	// TEST THIS - doesn't seem to be working
+	var userID int
+	if i, ok := log.Properties["userID"].(int); ok && i != 0 {
+		userID = int(i)
+	}
+
 	query := `
 		INSERT INTO logs (level, time, message, properties, trace)
 		VALUES ($1, $2, $3, $4, $5);
 
 		INSERT INTO logs_fts (rowid, message)
 		VALUES (last_insert_rowid(), $6);
+
+		INSERT INTO logs_metadata (level, userID, count)
+		VALUES ($7, $8, 1)
+		ON CONFLICT(level, userID) DO UPDATE
+		SET count=count+1;
 	`
 
 	jsonProps, err := json.Marshal(log.Properties)
@@ -39,7 +51,7 @@ func (m *LogModel) Insert(log *Log) error {
 		fmt.Println("error marshalling json when attempting to write a log to database:", err)
 	}
 
-	args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message}
+	args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level, userID}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -205,3 +217,33 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filter
 		*args = append(*args, filters.LogFilters.UserID)
 	}
 }
+
+// DELETE
+// tx, err := db.Begin()
+// if err != nil {
+//     log.Fatal(err)
+// }
+// defer tx.Rollback()
+
+// _, err = tx.Exec(`
+//     UPDATE logs_metadata
+//     SET count = count - 1
+//     WHERE (level = ? OR userID = ?)
+//     AND count > 0;
+// `, level, userID)
+// if err != nil {
+//     log.Fatal(err)
+// }
+
+// _, err = tx.Exec(`
+//     DELETE FROM logs_metadata
+//     WHERE count = 0;
+// `)
+// if err != nil {
+//     log.Fatal(err)
+// }
+
+// err = tx.Commit()
+// if err != nil {
+//     log.Fatal(err)
+// }

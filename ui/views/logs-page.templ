@@ -4,6 +4,7 @@ import (
   "github.com/mjefferson-whs/listener/ui/components"
   "github.com/mjefferson-whs/listener/internal/data"
 	"fmt"
+	"strconv"
 )
 
 templ LogsPage(logs []data.Log, metadata data.Metadata) {
@@ -23,9 +24,40 @@ templ LogsPage(logs []data.Log, metadata data.Metadata) {
       if metadata.CurrentPage > 1 {
         <a href={ templ.URL(fmt.Sprintf("/logs?page=%v", metadata.CurrentPage-1)) }>PREVIOUS</a>
       }
+
+      {{
+        startPage := metadata.CurrentPage - 4
+        endPage := metadata.CurrentPage + 4
+
+        if startPage < 1 {
+          endPage -= startPage
+          startPage = 1
+        }
+
+        if endPage > metadata.LastPage {
+          endPage = metadata.LastPage
+        }
+      }}
+
+      for n := startPage; n <= endPage; n++ {
+        if n == metadata.CurrentPage {
+          <p>{ strconv.Itoa(n) }</p>
+        } else {
+          <a href={ templ.URL(fmt.Sprintf("/logs?page=%v", n)) }>{ strconv.Itoa(n) }</a>
+        }
+      }
+      
       if metadata.CurrentPage < metadata.LastPage {
         <a href={ templ.URL(fmt.Sprintf("/logs?page=%v", metadata.CurrentPage+1)) }>NEXT</a>
       }
     </div>
+    // <div class="page-navigation-controls">
+    //   if metadata.CurrentPage > 1 {
+    //     <a href={ templ.URL(fmt.Sprintf("/logs?page=%v", metadata.CurrentPage-1)) }>PREVIOUS</a>
+    //   }
+    //   if metadata.CurrentPage < metadata.LastPage {
+    //     <a href={ templ.URL(fmt.Sprintf("/logs?page=%v", metadata.CurrentPage+1)) }>NEXT</a>
+    //   }
+    // </div>
   }
 }

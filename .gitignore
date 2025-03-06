@@ -2,6 +2,7 @@ bin/
 tls/
 .envrc
 *.db
+*.db-journal
 test/refresh-test.json
 cmd/api/ui/
 cmd/api/assets/

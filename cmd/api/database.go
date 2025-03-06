@@ -99,7 +99,7 @@ func createLogsTable(db *sql.DB) error {
 	}
 
 	createIndexStmt := `
-		CREATE INDEX IF NOT EXISTS idx_logs_userID ON logs(userID)
+		CREATE INDEX IF NOT EXISTS idx_logs_userID ON logs(userID);
 	`
 
 	_, err = db.Exec(createIndexStmt)
@@ -113,6 +113,17 @@ func createLogsTable(db *sql.DB) error {
 
 	_, err = db.Exec(createFTSTableStmt)
 
+	createLogsMetadataTableStmt := `
+		CREATE TABLE IF NOT EXISTS logs_metadata (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			level TEXT,
+			userID INTEGER,
+			count INTEGER NOT NULL DEFAULT 0,
+			UNIQUE(level, userID)
+		);`
+
+	_, err = db.Exec(createLogsMetadataTableStmt)
+
 	return err
 }
 
@@ -122,7 +133,7 @@ func createUserTable(db *sql.DB) error {
 		created_at TEXT NOT NULL DEFAULT (datetime('now')),
 		username TEXT NOT NULL UNIQUE,
 		password_hash TEXT NOT NULL
-	)`
+	);`
 
 	_, err := db.Exec(userTableStmt)
 
