@@ -157,7 +157,7 @@ func (app *application) signInUserHandler(c echo.Context) error {
 	}
 
 	app.logger.PrintInfo("user logged in", map[string]interface{}{
-		"userID": user.ID,
+		"user_id": user.ID,
 	})
 
 	return app.redirectResponse(c, "/", http.StatusAccepted, envelope{"user": user})
@@ -182,7 +182,7 @@ func (app *application) logoutUserHandler(c echo.Context) error {
 	}
 
 	app.logger.PrintInfo("user logged out", map[string]interface{}{
-		"userID":         user.ID,
+		"user_id":        user.ID,
 		"tokens deleted": deleted,
 	})
 

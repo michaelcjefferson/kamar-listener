@@ -79,15 +79,15 @@ func createLogsTable(db *sql.DB) error {
 	}
 
 	// Create an indexed column based on any logs that come with an attached user id, to make it easier to query for logs regarding a specific user. VIRTUAL allows the column to store NULL values without errors, and NULL values are ignored in indexes
-	// Check the datatype of $.userID before extracting, as otherwise in some cases the value of this column can be set to a single " and cause errors
-	// NOTE: Even with the below query, properties with a userID value of "" still cause malformed JSON errors (specifically the logs created by logsPage query params)
-	alterTableStmt := `ALTER TABLE logs ADD COLUMN userID INTEGER
+	// Check the datatype of $.user_id before extracting, as otherwise in some cases the value of this column can be set to a single " and cause errors
+	// NOTE: Even with the below query, properties with a user_id value of "" still cause malformed JSON errors (specifically the logs created by logsPage query params)
+	alterTableStmt := `ALTER TABLE logs ADD COLUMN user_id INTEGER
 	GENERATED ALWAYS AS (
     CASE 
 			WHEN json_valid(properties) 
-				AND json_type(json_extract(properties, '$.userID')) = 'integer' 
-				AND json_extract(properties, '$.userID') != '' 
-			THEN json_extract(properties, '$.userID') 
+				AND json_type(json_extract(properties, '$.user_id')) = 'integer' 
+				AND json_extract(properties, '$.user_id') != '' 
+			THEN json_extract(properties, '$.user_id') 
 			ELSE NULL 
     END
 	) VIRTUAL;`
@@ -99,7 +99,7 @@ func createLogsTable(db *sql.DB) error {
 	}
 
 	createIndexStmt := `
-		CREATE INDEX IF NOT EXISTS idx_logs_userID ON logs(userID);
+		CREATE INDEX IF NOT EXISTS idx_logs_user_id ON logs(user_id);
 	`
 
 	_, err = db.Exec(createIndexStmt)
@@ -116,10 +116,10 @@ func createLogsTable(db *sql.DB) error {
 	createLogsMetadataTableStmt := `
 		CREATE TABLE IF NOT EXISTS logs_metadata (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			level TEXT,
-			userID INTEGER,
-			count INTEGER NOT NULL DEFAULT 0,
-			UNIQUE(level, userID)
+			type TEXT NOT NULL,
+			level TEXT UNIQUE,
+			user_id INTEGER UNIQUE,
+			count INTEGER NOT NULL DEFAULT 0
 		);`
 
 	_, err = db.Exec(createLogsMetadataTableStmt)

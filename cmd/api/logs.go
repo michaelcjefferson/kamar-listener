@@ -21,12 +21,12 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 		Page:         1,
 		PageSize:     10,
 		Sort:         "-time",
-		SortSafeList: []string{"level", "time", "userID", "-level", "-time", "-userID"},
+		SortSafeList: []string{"level", "time", "userID", "-level", "-time", "-user_id"},
 	}
 
 	filters.LogFilters.Level = c.QueryParam("level")
 	filters.LogFilters.Search = c.QueryParam("message")
-	if u := c.QueryParam("userid"); u != "" {
+	if u := c.QueryParam("user_id"); u != "" {
 		u, err := strconv.Atoi(u)
 		if err != nil {
 			app.badRequestResponse(c, err)
@@ -90,7 +90,7 @@ func (app *application) listLogsHandler(c echo.Context) error {
 
 	filters.LogFilters.Level = c.QueryParam("level")
 	filters.LogFilters.Search = c.QueryParam("message")
-	if u := c.QueryParam("userid"); u != "" {
+	if u := c.QueryParam("user_id"); u != "" {
 		u, err := strconv.Atoi(u)
 		if err != nil {
 			app.badRequestResponse(c, err)
@@ -113,7 +113,7 @@ func (app *application) listLogsHandler(c echo.Context) error {
 
 	filters.PageSize = 10
 	filters.Sort = "time"
-	filters.SortSafeList = []string{"level", "time", "userID"}
+	filters.SortSafeList = []string{"level", "time", "user_id"}
 
 	if data.ValidateFilters(v, filters); !v.Valid() {
 		app.failedValidationResponse(c, v.Errors)

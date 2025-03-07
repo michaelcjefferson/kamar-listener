@@ -17,7 +17,7 @@ type Log struct {
 	Message    string                 `json:"message"`
 	Properties map[string]interface{} `json:"properties,omitempty"`
 	Trace      string                 `json:"trace,omitempty"`
-	UserID     int                    `json:"userid,omitempty"`
+	UserID     int                    `json:"user_id,omitempty"`
 }
 
 type LogModel struct {
@@ -26,11 +26,10 @@ type LogModel struct {
 
 // Insert an individual log into the logs table, as well as a reference to the log message for text search into the logs_fts table
 func (m *LogModel) Insert(log *Log) error {
-	// Get userID if it exists to add to logs_metadata table
-	// TEST THIS - doesn't seem to be working
+	// Get user_id if it exists to add to logs_metadata table
 	var userID int
-	if i, ok := log.Properties["userID"].(int); ok && i != 0 {
-		userID = int(i)
+	if i, ok := ToInt(log.Properties["user_id"]); ok {
+		userID = i
 	}
 
 	query := `
@@ -40,9 +39,9 @@ func (m *LogModel) Insert(log *Log) error {
 		INSERT INTO logs_fts (rowid, message)
 		VALUES (last_insert_rowid(), $6);
 
-		INSERT INTO logs_metadata (level, userID, count)
-		VALUES ($7, $8, 1)
-		ON CONFLICT(level, userID) DO UPDATE
+		INSERT INTO logs_metadata (type, level, count)
+		VALUES ("level", $7, 1)
+		ON CONFLICT(level) DO UPDATE
 		SET count=count+1;
 	`
 
@@ -51,7 +50,18 @@ func (m *LogModel) Insert(log *Log) error {
 		fmt.Println("error marshalling json when attempting to write a log to database:", err)
 	}
 
-	args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level, userID}
+	args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level}
+
+	if userID > 0 {
+		query += `
+			INSERT INTO logs_metadata (type, user_id, count)
+			VALUES ("user_id", $8, 1)
+			ON CONFLICT(user_id) DO UPDATE
+			SET count=count+1;
+		`
+
+		args = append(args, userID)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -69,7 +79,7 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 	}
 
 	query := `
-		SELECT id, level, time, message, properties, trace, useriD
+		SELECT id, level, time, message, properties, trace, user_id
 		FROM logs
 		WHERE id = ?
 	`
@@ -117,14 +127,14 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 	// Subquery SELECT COUNT(*) FROM logs_fts provides the total number of rows returned by the query, and appends it to each row in the location specified (in this case, it is the last column of each row, i.e. after trace)
 	// The JOIN also uses the logs_fts table to perform a search for messages that contain the provided searchTerm
 	// query := fmt.Sprintf(`
-	// 	SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.userID,
+	// 	SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.user_id,
 	// 		(SELECT COUNT(*) FROM logs_fts WHERE logs_fts MATCH ?)
 	// 		AS total_count
 	// 	FROM logs
 	// 	JOIN logs_fts ON logs.id = logs_fts.rowid
 	// 	WHERE logs_fts MATCH ?
 	// 	AND level = ?
-	// 	AND userID = ?
+	// 	AND user_id = ?
 	// 	ORDER BY %s %s, id ASC
 	// 	LIMIT ? OFFSET ?
 	// `, filters.sortColumn(), filters.sortDirection())
@@ -133,7 +143,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 	args := []interface{}{}
 
 	queryBuilder.WriteString(`
-		SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.userID,
+		SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.user_id,
 			(SELECT COUNT(*) FROM logs WHERE 1=1
 	`)
 
@@ -186,7 +196,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 			return nil, Metadata{}, err
 		}
 
-		// Attach value of userID if it isn't nil
+		// Attach value of user_id if it isn't nil
 		if userID != nil {
 			log.UserID = *userID
 		}
@@ -213,7 +223,7 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filter
 		*args = append(*args, filters.LogFilters.Level)
 	}
 	if filters.LogFilters.UserID != 0 {
-		q.WriteString(" AND userID = ?")
+		q.WriteString(" AND user_id = ?")
 		*args = append(*args, filters.LogFilters.UserID)
 	}
 }
@@ -228,9 +238,9 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filter
 // _, err = tx.Exec(`
 //     UPDATE logs_metadata
 //     SET count = count - 1
-//     WHERE (level = ? OR userID = ?)
+//     WHERE (level = ? OR user_id = ?)
 //     AND count > 0;
-// `, level, userID)
+// `, level, user_id)
 // if err != nil {
 //     log.Fatal(err)
 // }
@@ -247,3 +257,51 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filter
 // if err != nil {
 //     log.Fatal(err)
 // }
+
+func GetLogsMetadata(m *LogModel) (*LogsMetadata, error) {
+	query := `
+		SELECT type, level, user_id, count FROM logs_metadata;
+	`
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return &LogsMetadata{}, err
+	}
+
+	logsMetadata := LogsMetadata{}
+
+	for rows.Next() {
+		var logType string
+		var level string
+		var userID int
+		var count int
+
+		err := rows.Scan(
+			&logType,
+			&level,
+			&userID,
+			&count,
+		)
+
+		if err != nil {
+			return &LogsMetadata{}, err
+		}
+
+		switch {
+		case logType == "level":
+			logsMetadata.Levels[level] = count
+		case logType == "user_id":
+			logsMetadata.Users[userID] = count
+		default:
+			return &LogsMetadata{}, errors.New(fmt.Sprintf("error adding logtype %v to database", logType))
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return &LogsMetadata{}, err
+	}
+
+	return &logsMetadata, nil
+}
