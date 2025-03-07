@@ -30,8 +30,16 @@ type Metadata struct {
 }
 
 type LogsMetadata struct {
-	Users  map[int]int
 	Levels map[string]int
+	Users  map[int]int
+}
+
+// Initialise a LogsMetadata struct with maps ready to be written to
+func NewLogsMetadata() LogsMetadata {
+	return LogsMetadata{
+		Levels: make(map[string]int),
+		Users:  make(map[int]int),
+	}
 }
 
 // If f.Sort matches something in the SortSafeList, return it after removing the hyphen prefix if it exists. Otherwise, throw a panic, because it means there's potential for SQL injection. It should not however be possible to trigger this panic in the first place, as the validator should already have returned a user error if the sort query doesn't match something in the safe list - this is just a fail-safe.

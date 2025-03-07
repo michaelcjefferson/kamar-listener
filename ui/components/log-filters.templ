@@ -1,5 +1,22 @@
 package components
 
-templ LogFilters() {
-  <h1>HI</h1>
+import "github.com/mjefferson-whs/listener/internal/data"
+import "strconv"
+
+templ LogFilters(logsMetadata *data.LogsMetadata) {
+  <div class="filter-controls">
+    <div class="level-filters">
+      for k, v := range logsMetadata.Levels {
+        <button class="filter-button">{ k + ": " + strconv.Itoa(v) }</button>
+      }
+    </div>
+    <div class="user-filters">
+      for k, v := range logsMetadata.Users {
+        <button class="filter-button">{ "User ID " +  strconv.Itoa(k) + ": " + strconv.Itoa(v) }</button>
+      }
+    </div>
+    <div class="search-bar">
+      <input type="text" name="message-search" id="message-search" placeholder="Search messages...">
+    </div>
+  </div>
 }

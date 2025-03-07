@@ -122,7 +122,7 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 	return &log, nil
 }
 
-func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
+func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, *LogsMetadata, error) {
 	// It's not possible to interpolate ORDER BY column or direction into an SQL query using $ values, so use Sprintf to create the query.
 	// Subquery SELECT COUNT(*) FROM logs_fts provides the total number of rows returned by the query, and appends it to each row in the location specified (in this case, it is the last column of each row, i.e. after trace)
 	// The JOIN also uses the logs_fts table to perform a search for messages that contain the provided searchTerm
@@ -161,7 +161,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 
 	rows, err := m.DB.QueryContext(ctx, queryBuilder.String(), args...)
 	if err != nil {
-		return nil, Metadata{}, err
+		return nil, Metadata{}, nil, err
 	}
 
 	// Make sure result from QueryContext is closed before returning from function
@@ -185,7 +185,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 			&totalRecords,
 		)
 		if err != nil {
-			return nil, Metadata{}, err
+			return nil, Metadata{}, nil, err
 		}
 
 		// Unmarshal properties into log struct
@@ -193,7 +193,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 			err = json.Unmarshal([]byte(propertiesJSON), &log.Properties)
 		}
 		if err != nil {
-			return nil, Metadata{}, err
+			return nil, Metadata{}, nil, err
 		}
 
 		// Attach value of user_id if it isn't nil
@@ -205,12 +205,17 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, Metadata{}, err
+		return nil, Metadata{}, nil, err
 	}
 
 	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
 
-	return logs, metadata, nil
+	logsMetadata, err := GetLogsMetadata(m)
+	if err != nil {
+		return logs, metadata, nil, err
+	}
+
+	return logs, metadata, logsMetadata, nil
 }
 
 func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filters Filters) {
@@ -270,12 +275,12 @@ func GetLogsMetadata(m *LogModel) (*LogsMetadata, error) {
 		return &LogsMetadata{}, err
 	}
 
-	logsMetadata := LogsMetadata{}
+	logsMetadata := NewLogsMetadata()
 
 	for rows.Next() {
 		var logType string
-		var level string
-		var userID int
+		var level *string
+		var userID *int
 		var count int
 
 		err := rows.Scan(
@@ -290,10 +295,10 @@ func GetLogsMetadata(m *LogModel) (*LogsMetadata, error) {
 		}
 
 		switch {
-		case logType == "level":
-			logsMetadata.Levels[level] = count
-		case logType == "user_id":
-			logsMetadata.Users[userID] = count
+		case logType == "level" && level != nil:
+			logsMetadata.Levels[*level] = count
+		case logType == "user_id" && userID != nil:
+			logsMetadata.Users[*userID] = count
 		default:
 			return &LogsMetadata{}, errors.New(fmt.Sprintf("error adding logtype %v to database", logType))
 		}

@@ -1,0 +1,12 @@
+package components
+
+import (
+  "fmt"
+  
+  "github.com/mjefferson-whs/listener/internal/data"
+)
+
+templ LogMetadata(metadata data.Metadata) {
+  <h3>Total Logs Found: { fmt.Sprintf("%v", metadata.TotalRecords) }</h3>
+  <h3>Page { fmt.Sprintf("%v", metadata.CurrentPage) }/{ fmt.Sprintf("%v", metadata.LastPage) }</h3>
+}

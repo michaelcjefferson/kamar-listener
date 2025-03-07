@@ -52,12 +52,12 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 		return app.failedValidationResponse(c, v.Errors)
 	}
 
-	logs, metadata, err := app.models.Logs.GetAll(filters)
+	logs, metadata, logsMetadata, err := app.models.Logs.GetAll(filters)
 	if err != nil {
 		return app.serverErrorResponse(c, err)
 	}
 
-	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata))
+	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata, logsMetadata))
 }
 
 func (app *application) getIndividualLogPageHandler(c echo.Context) error {
@@ -120,11 +120,11 @@ func (app *application) listLogsHandler(c echo.Context) error {
 		return nil
 	}
 
-	logs, metadata, err := app.models.Logs.GetAll(filters)
+	logs, metadata, logsMetadata, err := app.models.Logs.GetAll(filters)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		return err
 	}
 
-	return app.Render(c, http.StatusAccepted, views.LogsPage(logs, metadata))
+	return app.Render(c, http.StatusAccepted, views.LogsPage(logs, metadata, logsMetadata))
 }
