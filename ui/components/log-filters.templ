@@ -7,16 +7,55 @@ templ LogFilters(logsMetadata *data.LogsMetadata) {
   <div class="filter-controls">
     <div class="level-filters">
       for k, v := range logsMetadata.Levels {
-        <button class="filter-button">{ k + ": " + strconv.Itoa(v) }</button>
+        <button class="filter-button level-filter" data-filter={ k }>{ k + " (" + strconv.Itoa(v) + ")" }</button>
       }
     </div>
     <div class="user-filters">
       for k, v := range logsMetadata.Users {
-        <button class="filter-button">{ "User ID " +  strconv.Itoa(k) + ": " + strconv.Itoa(v) }</button>
+        <button class="filter-button user_id-filter" data-filter={ strconv.Itoa(k) }>{ "User ID " +  strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")" }</button>
       }
     </div>
     <div class="search-bar">
       <input type="text" name="message-search" id="message-search" placeholder="Search messages...">
     </div>
   </div>
+
+  <script>
+    document.querySelectorAll(".filter-button").forEach(button => {
+      button.addEventListener("click", () => {
+        button.classList.toggle("active");
+
+        let activeFilters = {
+          "level": [],
+          "user_id": []
+        }
+
+        document.querySelectorAll(".filter-button.level-filter.active").forEach(button => {
+          activeFilters["level"].push(button.getAttribute("data-filter"));
+        });
+        document.querySelectorAll(".filter-button.user_id-filter.active").forEach(button => {
+          activeFilters["user_id"].push(button.getAttribute("data-filter"));
+        });
+
+        console.log(activeFilters);
+
+        let params = new URLSearchParams();
+        if (activeFilters["level"].length > 0) {
+          activeFilters["level"].forEach(p => {
+            params.append("level", p);
+          });
+        }
+        if (activeFilters["user_id"].length > 0) {
+          activeFilters["user_id"].forEach(p => {
+            params.append("user_id", p);
+          });
+        }
+
+        console.log("/logs/partial?" + params.toString());
+
+        htmx.ajax("GET", "/logs/partial?" + params.toString(), { target: "#log-list", pushURL: true });
+      });
+
+    });
+  </script>
 }

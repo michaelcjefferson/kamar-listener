@@ -125,3 +125,7 @@ nav a.active {
 }
 
 /* FILTERS */
+.filter-button.active {
+  background-color: #1b23b8;
+  color: #fff;
+}

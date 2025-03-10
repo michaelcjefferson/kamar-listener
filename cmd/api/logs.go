@@ -8,15 +8,16 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/validator"
+	"github.com/mjefferson-whs/listener/ui/components"
 	views "github.com/mjefferson-whs/listener/ui/views"
 )
 
 func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 	filters := data.Filters{
 		LogFilters: data.LogFilters{
-			Level:  "",
+			Level:  []string{},
 			Search: "",
-			UserID: 0,
+			UserID: []int{},
 		},
 		Page:         1,
 		PageSize:     10,
@@ -24,15 +25,17 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 		SortSafeList: []string{"level", "time", "userID", "-level", "-time", "-user_id"},
 	}
 
-	filters.LogFilters.Level = c.QueryParam("level")
+	filters.LogFilters.Level = c.QueryParams()["level"]
 	filters.LogFilters.Search = c.QueryParam("message")
-	if u := c.QueryParam("user_id"); u != "" {
-		u, err := strconv.Atoi(u)
-		if err != nil {
-			app.badRequestResponse(c, err)
-			return err
+	if uids := c.QueryParams()["user_id"]; len(uids) != 0 {
+		for _, val := range uids {
+			u, err := strconv.Atoi(val)
+			if err != nil {
+				app.badRequestResponse(c, err)
+				return err
+			}
+			filters.LogFilters.UserID = append(filters.LogFilters.UserID, u)
 		}
-		filters.LogFilters.UserID = u
 	}
 
 	// TODO: Refer to movies.go in greenlight to allow client-based sorting etc.
@@ -83,20 +86,22 @@ func (app *application) getIndividualLogPageHandler(c echo.Context) error {
 	return app.Render(c, http.StatusAccepted, views.IndividualLogPage(*log, referer))
 }
 
-func (app *application) listLogsHandler(c echo.Context) error {
+func (app *application) getFilteredLogsHandler(c echo.Context) error {
 	var filters data.Filters
 
 	v := validator.New()
 
-	filters.LogFilters.Level = c.QueryParam("level")
+	filters.LogFilters.Level = c.QueryParams()["level"]
 	filters.LogFilters.Search = c.QueryParam("message")
-	if u := c.QueryParam("user_id"); u != "" {
-		u, err := strconv.Atoi(u)
-		if err != nil {
-			app.badRequestResponse(c, err)
-			return err
+	if uids := c.QueryParams()["user_id"]; len(uids) != 0 {
+		for _, val := range uids {
+			u, err := strconv.Atoi(val)
+			if err != nil {
+				app.badRequestResponse(c, err)
+				return err
+			}
+			filters.LogFilters.UserID = append(filters.LogFilters.UserID, u)
 		}
-		filters.LogFilters.UserID = u
 	}
 
 	// TODO: Refer to movies.go in greenlight to allow client-based sorting etc.
@@ -120,11 +125,11 @@ func (app *application) listLogsHandler(c echo.Context) error {
 		return nil
 	}
 
-	logs, metadata, logsMetadata, err := app.models.Logs.GetAll(filters)
+	logs, _, _, err := app.models.Logs.GetAll(filters)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		return err
 	}
 
-	return app.Render(c, http.StatusAccepted, views.LogsPage(logs, metadata, logsMetadata))
+	return app.Render(c, http.StatusAccepted, components.LogList(logs))
 }

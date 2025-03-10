@@ -3,11 +3,13 @@ package components
 import "github.com/mjefferson-whs/listener/internal/data"
 
 templ LogList(logs []data.Log) {
-  if len(logs) > 0 {
-    for _, log := range logs {
-      @LogCard(log)
+  <div id="log-list">
+    if len(logs) > 0 {
+      for _, log := range logs {
+        @LogCard(log)
+      }
+    } else {
+      <h2>NO LOGS FOUND</h2>
     }
-  } else {
-    <h2>NO LOGS FOUND</h2>
-  }
+  </div>
 }

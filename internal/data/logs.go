@@ -223,13 +223,21 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filter
 		q.WriteString(" AND logs_fts MATCH ?")
 		*args = append(*args, filters.LogFilters.Search)
 	}
-	if filters.LogFilters.Level != "" {
-		q.WriteString(" AND level = ?")
-		*args = append(*args, filters.LogFilters.Level)
+	if len(filters.LogFilters.Level) > 0 {
+		qp := fmt.Sprintf(" AND level IN (%s)", placeholders(len(filters.LogFilters.Level)))
+		q.WriteString(qp)
+		// q.WriteString(" AND level = ?")
+		for _, val := range filters.LogFilters.Level {
+			*args = append(*args, val)
+		}
 	}
-	if filters.LogFilters.UserID != 0 {
-		q.WriteString(" AND user_id = ?")
-		*args = append(*args, filters.LogFilters.UserID)
+	if len(filters.LogFilters.UserID) > 0 {
+		// q.WriteString(" AND user_id = ?")
+		qp := fmt.Sprintf(" AND user_id IN (%s)", placeholders(len(filters.LogFilters.UserID)))
+		q.WriteString(qp)
+		for _, val := range filters.LogFilters.UserID {
+			*args = append(*args, val)
+		}
 	}
 }
 

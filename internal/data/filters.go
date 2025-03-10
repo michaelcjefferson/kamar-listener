@@ -16,9 +16,9 @@ type Filters struct {
 }
 
 type LogFilters struct {
-	Level  string
+	Level  []string
 	Search string
-	UserID int
+	UserID []int
 }
 
 type Metadata struct {

@@ -3,6 +3,7 @@ package data
 import (
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 // Tries to read and convert an interface{} value (eg. the ones in log.Properties) to an int value - returns an int (or 0 on failure) and a bool (ok)
@@ -22,4 +23,9 @@ func ToInt(value interface{}) (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+// Creates a string of comma separated ? placeholders based on the int provided - good for dynamically adding placeholders to a query based on the number of parameters
+func placeholders(n int) string {
+	return strings.TrimSuffix(strings.Repeat("?,", n), ",")
 }

@@ -37,12 +37,12 @@ func LogFilters(logsMetadata *data.LogsMetadata) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for k, v := range logsMetadata.Levels {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<button class=\"filter-button\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<button class=\"filter-button level-filter\" data-filter=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(k + ": " + strconv.Itoa(v))
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(k)
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 10, Col: 66}
 			}
@@ -50,35 +50,61 @@ func LogFilters(logsMetadata *data.LogsMetadata) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</button>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"user-filters\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for k, v := range logsMetadata.Users {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<button class=\"filter-button\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(k) + ": " + strconv.Itoa(v))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(k + " (" + strconv.Itoa(v) + ")")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 15, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 10, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"search-bar\"><input type=\"text\" name=\"message-search\" id=\"message-search\" placeholder=\"Search messages...\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"user-filters\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for k, v := range logsMetadata.Users {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<button class=\"filter-button user_id-filter\" data-filter=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(k))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 15, Col: 82}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")")
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 15, Col: 147}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</button>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"search-bar\"><input type=\"text\" name=\"message-search\" id=\"message-search\" placeholder=\"Search messages...\"></div></div><script>\n    document.querySelectorAll(\".filter-button\").forEach(button => {\n      button.addEventListener(\"click\", () => {\n        button.classList.toggle(\"active\");\n\n        let activeFilters = {\n          \"level\": [],\n          \"user_id\": []\n        }\n\n        document.querySelectorAll(\".filter-button.level-filter.active\").forEach(button => {\n          activeFilters[\"level\"].push(button.getAttribute(\"data-filter\"));\n        });\n        document.querySelectorAll(\".filter-button.user_id-filter.active\").forEach(button => {\n          activeFilters[\"user_id\"].push(button.getAttribute(\"data-filter\"));\n        });\n\n        console.log(activeFilters);\n\n        let params = new URLSearchParams();\n        if (activeFilters[\"level\"].length > 0) {\n          activeFilters[\"level\"].forEach(p => {\n            params.append(\"level\", p);\n          });\n        }\n        if (activeFilters[\"user_id\"].length > 0) {\n          activeFilters[\"user_id\"].forEach(p => {\n            params.append(\"user_id\", p);\n          });\n        }\n\n        console.log(\"/logs/partial?\" + params.toString());\n\n        htmx.ajax(\"GET\", \"/logs/partial?\" + params.toString(), { target: \"#log-list\", pushURL: true });\n      });\n\n    });\n  </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
