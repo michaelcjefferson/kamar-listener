@@ -53,7 +53,7 @@ templ LogFilters(logsMetadata *data.LogsMetadata) {
 
         console.log("/logs/partial?" + params.toString());
 
-        htmx.ajax("GET", "/logs/partial?" + params.toString(), { target: "#log-list", pushURL: true });
+        htmx.ajax("GET", "/logs/partial?" + params.toString(), { target: "#logs-container", pushURL: true });
       });
 
     });

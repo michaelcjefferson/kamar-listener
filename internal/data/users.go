@@ -120,6 +120,46 @@ func (m UserModel) Insert(user *User) error {
 	return nil
 }
 
+func (m UserModel) GetAll() ([]*User, error) {
+	query := `
+		SELECT id, created_at, username FROM users;
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure result from QueryContext is closed before returning from function
+	defer rows.Close()
+
+	users := []*User{}
+
+	for rows.Next() {
+		var user *User
+
+		err := rows.Scan(
+			&user.ID,
+			&user.CreatedAt,
+			&user.Username,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (m UserModel) GetByUsername(username string) (*User, error) {
 	query := `
 		SELECT id, created_at, username, password_hash

@@ -125,11 +125,11 @@ func (app *application) getFilteredLogsHandler(c echo.Context) error {
 		return nil
 	}
 
-	logs, _, _, err := app.models.Logs.GetAll(filters)
+	logs, metadata, _, err := app.models.Logs.GetAll(filters)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		return err
 	}
 
-	return app.Render(c, http.StatusAccepted, components.LogList(logs))
+	return app.Render(c, http.StatusAccepted, components.LogsContainer(logs, metadata))
 }

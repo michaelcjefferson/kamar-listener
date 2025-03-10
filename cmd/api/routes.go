@@ -58,6 +58,7 @@ func (app *application) routes() http.Handler {
 	isAuthenticatedGroup.GET("/logs/partial", app.getFilteredLogsHandler)
 	isAuthenticatedGroup.GET("/logs/:id", app.getIndividualLogPageHandler)
 	isAuthenticatedGroup.GET("/logs", app.getFilteredLogsPageHandler)
+	isAuthenticatedGroup.GET("/users", app.getUsersPageHandler)
 	isAuthenticatedGroup.GET("/", app.dashboardPageHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.

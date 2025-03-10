@@ -1,0 +1,14 @@
+package components
+
+import (
+  "github.com/mjefferson-whs/listener/internal/data"
+	"fmt"
+)
+
+templ UserCard(user *data.User) {
+  <a class="user-card" href={ templ.URL(fmt.Sprintf("/users/%v", user.ID)) }>
+    <p><strong>ID:</strong>{ fmt.Sprintf("%v", user.ID) }</p>
+    <h3>{ user.Username }</h3>
+    <h4>{ user.CreatedAt }</h4>
+  </a>
+}

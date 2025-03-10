@@ -1,0 +1,16 @@
+package views
+
+import (
+  "github.com/mjefferson-whs/listener/ui/components"
+  "github.com/mjefferson-whs/listener/internal/data"
+)
+
+templ UsersPage(users []*data.User) {
+  @Authenticated() {
+    <h2>Users Page</h2>
+
+    for _, user := range users {
+      @components.UserCard(user)
+    }
+  }
+}

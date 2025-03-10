@@ -200,6 +200,15 @@ func (app *application) logoutUserHandler(c echo.Context) error {
 	return app.redirectResponse(c, "/sign-in", http.StatusAccepted, "successfully logged out")
 }
 
+func (app *application) getUsersPageHandler(c echo.Context) error {
+	users, err := app.models.Users.GetAll()
+	if err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	return app.Render(c, http.StatusAccepted, views.UsersPage(users))
+}
+
 func (app *application) getUserCount() (int, error) {
 	var userCount int
 

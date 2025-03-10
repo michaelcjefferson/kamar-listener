@@ -1,0 +1,15 @@
+package components
+
+import (
+  "github.com/mjefferson-whs/listener/internal/data"
+)
+
+templ LogsContainer(logs []data.Log, metadata data.Metadata) {
+  <div id="logs-container">
+    @LogMetadata(metadata)
+
+    @LogList(logs)
+
+    @PageNavigationControls("logs", metadata)
+  </div>
+}
