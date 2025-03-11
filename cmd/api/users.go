@@ -85,7 +85,14 @@ func (app *application) registerUserHandler(c echo.Context) error {
 
 	app.userExists = true
 
-	return c.JSON(http.StatusAccepted, envelope{"authenticated": true})
+	app.logger.PrintInfo("new user registered", map[string]interface{}{
+		"user_id":    user.ID,
+		"created at": user.CreatedAt,
+		"username":   user.Username,
+	})
+
+	// return c.JSON(http.StatusAccepted, envelope{"authenticated": true})
+	return app.redirectResponse(c, "/", http.StatusAccepted, envelope{"user": user, "authenticated": true})
 }
 
 // Prevent user from accessing sign in page and handler if they are already logged in

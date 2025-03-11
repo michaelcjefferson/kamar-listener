@@ -10,8 +10,11 @@ import (
 
 // SQLite config for reads and writes (avoid SQLITE BUSY error): https://kerkour.com/sqlite-for-servers
 func openDB(dbpath string) (*sql.DB, bool, error) {
+	// Create string of connection params to prevent "SQLITE_BUSY" errors - to be further improved based on the above article
+	dbParams := "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL"
+
 	// Either connect to or create (if it doesn't exist) the database at the provided path
-	db, err := sql.Open("sqlite3", dbpath)
+	db, err := sql.Open("sqlite3", dbpath+dbParams)
 	if err != nil {
 		return nil, false, err
 	}
