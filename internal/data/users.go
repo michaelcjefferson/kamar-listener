@@ -20,10 +20,11 @@ var AnonymousUser = &User{}
 
 // Use the json:"-" tag to prevent these fields from appearing in any output when encoded to JSON.
 type User struct {
-	ID        int64    `json:"id"`
-	CreatedAt string   `json:"created_at"`
-	Username  string   `json:"username"`
-	Password  password `json:"-"`
+	ID                  int64    `json:"id"`
+	CreatedAt           string   `json:"created_at"`
+	LastAuthenticatedAt string   `json:"last_authenticated_at"`
+	Username            string   `json:"username"`
+	Password            password `json:"-"`
 }
 
 // Any user object can call this function which will return true if the user object doesn't have a username, password, and ID associated with it.
@@ -122,7 +123,7 @@ func (m UserModel) Insert(user *User) error {
 
 func (m UserModel) GetAll() ([]*User, error) {
 	query := `
-		SELECT id, created_at, username FROM users;
+		SELECT id, created_at, last_authenticated_at, username FROM users;
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -139,18 +140,19 @@ func (m UserModel) GetAll() ([]*User, error) {
 	users := []*User{}
 
 	for rows.Next() {
-		var user *User
+		var user User
 
 		err := rows.Scan(
 			&user.ID,
 			&user.CreatedAt,
+			&user.LastAuthenticatedAt,
 			&user.Username,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
 	if err = rows.Err(); err != nil {

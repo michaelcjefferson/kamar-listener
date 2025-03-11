@@ -2,7 +2,7 @@ package components
 
 import "github.com/mjefferson-whs/listener/internal/data"
 
-templ LogList(logs []data.Log) {
+templ LogList(logs []*data.Log) {
   <div id="log-list">
     if len(logs) > 0 {
       for _, log := range logs {

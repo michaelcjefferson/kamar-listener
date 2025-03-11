@@ -5,7 +5,7 @@ import (
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-templ LogsPage(logs []data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
+templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
   @Authenticated() {
     <h2>Logs Page</h2>
 

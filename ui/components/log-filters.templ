@@ -37,9 +37,8 @@ templ LogFilters(logsMetadata *data.LogsMetadata) {
           activeFilters["user_id"].push(button.getAttribute("data-filter"));
         });
 
-        console.log(activeFilters);
-
         let params = new URLSearchParams();
+        // Adding params in this way ensures that with multiple level params, it will be "level=INFO&level=ERROR" rather than "level=INFO,ERROR" - this makes it much easier for the echo router to pick out these params
         if (activeFilters["level"].length > 0) {
           activeFilters["level"].forEach(p => {
             params.append("level", p);
@@ -50,8 +49,6 @@ templ LogFilters(logsMetadata *data.LogsMetadata) {
             params.append("user_id", p);
           });
         }
-
-        console.log("/logs/partial?" + params.toString());
 
         htmx.ajax("GET", "/logs/partial?" + params.toString(), { target: "#logs-container", pushURL: true });
       });

@@ -1,7 +1,8 @@
 package views
 
 import (
-  "github.com/mjefferson-whs/listener/ui/components"
+  "fmt"
+
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
@@ -9,8 +10,31 @@ templ UsersPage(users []*data.User) {
   @Authenticated() {
     <h2>Users Page</h2>
 
-    for _, user := range users {
-      @components.UserCard(user)
-    }
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Created At</th>
+          <th>Last Authenticated At</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        for _, user := range users {
+          <tr>
+            <td>{ fmt.Sprintf("%v", user.ID) }</td>
+            <td>{ user.Username }</td>
+            <td>{ user.CreatedAt }</td>
+            <td>{ user.LastAuthenticatedAt }</td>
+            <td>X</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    // for _, user := range users {
+    //   @components.UserCard(user)
+    // }
   }
 }

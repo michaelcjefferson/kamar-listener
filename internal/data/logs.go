@@ -122,7 +122,7 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 	return &log, nil
 }
 
-func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, *LogsMetadata, error) {
+func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, error) {
 	// It's not possible to interpolate ORDER BY column or direction into an SQL query using $ values, so use Sprintf to create the query.
 	// Subquery SELECT COUNT(*) FROM logs_fts provides the total number of rows returned by the query, and appends it to each row in the location specified (in this case, it is the last column of each row, i.e. after trace)
 	// The JOIN also uses the logs_fts table to perform a search for messages that contain the provided searchTerm
@@ -168,7 +168,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, *LogsMetadata, erro
 	defer rows.Close()
 
 	totalRecords := 0
-	logs := []Log{}
+	logs := []*Log{}
 
 	for rows.Next() {
 		var log Log
@@ -201,7 +201,7 @@ func (m *LogModel) GetAll(filters Filters) ([]Log, Metadata, *LogsMetadata, erro
 			log.UserID = *userID
 		}
 
-		logs = append(logs, log)
+		logs = append(logs, &log)
 	}
 
 	if err = rows.Err(); err != nil {

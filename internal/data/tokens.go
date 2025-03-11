@@ -69,9 +69,11 @@ func (m TokenModel) New(userID int64, ttl time.Duration) (*Token, error) {
 func (m TokenModel) Insert(token *Token) error {
 	query := `
 		INSERT INTO tokens (hash, user_id, expiry)
-		VALUES ($1, $2, $3)`
+		VALUES ($1, $2, $3);
+		
+		UPDATE users SET last_authenticated_at = datetime('now') WHERE id = $4;`
 
-	args := []interface{}{token.Hash, token.UserID, token.Expiry}
+	args := []interface{}{token.Hash, token.UserID, token.Expiry, token.UserID}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

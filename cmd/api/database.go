@@ -131,6 +131,7 @@ func createUserTable(db *sql.DB) error {
 	userTableStmt := `CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		created_at TEXT NOT NULL DEFAULT (datetime('now')),
+		last_authenticated_at TEXT NOT NULL DEFAULT (datetime('now')),
 		username TEXT NOT NULL UNIQUE,
 		password_hash TEXT NOT NULL
 	);`

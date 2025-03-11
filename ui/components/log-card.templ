@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-templ LogCard(log data.Log) {
+templ LogCard(log *data.Log) {
   <a class="log-card" href={ templ.URL(fmt.Sprintf("/logs/%v", log.ID)) }>
     <p><strong>ID:</strong>{ fmt.Sprintf("%v", log.ID) }</p>
     <h3 class={ strings.ToLower(log.Level) + "-text" }>{ log.Message }</h3>
