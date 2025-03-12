@@ -9,11 +9,67 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/ui/components"
 )
 
-func LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) templ.Component {
+// Returns a string with the structure "param=val&param=val" for every filter present in filters.
+// TODO: Make this agnostic and globally available, so that filters are automatically determined based on keys in data.Filters
+func constructParams(filters data.Filters) string {
+	fmt.Printf("filters: %v\n\n", filters.LogFilters.Level)
+
+	vals := []string{}
+
+	if len(filters.LogFilters.Level) > 0 {
+		for _, val := range filters.LogFilters.Level {
+			vals = append(vals, fmt.Sprintf("level=%v", val))
+		}
+	}
+
+	if len(filters.LogFilters.UserID) > 0 {
+		for _, val := range filters.LogFilters.UserID {
+			vals = append(vals, fmt.Sprintf("userid=%v", val))
+		}
+	}
+
+	if len(vals) > 0 {
+		fmt.Printf("params: %v\n", "&"+strings.Join(vals, "&"))
+		return "&" + strings.Join(vals, "&")
+	} else {
+		fmt.Println("no params")
+		return ""
+	}
+}
+
+// func constructURLWithParams(filters data.Filters, metadata data.Metadata) string {
+//   vals := []string{}
+
+//   if metadata.CurrentPage > 1 {
+//     vals = append(vals, fmt.Sprintf("page=%v", metadata.CurrentPage))
+//   }
+
+//   if len(filters.LogFilters.Level) > 0 {
+//     for _, val := range filters.LogFilters.Level {
+//       vals = append(vals, fmt.Sprintf("level=%v", val))
+//     }
+//   }
+
+//   if len(filters.LogFilters.UserID) > 0 {
+//     for _, val := range filters.LogFilters.Level {
+//       vals = append(vals, fmt.Sprintf("userid=%v", val))
+//     }
+//   }
+
+//	  if len(vals) > 0 {
+//	    return "/logs?"+strings.Join(vals, "&")
+//	  } else {
+//	    return "/logs"
+//	  }
+//	}
+func LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata, filters data.Filters) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -50,15 +106,31 @@ func LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsM
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.LogFilters(logsMetadata).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.LogMetadata(metadata).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "  ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.LogsContainer(logs, metadata).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.LogFilters(logsMetadata, filters).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.LogList(logs).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "  ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.PageNavigationControls("logs", constructParams(filters), metadata).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -72,4 +144,13 @@ func LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsM
 	})
 }
 
+// templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
+//   @Authenticated() {
+//     <h2>Logs Page</h2>
+
+//     @components.LogFilters(logsMetadata)
+
+//	    @components.LogsContainer(logs, metadata)
+//	  }
+//	}
 var _ = templruntime.GeneratedTemplate

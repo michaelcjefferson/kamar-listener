@@ -7,10 +7,10 @@ import (
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-templ PageNavigationControls(location string, metadata data.Metadata) {
+templ PageNavigationControls(location, params string, metadata data.Metadata) {
   <div class="page-navigation-controls">
     if metadata.CurrentPage > 1 {
-      <a href={ templ.URL(fmt.Sprintf("/"+location+"?page=%v", metadata.CurrentPage-1)) }>PREVIOUS</a>
+      <a href={ templ.URL(fmt.Sprintf("/"+location+"?page=%v%v", metadata.CurrentPage-1, params)) }>PREVIOUS</a>
     }
 
     {{
@@ -31,12 +31,12 @@ templ PageNavigationControls(location string, metadata data.Metadata) {
       if n == metadata.CurrentPage {
         <p>{ strconv.Itoa(n) }</p>
       } else {
-        <a href={ templ.URL(fmt.Sprintf("/"+location+"?page=%v", n)) }>{ strconv.Itoa(n) }</a>
+        <a href={ templ.URL(fmt.Sprintf("/"+location+"?page=%v%v", n, params)) }>{ strconv.Itoa(n) }</a>
       }
     }
     
     if metadata.CurrentPage < metadata.LastPage {
-      <a href={ templ.URL(fmt.Sprintf("/"+location+"?page=%v", metadata.CurrentPage+1)) }>NEXT</a>
+      <a href={ templ.URL(fmt.Sprintf("/"+location+"?page=%v%v", metadata.CurrentPage+1, params)) }>NEXT</a>
     }
   </div>
 }

@@ -46,8 +46,6 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 			return err
 		}
 		filters.Page = p
-	} else {
-		filters.Page = 1
 	}
 
 	v := validator.New()
@@ -60,7 +58,7 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
-	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata, logsMetadata))
+	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata, logsMetadata, filters))
 }
 
 func (app *application) getIndividualLogPageHandler(c echo.Context) error {

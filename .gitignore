@@ -3,6 +3,8 @@ tls/
 .envrc
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 test/refresh-test.json
 cmd/api/ui/
 cmd/api/assets/

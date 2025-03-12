@@ -1,16 +1,85 @@
 package views
 
 import (
+  "fmt"
+  "strings"
+
   "github.com/mjefferson-whs/listener/ui/components"
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
+// Returns a string with the structure "param=val&param=val" for every filter present in filters.
+// TODO: Make this agnostic and globally available, so that filters are automatically determined based on keys in data.Filters
+func constructParams(filters data.Filters) string {
+  vals := []string{}
+
+  if len(filters.LogFilters.Level) > 0 {
+    for _, val := range filters.LogFilters.Level {
+      vals = append(vals, fmt.Sprintf("level=%v", val))
+    }
+  }
+
+  if len(filters.LogFilters.UserID) > 0 {
+    for _, val := range filters.LogFilters.UserID {
+      vals = append(vals, fmt.Sprintf("userid=%v", val))
+    }
+  }
+
+  if len(vals) > 0 {
+    return "&"+strings.Join(vals, "&")
+  } else {
+    return ""
+  }
+}
+
+// func constructURLWithParams(filters data.Filters, metadata data.Metadata) string {
+//   vals := []string{}
+
+//   if metadata.CurrentPage > 1 {
+//     vals = append(vals, fmt.Sprintf("page=%v", metadata.CurrentPage))
+//   }
+
+//   if len(filters.LogFilters.Level) > 0 {
+//     for _, val := range filters.LogFilters.Level {
+//       vals = append(vals, fmt.Sprintf("level=%v", val))
+//     }
+//   }
+
+//   if len(filters.LogFilters.UserID) > 0 {
+//     for _, val := range filters.LogFilters.Level {
+//       vals = append(vals, fmt.Sprintf("userid=%v", val))
+//     }
+//   }
+
+//   if len(vals) > 0 {
+//     return "/logs?"+strings.Join(vals, "&")
+//   } else {
+//     return "/logs"
+//   }
+// }
+
+templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata, filters data.Filters) {
   @Authenticated() {
     <h2>Logs Page</h2>
 
-    @components.LogFilters(logsMetadata)
+    @components.LogMetadata(metadata)
 
-    @components.LogsContainer(logs, metadata)
+    // Pass filters to LogFilters so that styles can reflect those that are currently active
+    @components.LogFilters(logsMetadata, filters)
+
+    @components.LogList(logs)
+
+    // Construct params based on active filters, and pass to PageNavigationControls to add to links
+    @components.PageNavigationControls("logs", constructParams(filters), metadata)
   }
 }
+
+// templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
+//   @Authenticated() {
+//     <h2>Logs Page</h2>
+
+//     @components.LogFilters(logsMetadata)
+
+//     @components.LogsContainer(logs, metadata)
+//   }
+// }
