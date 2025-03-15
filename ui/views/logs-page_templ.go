@@ -19,8 +19,6 @@ import (
 // Returns a string with the structure "param=val&param=val" for every filter present in filters.
 // TODO: Make this agnostic and globally available, so that filters are automatically determined based on keys in data.Filters
 func constructParams(filters data.Filters) string {
-	fmt.Printf("filters: %v\n\n", filters.LogFilters.Level)
-
 	vals := []string{}
 
 	if len(filters.LogFilters.Level) > 0 {
@@ -36,10 +34,8 @@ func constructParams(filters data.Filters) string {
 	}
 
 	if len(vals) > 0 {
-		fmt.Printf("params: %v\n", "&"+strings.Join(vals, "&"))
 		return "&" + strings.Join(vals, "&")
 	} else {
-		fmt.Println("no params")
 		return ""
 	}
 }

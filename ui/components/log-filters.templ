@@ -2,31 +2,59 @@ package components
 
 import (
   "slices"
+  "sort"
   "strconv"
 
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
 templ LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) {
+  {{
+    type levelMeta struct {
+      Level string
+      Count int
+    }
+    var levelMetas []levelMeta
+    for level, count := range logsMetadata.Levels {
+      levelMetas = append(levelMetas, levelMeta{Level: level, Count: count})
+    }
+    sort.Slice(levelMetas, func(i, j int) bool {
+      return levelMetas[i].Count > levelMetas[j].Count
+    })
+
+    type userMeta struct {
+      UserID int
+      Count int
+    }
+    var userMetas []userMeta
+    for id, count := range logsMetadata.Users {
+      userMetas = append(userMetas, userMeta{UserID: id, Count: count})
+    }
+    sort.Slice(userMetas, func(i, j int) bool {
+      return userMetas[i].UserID < userMetas[j].UserID
+    })
+  }}
+
   <div class="filter-controls">
     <div class="level-filters">
-      for k, v := range logsMetadata.Levels {
-        if slices.Contains(filters.LogFilters.Level, k) {
-          <button class="filter-button level-filter active" data-filter={ k }>{ k + " (" + strconv.Itoa(v) + ")" }</button>
+      for _, l := range levelMetas {
+        if slices.Contains(filters.LogFilters.Level, l.Level) {
+          <button class="filter-button level-filter active" data-filter={ l.Level }>{ l.Level + " (" + strconv.Itoa(l.Count) + ")" }</button>
         } else {
-          <button class="filter-button level-filter" data-filter={ k }>{ k + " (" + strconv.Itoa(v) + ")" }</button>
+          <button class="filter-button level-filter" data-filter={ l.Level }>{ l.Level + " (" + strconv.Itoa(l.Count) + ")" }</button>
         }
       }
     </div>
     <div class="user-filters">
-      for k, v := range logsMetadata.Users {
-        if slices.Contains(filters.LogFilters.UserID, k) {
-          <button class="filter-button user_id-filter active" data-filter={ strconv.Itoa(k) }>{ "User ID " +  strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")" }</button>
+      for _, u := range userMetas {
+        if slices.Contains(filters.LogFilters.UserID, u.UserID) {
+          <button class="filter-button user_id-filter active" data-filter={ strconv.Itoa(u.UserID) }>{ "User ID " +  strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")" }</button>
         } else {
-          <button class="filter-button user_id-filter" data-filter={ strconv.Itoa(k) }>{ "User ID " +  strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")" }</button>
+          <button class="filter-button user_id-filter" data-filter={ strconv.Itoa(u.UserID) }>{ "User ID " +  strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")" }</button>
         }
       }
     </div>
+
     <div class="search-bar">
       <input type="text" name="message-search" value={filters.LogFilters.Search} id="message-search" placeholder="Search messages...">
     </div>

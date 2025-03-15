@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"slices"
+	"sort"
 	"strconv"
 
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -36,20 +37,44 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+
+		type levelMeta struct {
+			Level string
+			Count int
+		}
+		var levelMetas []levelMeta
+		for level, count := range logsMetadata.Levels {
+			levelMetas = append(levelMetas, levelMeta{Level: level, Count: count})
+		}
+		sort.Slice(levelMetas, func(i, j int) bool {
+			return levelMetas[i].Count < levelMetas[j].Count
+		})
+
+		type userMeta struct {
+			UserID int
+			Count  int
+		}
+		var userMetas []userMeta
+		for id, count := range logsMetadata.Users {
+			userMetas = append(userMetas, userMeta{UserID: id, Count: count})
+		}
+		sort.Slice(userMetas, func(i, j int) bool {
+			return userMetas[i].UserID < userMetas[j].UserID
+		})
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"filter-controls\"><div class=\"level-filters\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for k, v := range logsMetadata.Levels {
-			if slices.Contains(filters.LogFilters.Level, k) {
+		for _, l := range levelMetas {
+			if slices.Contains(filters.LogFilters.Level, l.Level) {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<button class=\"filter-button level-filter active\" data-filter=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var2 string
-				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(k)
+				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 15, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 42, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 				if templ_7745c5c3_Err != nil {
@@ -60,9 +85,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(k + " (" + strconv.Itoa(v) + ")")
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level + " (" + strconv.Itoa(l.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 15, Col: 112}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 42, Col: 130}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -78,9 +103,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(k)
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 17, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 44, Col: 74}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -91,9 +116,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(k + " (" + strconv.Itoa(v) + ")")
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level + " (" + strconv.Itoa(l.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 17, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 44, Col: 123}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -109,16 +134,16 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for k, v := range logsMetadata.Users {
-			if slices.Contains(filters.LogFilters.UserID, k) {
+		for _, u := range userMetas {
+			if slices.Contains(filters.LogFilters.UserID, u.UserID) {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<button class=\"filter-button user_id-filter active\" data-filter=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(k))
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(u.UserID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 24, Col: 91}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 51, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -129,9 +154,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")")
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 24, Col: 156}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 51, Col: 176}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -147,9 +172,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(k))
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(u.UserID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 26, Col: 84}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 53, Col: 91}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -160,9 +185,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")")
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 26, Col: 149}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 53, Col: 169}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -181,7 +206,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(filters.LogFilters.Search)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 31, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 76, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {

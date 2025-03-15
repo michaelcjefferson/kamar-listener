@@ -21,7 +21,7 @@ templ LogDetail(log data.Log) {
       }
     }
     if log.Trace != "" {
-      <p>{ log.Trace }</p>
+      <pre class="log-trace">{ log.Trace }</pre>
     }
     if log.UserID > 0 {
       <p><strong>User ID:</strong> { strconv.Itoa(log.UserID) }</p>
