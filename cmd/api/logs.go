@@ -15,9 +15,9 @@ import (
 func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 	filters := data.Filters{
 		LogFilters: data.LogFilters{
-			Level:  []string{},
-			Search: "",
-			UserID: []int{},
+			Level:   []string{},
+			Message: "",
+			UserID:  []int{},
 		},
 		Page:         1,
 		PageSize:     10,
@@ -26,7 +26,7 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 	}
 
 	filters.LogFilters.Level = c.QueryParams()["level"]
-	filters.LogFilters.Search = c.QueryParam("message")
+	filters.LogFilters.Message = c.QueryParam("message")
 	if uids := c.QueryParams()["user_id"]; len(uids) != 0 {
 		for _, val := range uids {
 			u, err := strconv.Atoi(val)
@@ -90,7 +90,7 @@ func (app *application) getFilteredLogsHandler(c echo.Context) error {
 	v := validator.New()
 
 	filters.LogFilters.Level = c.QueryParams()["level"]
-	filters.LogFilters.Search = c.QueryParam("message")
+	filters.LogFilters.Message = c.QueryParam("message")
 	if uids := c.QueryParams()["user_id"]; len(uids) != 0 {
 		for _, val := range uids {
 			u, err := strconv.Atoi(val)

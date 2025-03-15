@@ -16,6 +16,7 @@ import (
 	"github.com/mjefferson-whs/listener/internal/data"
 )
 
+// TODO: User ID filters currently don't carry across pages
 func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -46,8 +47,9 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 		for level, count := range logsMetadata.Levels {
 			levelMetas = append(levelMetas, levelMeta{Level: level, Count: count})
 		}
+		// Sort by count in descending order
 		sort.Slice(levelMetas, func(i, j int) bool {
-			return levelMetas[i].Count < levelMetas[j].Count
+			return levelMetas[i].Count > levelMetas[j].Count
 		})
 
 		type userMeta struct {
@@ -58,6 +60,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 		for id, count := range logsMetadata.Users {
 			userMetas = append(userMetas, userMeta{UserID: id, Count: count})
 		}
+		// Sort by user ID in ascending order
 		sort.Slice(userMetas, func(i, j int) bool {
 			return userMetas[i].UserID < userMetas[j].UserID
 		})
@@ -74,7 +77,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var2 string
 				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 42, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 46, Col: 81}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 				if templ_7745c5c3_Err != nil {
@@ -87,7 +90,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level + " (" + strconv.Itoa(l.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 42, Col: 130}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 46, Col: 130}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -105,7 +108,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 44, Col: 74}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 48, Col: 74}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -118,7 +121,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(l.Level + " (" + strconv.Itoa(l.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 44, Col: 123}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 48, Col: 123}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -143,7 +146,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(u.UserID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 51, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 55, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -156,7 +159,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 51, Col: 176}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 55, Col: 176}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -174,7 +177,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(u.UserID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 53, Col: 91}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 57, Col: 91}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -187,7 +190,7 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("User ID " + strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 53, Col: 169}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 57, Col: 169}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -199,20 +202,20 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"search-bar\"><input type=\"text\" name=\"message-search\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"search-bar\"><form id=\"search-form\"><input type=\"text\" name=\"message-search-bar\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(filters.LogFilters.Search)
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(filters.LogFilters.Message)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 76, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-filters.templ`, Line: 64, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" id=\"message-search\" placeholder=\"Search messages...\"></div></div><script>\n    document.querySelectorAll(\".filter-button\").forEach(button => {\n      button.addEventListener(\"click\", () => {\n        button.classList.toggle(\"active\");\n\n        let activeFilters = {\n          \"level\": [],\n          \"user_id\": []\n        }\n\n        document.querySelectorAll(\".filter-button.level-filter.active\").forEach(button => {\n          activeFilters[\"level\"].push(button.getAttribute(\"data-filter\"));\n        });\n        document.querySelectorAll(\".filter-button.user_id-filter.active\").forEach(button => {\n          activeFilters[\"user_id\"].push(button.getAttribute(\"data-filter\"));\n        });\n\n        // sessionStorage.setItem(\"activeFilters\", JSON.stringify(activeFilters));\n\n        let params = new URLSearchParams();\n        // Adding params in this way ensures that with multiple level params, it will be \"level=INFO&level=ERROR\" rather than \"level=INFO,ERROR\" - this makes it much easier for the echo router to pick out these params\n        if (activeFilters[\"level\"].length > 0) {\n          activeFilters[\"level\"].forEach(p => {\n            params.append(\"level\", p);\n          });\n        }\n        if (activeFilters[\"user_id\"].length > 0) {\n          activeFilters[\"user_id\"].forEach(p => {\n            params.append(\"user_id\", p);\n          });\n        }\n\n        window.location.href = \"/logs?\" + params.toString();\n        // let res = await fetch(\"/logs?\" + params.toString());\n        // if (res.ok) {\n        //   window.location.href = \"/logs?\" + params.toString();\n        // } else {\n        //   console.log(res);\n        // }\n        // htmx.ajax(\"GET\", \"/logs?\" + params.toString(), { target: \"#logs-container\", pushURL: true });\n      });\n\n    });\n  </script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" id=\"message-search-bar\" placeholder=\"Search messages...\"> <input type=\"submit\" value=\"SEARCH\"></form></div><button id=\"clear-filters-button\">CLEAR FILTERS</button></div><script>\n    function getFilteredLogs() {\n      let activeFilters = {\n        \"level\": [],\n        \"user_id\": [],\n        \"message\": \"\"\n      }\n\n      document.querySelectorAll(\".filter-button.level-filter.active\").forEach(button => {\n        activeFilters[\"level\"].push(button.getAttribute(\"data-filter\"));\n      });\n      document.querySelectorAll(\".filter-button.user_id-filter.active\").forEach(button => {\n        activeFilters[\"user_id\"].push(button.getAttribute(\"data-filter\"));\n      });\n      activeFilters[\"message\"] = document.getElementById(\"message-search-bar\").value;\n\n      // sessionStorage.setItem(\"activeFilters\", JSON.stringify(activeFilters));\n\n      let params = new URLSearchParams();\n      // Adding params in this way ensures that with multiple level params, it will be \"level=INFO&level=ERROR\" rather than \"level=INFO,ERROR\" - this makes it much easier for the echo router to pick out these params\n      if (activeFilters[\"level\"].length > 0) {\n        activeFilters[\"level\"].forEach(p => {\n          params.append(\"level\", p);\n        });\n      }\n      if (activeFilters[\"user_id\"].length > 0) {\n        activeFilters[\"user_id\"].forEach(p => {\n          params.append(\"user_id\", p);\n        });\n      }\n      if (activeFilters[\"message\"] !== \"\") {\n        params.append(\"message\", activeFilters[\"message\"]);\n      }\n\n      if (params.toString()) {\n        window.location.href = \"/logs?\" + params.toString();\n      } else {\n        window.location.href = \"/logs\";\n      }\n      // let res = await fetch(\"/logs?\" + params.toString());\n      // if (res.ok) {\n      //   window.location.href = \"/logs?\" + params.toString();\n      // } else {\n      //   console.log(res);\n      // }\n      // htmx.ajax(\"GET\", \"/logs?\" + params.toString(), { target: \"#logs-container\", pushURL: true });\n    }\n\n    document.querySelectorAll(\".filter-button\").forEach(button => {\n      button.addEventListener(\"click\", () => {\n        button.classList.toggle(\"active\");\n\n        getFilteredLogs();\n      });\n    });\n\n    document.getElementById(\"search-form\").addEventListener(\"submit\", (e) => {\n      e.preventDefault();\n      getFilteredLogs();\n    });\n\n    document.getElementById(\"clear-filters-button\").addEventListener(\"click\", () => {\n      window.location.href = \"/logs\";\n    });\n  </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -220,59 +223,4 @@ func LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) templ.Com
 	})
 }
 
-// templ LogFilters(logsMetadata *data.LogsMetadata) {
-//   <div class="filter-controls">
-//     <div class="level-filters">
-//       for k, v := range logsMetadata.Levels {
-//         <button class="filter-button level-filter" data-filter={ k }>{ k + " (" + strconv.Itoa(v) + ")" }</button>
-//       }
-//     </div>
-//     <div class="user-filters">
-//       for k, v := range logsMetadata.Users {
-//         <button class="filter-button user_id-filter" data-filter={ strconv.Itoa(k) }>{ "User ID " +  strconv.Itoa(k) + " (" + strconv.Itoa(v) + ")" }</button>
-//       }
-//     </div>
-//     <div class="search-bar">
-//       <input type="text" name="message-search" id="message-search" placeholder="Search messages...">
-//     </div>
-//   </div>
-
-//   <script>
-//     document.querySelectorAll(".filter-button").forEach(button => {
-//       button.addEventListener("click", () => {
-//         button.classList.toggle("active");
-
-//         let activeFilters = {
-//           "level": [],
-//           "user_id": []
-//         }
-
-//         document.querySelectorAll(".filter-button.level-filter.active").forEach(button => {
-//           activeFilters["level"].push(button.getAttribute("data-filter"));
-//         });
-//         document.querySelectorAll(".filter-button.user_id-filter.active").forEach(button => {
-//           activeFilters["user_id"].push(button.getAttribute("data-filter"));
-//         });
-
-//         // sessionStorage.setItem("activeFilters", JSON.stringify(activeFilters));
-
-//         let params = new URLSearchParams();
-//         // Adding params in this way ensures that with multiple level params, it will be "level=INFO&level=ERROR" rather than "level=INFO,ERROR" - this makes it much easier for the echo router to pick out these params
-//         if (activeFilters["level"].length > 0) {
-//           activeFilters["level"].forEach(p => {
-//             params.append("level", p);
-//           });
-//         }
-//         if (activeFilters["user_id"].length > 0) {
-//           activeFilters["user_id"].forEach(p => {
-//             params.append("user_id", p);
-//           });
-//         }
-
-//         htmx.ajax("GET", "/logs/partial?" + params.toString(), { target: "#logs-container", pushURL: true });
-//       });
-
-//	    });
-//	  </script>
-//	}
 var _ = templruntime.GeneratedTemplate

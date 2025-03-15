@@ -144,7 +144,7 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 
 	queryBuilder.WriteString(`
 		SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.user_id,
-			(SELECT COUNT(*) FROM logs WHERE 1=1
+			(SELECT COUNT(*) FROM logs JOIN logs_fts ON logs.id = logs_fts.rowid WHERE 1=1
 	`)
 
 	getAllLogsFilterQueryHelper(&queryBuilder, &args, filters)
@@ -219,9 +219,9 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 }
 
 func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filters Filters) {
-	if filters.LogFilters.Search != "" {
+	if filters.LogFilters.Message != "" {
 		q.WriteString(" AND logs_fts MATCH ?")
-		*args = append(*args, filters.LogFilters.Search)
+		*args = append(*args, filters.LogFilters.Message)
 	}
 	if len(filters.LogFilters.Level) > 0 {
 		qp := fmt.Sprintf(" AND level IN (%s)", placeholders(len(filters.LogFilters.Level)))
