@@ -82,6 +82,11 @@ func main() {
 	cfg.tokens.expiry = 24 * time.Hour
 	cfg.tokens.refresh = 6 * time.Hour
 
+	app := &application{
+		config:         cfg,
+		isShuttingDown: make(chan struct{}),
+	}
+
 	fmt.Println("attempting to set up SQLite db")
 
 	db, userExists, err := openDB(cfg.dbpath)
@@ -91,8 +96,10 @@ func main() {
 	}
 
 	defer db.Close()
+	app.userExists = userExists
 
-	models := data.NewModels(db)
+	models := data.NewModels(db, app.background)
+	app.models = models
 
 	// Instantiate logger that will log anything at or above info level. To write from a different level, change this parameter.
 	var logger *jsonlog.Logger
@@ -101,15 +108,8 @@ func main() {
 	} else {
 		logger = jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
 	}
-	logger.PrintInfo("database connection established", nil)
-
-	app := &application{
-		config:         cfg,
-		isShuttingDown: make(chan struct{}),
-		logger:         logger,
-		models:         models,
-		userExists:     userExists,
-	}
+	app.logger = logger
+	app.logger.PrintInfo("database connection established", nil)
 
 	err = app.serve()
 	if err != nil {

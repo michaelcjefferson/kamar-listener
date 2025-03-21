@@ -21,7 +21,8 @@ type Log struct {
 }
 
 type LogModel struct {
-	DB *sql.DB
+	background func(fn func())
+	DB         *sql.DB
 }
 
 // Insert an individual log into the logs table, as well as a reference to the log message for text search into the logs_fts table

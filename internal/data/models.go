@@ -17,10 +17,10 @@ type Models struct {
 	Users   UserModel
 }
 
-func NewModels(db *sql.DB) Models {
+func NewModels(db *sql.DB, background func(fn func())) Models {
 	return Models{
 		Config:  ConfigModel{DB: db},
-		Logs:    LogModel{DB: db},
+		Logs:    LogModel{DB: db, background: background},
 		Results: ResultModel{DB: db},
 		Tokens:  TokenModel{DB: db},
 		Users:   UserModel{DB: db},
