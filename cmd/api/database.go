@@ -49,6 +49,13 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 		return nil, false, err
 	}
 
+	// Set up config table
+	err = createConfigTable(db)
+	if err != nil {
+		db.Close()
+		return nil, false, err
+	}
+
 	// Set up tables for data to be consumed from SMS
 	err = createSMSTables(db)
 	if err != nil {
@@ -152,6 +159,58 @@ func createTokenTable(db *sql.DB) error {
 	);`
 
 	_, err := db.Exec(tokenTableStmt)
+
+	return err
+}
+
+// id INTEGER PRIMARY KEY AUTOINCREMENT,
+// key TEXT UNIQUE NOT NULL,
+func createConfigTable(db *sql.DB) error {
+	configTableStmt := `CREATE TABLE IF NOT EXISTS config (
+		key TEXT PRIMARY KEY,
+		value TEXT NOT NULL,
+		type TEXT NOT NULL,
+		description TEXT NOT NULL,
+		updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	_, err := db.Exec(configTableStmt)
+
+	// Set default values for config - ignore if they already exist
+	configTableStmt = `
+	INSERT OR IGNORE INTO config (key, value, type, description) VALUES 
+		('kamar_ip', '192.168.1.1', 'string', "IP address of your school's instance of KAMAR - find by running ifconfig"),
+		('service_name', 'KAMAR Listener Service', 'string', 'Use the acronym/name of your school, eg. "WHS KAMAR Listener Service"'),
+		('info_url', 'https://www.educationcounts.govt.nz/directories/list-of-nz-schools', 'string', 'Website where people can contact you/read about how you use this service, eg. https://schoolname.school.nz'),
+		('privacy_statement', 'This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.', 'string', 'Minimum 100 characters: a description of how you use the data from this listener service'),
+		('listener_username', 'username', 'string', 'Username entered into KAMAR when setting up listener service'),
+		('listener_password', 'password', 'password', 'Password entered into KAMAR when setting up listener service'),
+		('details', 'true', 'bool', 'Enable/disable details'),
+		('passwords', 'true', 'bool', 'Enable/disable passwords'),
+		('photos', 'true', 'bool', 'Enable/disable photos'),
+		('groups', 'true', 'bool', 'Enable/disable groups'),
+		('awards', 'true', 'bool', 'Enable/disable awards'),
+		('timetables', 'true', 'bool', 'Enable/disable timetables'),
+		('attendance', 'true', 'bool', 'Enable/disable attendance'),
+		('assessments', 'true', 'bool', 'Enable/disable results and assessments'),
+		('pastoral', 'true', 'bool', 'Enable/disable pastoral'),
+		('learning_support', 'true', 'bool', 'Enable/disable learning support'),
+		('subjects', 'true', 'bool', 'Enable/disable subjects'),
+		('notices', 'true', 'bool', 'Enable/disable notices'),
+		('calendar', 'true', 'bool', 'Enable/disable calendar'),
+		('bookings', 'true', 'bool', 'Enable/disable bookings')
+	`
+
+	_, err = db.Exec(configTableStmt)
+
+	// configMetaTableStmt := `CREATE TABLE IF NOT EXISTS config_metadata (
+	// 	config_id INTEGER PRIMARY KEY,
+	// 	description TEXT NOT NULL,
+	// 	updated_at TEXT DEFAULT (datetime('now')),
+	// 	FOREIGN KEY (config_id) REFERENCES config(id) ON DELETE CASCADE
+	// );`
+
+	// _, err = db.Exec(configMetaTableStmt)
 
 	return err
 }

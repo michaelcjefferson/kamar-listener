@@ -10,6 +10,7 @@ var (
 )
 
 type Models struct {
+	Config  ConfigModel
 	Logs    LogModel
 	Results ResultModel
 	Tokens  TokenModel
@@ -18,6 +19,7 @@ type Models struct {
 
 func NewModels(db *sql.DB) Models {
 	return Models{
+		Config:  ConfigModel{DB: db},
 		Logs:    LogModel{DB: db},
 		Results: ResultModel{DB: db},
 		Tokens:  TokenModel{DB: db},

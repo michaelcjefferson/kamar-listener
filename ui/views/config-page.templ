@@ -1,7 +1,32 @@
 package views
 
-templ ConfigPage() {
+import "github.com/mjefferson-whs/listener/internal/data"
+
+templ ConfigPage(config []data.ConfigEntry) {
   @Authenticated() {
     <h2>Config Page</h2>
+
+    <table class="config-table">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+          <th>Description</th>
+          <th>Updated At</th>
+          <th>Modify</th>
+        </tr>
+      </thead>
+      <tbody>
+        for _, entry := range config {
+          <tr>
+            <td>{ entry.Key }</td>
+            <td>{ entry.Value }</td>
+            <td>{ entry.Description }</td>
+            <td>{ entry.UpdatedAt }</td>
+            <td>X</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   }
 }

@@ -10,7 +10,3 @@ import (
 func (app *application) dashboardPageHandler(c echo.Context) error {
 	return app.Render(c, http.StatusOK, views.DashboardPage())
 }
-
-func (app *application) configPageHandler(c echo.Context) error {
-	return app.Render(c, http.StatusOK, views.ConfigPage())
-}
