@@ -33,6 +33,10 @@ func constructParams(filters data.Filters) string {
 		}
 	}
 
+	if filters.LogFilters.Message != "" {
+		vals = append(vals, fmt.Sprintf("message=%v", filters.LogFilters.Message))
+	}
+
 	if len(vals) > 0 {
 		return "&" + strings.Join(vals, "&")
 	} else {
