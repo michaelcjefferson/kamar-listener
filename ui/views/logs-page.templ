@@ -36,32 +36,6 @@ func constructParams(filters data.Filters) string {
   }
 }
 
-// func constructURLWithParams(filters data.Filters, metadata data.Metadata) string {
-//   vals := []string{}
-
-//   if metadata.CurrentPage > 1 {
-//     vals = append(vals, fmt.Sprintf("page=%v", metadata.CurrentPage))
-//   }
-
-//   if len(filters.LogFilters.Level) > 0 {
-//     for _, val := range filters.LogFilters.Level {
-//       vals = append(vals, fmt.Sprintf("level=%v", val))
-//     }
-//   }
-
-//   if len(filters.LogFilters.UserID) > 0 {
-//     for _, val := range filters.LogFilters.Level {
-//       vals = append(vals, fmt.Sprintf("userid=%v", val))
-//     }
-//   }
-
-//   if len(vals) > 0 {
-//     return "/logs?"+strings.Join(vals, "&")
-//   } else {
-//     return "/logs"
-//   }
-// }
-
 templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata, filters data.Filters) {
   @Authenticated() {
     <h2>Logs Page</h2>
@@ -77,13 +51,3 @@ templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.Logs
     @components.PageNavigationControls("logs", constructParams(filters), metadata)
   }
 }
-
-// templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
-//   @Authenticated() {
-//     <h2>Logs Page</h2>
-
-//     @components.LogFilters(logsMetadata)
-
-//     @components.LogsContainer(logs, metadata)
-//   }
-// }

@@ -26,50 +26,56 @@ type LogModel struct {
 }
 
 // Insert an individual log into the logs table, as well as a reference to the log message for text search into the logs_fts table
-func (m *LogModel) Insert(log *Log) error {
-	// Get user_id if it exists to add to logs_metadata table
-	var userID int
-	if i, ok := ToInt(log.Properties["user_id"]); ok {
-		userID = i
-	}
+func (m *LogModel) Insert(log *Log) {
+	m.background(func() {
+		// Get user_id if it exists to add to logs_metadata table
+		var userID int
+		if i, ok := ToInt(log.Properties["user_id"]); ok {
+			userID = i
+		}
 
-	query := `
-		INSERT INTO logs (level, time, message, properties, trace)
-		VALUES ($1, $2, $3, $4, $5);
-
-		INSERT INTO logs_fts (rowid, message)
-		VALUES (last_insert_rowid(), $6);
-
-		INSERT INTO logs_metadata (type, level, count)
-		VALUES ("level", $7, 1)
-		ON CONFLICT(level) DO UPDATE
-		SET count=count+1;
-	`
-
-	jsonProps, err := json.Marshal(log.Properties)
-	if err != nil {
-		fmt.Println("error marshalling json when attempting to write a log to database:", err)
-	}
-
-	args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level}
-
-	if userID > 0 {
-		query += `
-			INSERT INTO logs_metadata (type, user_id, count)
-			VALUES ("user_id", $8, 1)
-			ON CONFLICT(user_id) DO UPDATE
+		query := `
+			INSERT INTO logs (level, time, message, properties, trace)
+			VALUES ($1, $2, $3, $4, $5);
+	
+			INSERT INTO logs_fts (rowid, message)
+			VALUES (last_insert_rowid(), $6);
+	
+			INSERT INTO logs_metadata (type, level, count)
+			VALUES ("level", $7, 1)
+			ON CONFLICT(level) DO UPDATE
 			SET count=count+1;
 		`
 
-		args = append(args, userID)
-	}
+		jsonProps, err := json.Marshal(log.Properties)
+		if err != nil {
+			fmt.Println("error marshalling json when attempting to write a log to database:", err)
+		}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
+		args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level}
 
-	_, err = m.DB.ExecContext(ctx, query, args...)
+		if userID > 0 {
+			query += `
+				INSERT INTO logs_metadata (type, user_id, count)
+				VALUES ("user_id", $8, 1)
+				ON CONFLICT(user_id) DO UPDATE
+				SET count=count+1;
+			`
 
-	return err
+			args = append(args, userID)
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+
+		_, err = m.DB.ExecContext(ctx, query, args...)
+
+		if err != nil {
+			fmt.Printf("Error pushing log to SQLite database: %v", err)
+		}
+
+		// return err
+	})
 }
 
 func (m *LogModel) GetForID(id int) (*Log, error) {

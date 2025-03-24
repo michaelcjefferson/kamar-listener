@@ -129,3 +129,123 @@ nav a.active {
   background-color: #1b23b8;
   color: #fff;
 }
+
+/* CONFIG */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Style for checkboxes */
+.checkbox-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-wrapper label {
+  position: relative;
+  cursor: pointer;
+  padding-left: 25px;
+  line-height: 20px;
+}
+
+.checkbox-wrapper label:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 3px;
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked + label:after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 3px;
+  width: 6px;
+  height: 11px;
+  border: solid #555;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Status indicator styling */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.status-saving {
+  background-color: #f39c12; /* Amber for saving */
+  animation: pulse 1.5s infinite;
+}
+
+.status-success {
+  background-color: #2ecc71; /* Green for success */
+  animation: fadeOut 2s forwards;
+  animation-delay: 1s;
+}
+
+.status-error {
+  background-color: #e74c3c; /* Red for error */
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

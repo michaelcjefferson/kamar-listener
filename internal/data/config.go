@@ -150,11 +150,41 @@ func (c *ConfigModel) LoadConfig() (*ListenerConfig, error) {
 // TODO: Add context with timeout
 // Set stores or updates a configuration item
 func (c *ConfigModel) Set(entry ConfigEntry) error {
-	_, err := c.DB.Exec(
-		"INSERT INTO configs (key, value, type, description) VALUES (?, ?, ?, ?) "+
-			"ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP",
-		entry.Key, entry.Value, entry.Type, entry.Description,
-		entry.Value, entry.Type, entry.Description,
-	)
-	return err
+	query := `
+		INSERT INTO config (key, value, type, description) VALUES (?, ?, ?, ?)
+		ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
+	`
+
+	args := []interface{}{
+		entry.Key,
+		entry.Value,
+		entry.Type,
+		entry.Description,
+		entry.Value,
+		entry.Type,
+		entry.Description,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := c.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
+
+// func (c *ConfigModel) Set(entry ConfigEntry) error {
+// 	_, err := c.DB.Exec(
+// "INSERT INTO config (key, value, type, description) VALUES (?, ?, ?, ?) "+
+// 	"ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP",
+// entry.Key, entry.Value, entry.Type, entry.Description,
+// entry.Value, entry.Type, entry.Description,
+// 	)
+
+// 	fmt.Printf("eRRor from sqlite: %v\n\n", err.Error())
+
+// 	return err
+// }

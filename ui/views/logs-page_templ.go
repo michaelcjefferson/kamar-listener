@@ -44,31 +44,6 @@ func constructParams(filters data.Filters) string {
 	}
 }
 
-// func constructURLWithParams(filters data.Filters, metadata data.Metadata) string {
-//   vals := []string{}
-
-//   if metadata.CurrentPage > 1 {
-//     vals = append(vals, fmt.Sprintf("page=%v", metadata.CurrentPage))
-//   }
-
-//   if len(filters.LogFilters.Level) > 0 {
-//     for _, val := range filters.LogFilters.Level {
-//       vals = append(vals, fmt.Sprintf("level=%v", val))
-//     }
-//   }
-
-//   if len(filters.LogFilters.UserID) > 0 {
-//     for _, val := range filters.LogFilters.Level {
-//       vals = append(vals, fmt.Sprintf("userid=%v", val))
-//     }
-//   }
-
-//	  if len(vals) > 0 {
-//	    return "/logs?"+strings.Join(vals, "&")
-//	  } else {
-//	    return "/logs"
-//	  }
-//	}
 func LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata, filters data.Filters) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -144,13 +119,4 @@ func LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsM
 	})
 }
 
-// templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata) {
-//   @Authenticated() {
-//     <h2>Logs Page</h2>
-
-//     @components.LogFilters(logsMetadata)
-
-//	    @components.LogsContainer(logs, metadata)
-//	  }
-//	}
 var _ = templruntime.GeneratedTemplate

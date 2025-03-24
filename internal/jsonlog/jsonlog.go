@@ -97,14 +97,17 @@ func (l *Logger) print(level Level, message string, properties map[string]interf
 
 	// Write log to database in secondary thread, if logModel exists
 	if l.logModel != nil {
-		go func() {
-			err := l.logModel.Insert(&aux)
-			if err != nil {
-				mes := []byte(LevelError.String() + "failed to write log to database:" + err.Error())
-				l.out.Write(mes)
-			}
-		}()
+		l.logModel.Insert(&aux)
 	}
+	// if l.logModel != nil {
+	// 	go func() {
+	// 		err := l.logModel.Insert(&aux)
+	// 		if err != nil {
+	// 			mes := []byte(LevelError.String() + "failed to write log to database:" + err.Error())
+	// 			l.out.Write(mes)
+	// 		}
+	// 	}()
+	// }
 
 	// Create the line constituting the log and populate it with all info in aux marshalled to JSON. If that fails, create a log line recording that error instead.
 	var line []byte

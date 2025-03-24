@@ -26,6 +26,10 @@ func (app *application) logRequest(c echo.Context, message string) {
 
 func (app *application) errorResponse(c echo.Context, status int, message interface{}) error {
 	env := envelope{"error": message}
+	// env := envelope{
+	// 	"success": false,
+	// 	"error":   message,
+	// }
 
 	err := c.JSON(status, env)
 	if err != nil {

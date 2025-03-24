@@ -54,6 +54,7 @@ func (app *application) routes() http.Handler {
 	isAuthenticatedGroup := authGroup.Group("", app.requireAuthenticatedUser)
 	// The user must be authenticated in order to be logged out successfully, and to reach the dashboard
 	isAuthenticatedGroup.POST("/log-out", app.logoutUserHandler)
+	isAuthenticatedGroup.POST("/config/update", app.updateConfigHandler)
 	isAuthenticatedGroup.GET("/config", app.configPageHandler)
 	isAuthenticatedGroup.GET("/logs/partial", app.getFilteredLogsHandler)
 	isAuthenticatedGroup.GET("/logs/:id", app.getIndividualLogPageHandler)
