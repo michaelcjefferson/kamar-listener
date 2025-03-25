@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"strconv"
 	"time"
+
+	"github.com/mjefferson-whs/listener/internal/validator"
 )
 
 // type ListenerConfig struct {
@@ -30,6 +32,8 @@ import (
 // 	Bookings         bool     `json:"bookings,omitempty"`
 // }
 
+var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "kamar_ip", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learning_support", "subjects", "notices", "calendar", "bookings"}
+
 type ConfigEntry struct {
 	Key         string `json:"key"`
 	Value       string `json:"value"`
@@ -38,10 +42,24 @@ type ConfigEntry struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-type ListenerConfig map[string]interface{}
+type ListenerConfig map[string]any
 
 type ConfigModel struct {
 	DB *sql.DB
+}
+
+func ValidateConfigKey(v *validator.Validator, key string) {
+	v.Check(validator.In(key, ConfigKeySafeList...), "key", "invalid key value")
+}
+
+func ValidateConfigValue(v *validator.Validator, key, value, valueType string) {
+	v.Check(key != "", key, "must not be empty")
+	switch valueType {
+	case "int":
+		v.Check(validator.StringIsInt(value), key, "must be convertable to integer type")
+	case "bool":
+		v.Check(validator.StringIsBool(value), key, "must be convertable to boolean type")
+	}
 }
 
 // NewConfig creates a Config from ConfigEntries
@@ -67,6 +85,7 @@ func NewConfig(entries []ConfigEntry) *ListenerConfig {
 }
 
 // Get returns a typed value from ListenerConfig with proper type assertion
+// TODO: These are likely unnecessary
 func (c *ListenerConfig) GetString(key string) (string, bool) {
 	if val, ok := (*c)[key]; ok {
 		if str, ok := val.(string); ok {
@@ -128,11 +147,14 @@ func (c *ConfigModel) GetAll() ([]ConfigEntry, error) {
 	return entries, nil
 }
 
-// TODO: Add context with timeout
 // GetByKey retrieves a single configuration item
 func (c *ConfigModel) GetByKey(key string) (ConfigEntry, error) {
 	var entry ConfigEntry
-	err := c.DB.QueryRow("SELECT key, value, type, description, updated_at FROM config WHERE key = ?", key).
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := c.DB.QueryRowContext(ctx, "SELECT key, value, type, description, updated_at FROM config WHERE key = ?", key).
 		Scan(&entry.Key, &entry.Value, &entry.Type, &entry.Description, &entry.UpdatedAt)
 	return entry, err
 }
@@ -147,7 +169,6 @@ func (c *ConfigModel) LoadConfig() (*ListenerConfig, error) {
 	return NewConfig(entries), nil
 }
 
-// TODO: Add context with timeout
 // Set stores or updates a configuration item
 func (c *ConfigModel) Set(entry ConfigEntry) error {
 	query := `
@@ -175,16 +196,3 @@ func (c *ConfigModel) Set(entry ConfigEntry) error {
 
 	return nil
 }
-
-// func (c *ConfigModel) Set(entry ConfigEntry) error {
-// 	_, err := c.DB.Exec(
-// "INSERT INTO config (key, value, type, description) VALUES (?, ?, ?, ?) "+
-// 	"ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP",
-// entry.Key, entry.Value, entry.Type, entry.Description,
-// entry.Value, entry.Type, entry.Description,
-// 	)
-
-// 	fmt.Printf("eRRor from sqlite: %v\n\n", err.Error())
-
-// 	return err
-// }

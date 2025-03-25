@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
+	"github.com/mjefferson-whs/listener/internal/validator"
 	views "github.com/mjefferson-whs/listener/ui/views"
 )
 
@@ -32,7 +33,13 @@ func (app *application) updateConfigHandler(c echo.Context) error {
 		return app.errorResponse(c, http.StatusBadRequest, "Invalid request")
 	}
 
-	// TODO: Validate
+	v := validator.New()
+	data.ValidateConfigKey(v, req.Key)
+	data.ValidateConfigValue(v, req.Key, req.Value, req.Type)
+
+	if !v.Valid() {
+		return app.failedValidationResponse(c, v.Errors)
+	}
 
 	// TODO: Hash password
 	currentConfigVal, err := app.models.Config.GetByKey(req.Key)

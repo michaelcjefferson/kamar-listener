@@ -2,6 +2,7 @@ package validator
 
 import (
 	"regexp"
+	"strconv"
 )
 
 var (
@@ -70,5 +71,20 @@ func NoEmptyString(values []string) bool {
 		}
 	}
 
+	return true
+}
+
+// The following functions check whether a provided string can be converted to the datatype named in the function signature
+func StringIsInt(value string) bool {
+	if _, err := strconv.Atoi(value); err != nil {
+		return false
+	}
+	return true
+}
+
+func StringIsBool(value string) bool {
+	if _, err := strconv.ParseBool(value); err != nil {
+		return false
+	}
 	return true
 }
