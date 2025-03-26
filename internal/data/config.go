@@ -38,9 +38,15 @@ type ConfigEntry struct {
 	Key         string `json:"key"`
 	Value       string `json:"value"`
 	Type        string `json:"type"`
-	Description string `json:"description"`
-	UpdatedAt   string `json:"updated_at"`
+	Description string `json:"description,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
 }
+
+// type ConfigUpdateRequest struct {
+// 	Key   string `json:"key"`
+// 	Value string `json:"value"`
+// 	Type  string `json:"type"`
+// }
 
 type ListenerConfig map[string]any
 
@@ -60,6 +66,11 @@ func ValidateConfigValue(v *validator.Validator, key, value, valueType string) {
 	case "bool":
 		v.Check(validator.StringIsBool(value), key, "must be convertable to boolean type")
 	}
+}
+
+func ValidateConfigUpdate(v *validator.Validator, config ConfigEntry) {
+	ValidateConfigKey(v, config.Key)
+	ValidateConfigValue(v, config.Key, config.Value, config.Type)
 }
 
 // NewConfig creates a Config from ConfigEntries

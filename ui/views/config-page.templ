@@ -75,7 +75,7 @@ templ ConfigPage(config []data.ConfigEntry) {
                   data-config-type={ entry.Type }
                   class="config-input"
                   onblur="handleConfigChange(this)"
-                  onkeydown="if(event.key) === 'Enter') handleConfigChange(this)">
+                  onkeydown="if (event.key === 'Enter') handleConfigChange(this)">
                   { entry.Value }
                 </textarea>
               } else {
@@ -89,7 +89,7 @@ templ ConfigPage(config []data.ConfigEntry) {
                   data-config-type={ entry.Type }
                   class="config-input"
                   onblur="handleConfigChange(this)"
-                  onkeydown="if(event.key) === 'Enter') handleConfigChange(this)"
+                  onkeydown="if (event.key === 'Enter') handleConfigChange(this)"
                 />
               }
             </td>
@@ -101,10 +101,6 @@ templ ConfigPage(config []data.ConfigEntry) {
         }
       </tbody>
     </table>
-
-    // <div class="card">
-    //   <button id="config-save-button">Save</button>
-    // </div>
 
     <script>
       // Debounce function to prevent too many requests
@@ -141,11 +137,11 @@ templ ConfigPage(config []data.ConfigEntry) {
       const debouncedSaveConfig = debounce(saveConfig, 500);
       
       function saveConfig(key, value, type, statusIndicator) {
-        console.log(JSON.stringify({
-          key: key,
-          value: value,
-          type: type
-        }))
+        // console.log(JSON.stringify({
+        //   key: key,
+        //   value: value,
+        //   type: type
+        // }))
 
         // Send request to update config
         fetch('/config/update', {
@@ -161,7 +157,7 @@ templ ConfigPage(config []data.ConfigEntry) {
         })
         .then(response => response.json())
         .then(data => {
-          console.log(data);
+          // console.log(data);
           if (data.success) {
             // Show success indicator
             statusIndicator.className = 'status-indicator status-success';
@@ -189,55 +185,5 @@ templ ConfigPage(config []data.ConfigEntry) {
         });
       }
     </script>
-
-    // <script>
-    //   document.addEventListener('DOMContentLoaded', function() {
-    //     // Add event listeners to save buttons
-    //     document.getElementById('#config-save-button').addEventListener('click', function() {
-
-    //       const key = this.getAttribute('data-key');
-    //       const inputEl = document.getElementById('config-' + key);
-    //       let value;
-          
-    //       // Handle different input types
-    //       if (inputEl.type === 'checkbox') {
-    //         value = inputEl.checked ? "true" : "false";
-    //       } else {
-    //         value = inputEl.value;
-    //       }
-          
-    //       const type = inputEl.getAttribute('data-config-type');
-          
-    //       saveConfig(key, value, type);
-    //     });
-
-    //   function saveConfig(key, value, type) {
-    //     // Send AJAX request to update config
-    //     fetch('/config/update', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({
-    //         key: key,
-    //         value: value,
-    //         type: type
-    //       })
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       if (data.success) {
-    //         // Show success message
-    //         alert('Configuration updated successfully');
-    //       } else {
-    //         alert('Error updating configuration: ' + data.error);
-    //       }
-    //     })
-    //     .catch(error => {
-    //       console.error('Error:', error);
-    //       alert('Failed to update configuration');
-    //     });
-    //   }
-    // </script>
   }
 }

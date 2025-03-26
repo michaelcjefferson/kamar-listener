@@ -10,12 +10,6 @@ import (
 	views "github.com/mjefferson-whs/listener/ui/views"
 )
 
-type ConfigUpdateRequest struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-	Type  string `json:"type"`
-}
-
 func (app *application) configPageHandler(c echo.Context) error {
 	config, err := app.models.Config.GetAll()
 	if err != nil {
@@ -26,7 +20,7 @@ func (app *application) configPageHandler(c echo.Context) error {
 }
 
 func (app *application) updateConfigHandler(c echo.Context) error {
-	var req ConfigUpdateRequest
+	var req data.ConfigEntry
 	user := app.contextGetUser(c)
 
 	if err := c.Bind(&req); err != nil {
@@ -34,8 +28,7 @@ func (app *application) updateConfigHandler(c echo.Context) error {
 	}
 
 	v := validator.New()
-	data.ValidateConfigKey(v, req.Key)
-	data.ValidateConfigValue(v, req.Key, req.Value, req.Type)
+	data.ValidateConfigUpdate(v, req)
 
 	if !v.Valid() {
 		return app.failedValidationResponse(c, v.Errors)
