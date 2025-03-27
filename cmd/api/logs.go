@@ -13,6 +13,8 @@ import (
 )
 
 func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
+	user := app.contextGetUser(c)
+
 	filters := data.Filters{
 		LogFilters: data.LogFilters{
 			Level:   []string{},
@@ -58,10 +60,11 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
-	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata, logsMetadata, filters))
+	return app.Render(c, http.StatusOK, views.LogsPage(logs, metadata, logsMetadata, filters, user))
 }
 
 func (app *application) getIndividualLogPageHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
 	id, err := app.readIDParam(c)
 	if err != nil {
 		app.notFoundResponse(c)
@@ -81,7 +84,7 @@ func (app *application) getIndividualLogPageHandler(c echo.Context) error {
 
 	referer := c.Request().Header.Get("Referer")
 
-	return app.Render(c, http.StatusAccepted, views.IndividualLogPage(*log, referer))
+	return app.Render(c, http.StatusAccepted, views.IndividualLogPage(*log, referer, u))
 }
 
 func (app *application) getFilteredLogsHandler(c echo.Context) error {

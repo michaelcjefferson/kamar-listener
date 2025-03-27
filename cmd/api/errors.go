@@ -78,7 +78,7 @@ func (app *application) rateLimitExceededResponse(c echo.Context) error {
 	return app.errorResponse(c, http.StatusTooManyRequests, message)
 }
 
-func (app *application) invalidCredentialsReponse(c echo.Context) error {
+func (app *application) invalidCredentialsResponse(c echo.Context) error {
 	message := "invalid authentication credentials"
 	app.logRequest(c, "log in attempt failed")
 	return app.errorResponse(c, http.StatusUnauthorized, message)

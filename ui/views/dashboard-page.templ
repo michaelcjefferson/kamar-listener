@@ -1,6 +1,7 @@
 package views
 
 import "github.com/mjefferson-whs/listener/ui/components"
+import "github.com/mjefferson-whs/listener/internal/data"
 
 // templ Dashboard() {
 //   @Base() {
@@ -10,8 +11,8 @@ import "github.com/mjefferson-whs/listener/ui/components"
 //   }
 // }
 
-templ DashboardPage() {
-  @Authenticated() {
+templ DashboardPage(u *data.User) {
+  @Authenticated(u) {
     @components.Hero("center")
   }
 }

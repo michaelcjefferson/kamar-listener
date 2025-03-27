@@ -3,8 +3,8 @@ package views
 import "github.com/mjefferson-whs/listener/ui/components"
 import "github.com/mjefferson-whs/listener/internal/data"
 
-templ IndividualLogPage(log data.Log, ref string) {
-  @Authenticated() {
+templ IndividualLogPage(log data.Log, ref string, u *data.User) {
+  @Authenticated(u) {
     <h2>Logs Page</h2>
 
     if ref != "" {

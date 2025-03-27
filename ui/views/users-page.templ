@@ -6,8 +6,8 @@ import (
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-templ UsersPage(users []*data.User) {
-  @Authenticated() {
+templ UsersPage(users []*data.User, u *data.User) {
+  @Authenticated(u) {
     <h2>Users Page</h2>
 
     <table class="users-table">
@@ -22,13 +22,23 @@ templ UsersPage(users []*data.User) {
       </thead>
       <tbody>
         for _, user := range users {
-          <tr>
-            <td>{ fmt.Sprintf("%v", user.ID) }</td>
-            <td>{ user.Username }</td>
-            <td>{ user.CreatedAt }</td>
-            <td>{ user.LastAuthenticatedAt }</td>
-            <td>X</td>
-          </tr>
+          if user.ID == u.ID {
+            <tr class="highlight-border">
+              <td>{ fmt.Sprintf("%v", user.ID) }</td>
+              <td>{ user.Username }</td>
+              <td><a href="/users/update/password">Change Password</a></td>
+              <td>{ user.LastAuthenticatedAt }</td>
+              <td>X</td>
+            </tr>
+          } else {
+            <tr>
+              <td>{ fmt.Sprintf("%v", user.ID) }</td>
+              <td>{ user.Username }</td>
+              <td>{ user.CreatedAt }</td>
+              <td>{ user.LastAuthenticatedAt }</td>
+              <td>X</td>
+            </tr>
+          }
         }
       </tbody>
     </table>

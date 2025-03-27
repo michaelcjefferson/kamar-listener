@@ -11,13 +11,13 @@ import (
 
 // PASSWORDS
 // Using a pointer to plaintext allows differentiation between a password that hasn't been provided and a password that is an empty string, because nil value of a string is "" whereas nil value of a pointer is nil.
-type password struct {
+type Password struct {
 	plaintext *string
 	hash      []byte
 }
 
 // Hash plaintext password from form, and set both plaintext and hashed passwords as values on User struct
-func (p *password) Set(plaintextPassword string) error {
+func (p *Password) Set(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (p *password) Set(plaintextPassword string) error {
 }
 
 // Check whether the provided plaintextPassword, once hashed, matches the hashed password attached to the user struct. eg. on sign-in, GetByUsername() is called to retrieve a user struct matching the provided username, and their associated password.hash is compared below with the plaintext password provided
-func (p *password) Matches(plaintextPassword string) (bool, error) {
+func (p *Password) Matches(plaintextPassword string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
 	if err != nil {
 		switch {
@@ -44,6 +44,11 @@ func (p *password) Matches(plaintextPassword string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// Provide access to password hash
+func (p *Password) Hash() []byte {
+	return p.hash
 }
 
 // OTHER HELPERS

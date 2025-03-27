@@ -23,7 +23,7 @@ type User struct {
 	CreatedAt           string   `json:"created_at"`
 	LastAuthenticatedAt string   `json:"last_authenticated_at"`
 	Username            string   `json:"username"`
-	Password            password `json:"-"`
+	Password            Password `json:"-"`
 }
 
 // Any user object can call this function which will return true if the user object doesn't have a username, password, and ID associated with it.
@@ -123,6 +123,37 @@ func (m UserModel) GetAll() ([]*User, error) {
 	}
 
 	return users, nil
+}
+
+func (m UserModel) GetByID(id int64) (*User, error) {
+	query := `
+		SELECT id, created_at, username, password_hash
+		FROM users
+		WHERE id = $1
+	`
+
+	var user User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.CreatedAt,
+		&user.Username,
+		&user.Password.hash,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }
 
 func (m UserModel) GetByUsername(username string) (*User, error) {

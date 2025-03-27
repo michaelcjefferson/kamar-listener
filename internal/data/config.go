@@ -84,7 +84,7 @@ func NewConfig(entries []ConfigEntry) *ListenerConfig {
 		case "int":
 			c[entry.Key], _ = strconv.Atoi(entry.Value)
 		case "password":
-			p := password{}
+			p := Password{}
 			p.hash = []byte(entry.Value)
 			c[entry.Key] = p
 		default:
@@ -124,13 +124,13 @@ func (c *ListenerConfig) GetInt(key string) (int, bool) {
 	return 0, false
 }
 
-func (c *ListenerConfig) GetPassword(key string) (password, bool) {
+func (c *ListenerConfig) GetPassword(key string) (Password, bool) {
 	if val, ok := (*c)[key]; ok {
-		if i, ok := val.(password); ok {
+		if i, ok := val.(Password); ok {
 			return i, true
 		}
 	}
-	return password{}, false
+	return Password{}, false
 }
 
 func (c *ConfigModel) GetAll() ([]ConfigEntry, error) {
@@ -151,6 +151,9 @@ func (c *ConfigModel) GetAll() ([]ConfigEntry, error) {
 		err := rows.Scan(&entry.Key, &entry.Value, &entry.Type, &entry.Description, &entry.UpdatedAt)
 		if err != nil {
 			return nil, err
+		}
+		if entry.Key == "listener_password" {
+			entry.Value = ""
 		}
 		entries = append(entries, entry)
 	}
@@ -182,6 +185,10 @@ func (c *ConfigModel) LoadConfig() (*ListenerConfig, error) {
 
 // Set stores or updates a configuration item
 func (c *ConfigModel) Set(entry ConfigEntry) error {
+	// query := `
+	// 	INSERT INTO config (key, value, type) VALUES (?, ?, ?)
+	// 	ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, updated_at = CURRENT_TIMESTAMP
+	// `
 	query := `
 		INSERT INTO config (key, value, type, description) VALUES (?, ?, ?, ?)
 		ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP

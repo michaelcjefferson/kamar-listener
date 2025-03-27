@@ -16,6 +16,11 @@ type userInput struct {
 	Password string `json:"password"`
 }
 
+type PasswordUpdateInput struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
 func (app *application) registerPageHandler(c echo.Context) error {
 	if app.userExists {
 		user := app.contextGetUser(c)
@@ -100,8 +105,7 @@ func (app *application) signInPageHandler(c echo.Context) error {
 	user := app.contextGetUser(c)
 
 	if !user.IsAnonymous() {
-		app.signOutRequiredResponse(c)
-		return nil
+		return app.signOutRequiredResponse(c)
 	}
 
 	return app.Render(c, http.StatusAccepted, views.SignInPage())
@@ -111,16 +115,14 @@ func (app *application) signInUserHandler(c echo.Context) error {
 	u := app.contextGetUser(c)
 
 	if !u.IsAnonymous() {
-		app.signOutRequiredResponse(c)
-		return nil
+		return app.signOutRequiredResponse(c)
 	}
 
 	input := userInput{}
 
 	err := c.Bind(&input)
 	if err != nil {
-		app.badRequestResponse(c, err)
-		return nil
+		return app.badRequestResponse(c, err)
 	}
 
 	v := validator.New()
@@ -129,8 +131,7 @@ func (app *application) signInUserHandler(c echo.Context) error {
 	data.ValidatePasswordPlaintext(v, input.Password)
 
 	if !v.Valid() {
-		app.failedValidationResponse(c, v.Errors)
-		return nil
+		return app.failedValidationResponse(c, v.Errors)
 	}
 
 	// Retrieve row from users table that matches the provided username
@@ -138,29 +139,25 @@ func (app *application) signInUserHandler(c echo.Context) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			app.invalidCredentialsReponse(c)
+			return app.invalidCredentialsResponse(c)
 		default:
-			app.serverErrorResponse(c, err)
+			return app.serverErrorResponse(c, err)
 		}
-		return nil
 	}
 
 	// Compare plaintext password provided by the client with hashed password from row retrieved from user table (SECURITY RISK - MAN-IN-MIDDLE/FAKE WEBSITE ATTACK??)
 	match, err := user.Password.Matches(input.Password)
 	if err != nil {
-		app.serverErrorResponse(c, err)
-		return nil
+		return app.serverErrorResponse(c, err)
 	}
 
 	if !match {
-		app.invalidCredentialsReponse(c)
-		return nil
+		return app.invalidCredentialsResponse(c)
 	}
 
 	err = app.createAndSetAdminTokenCookie(c, user.ID, app.config.tokens.expiry)
 	if err != nil {
-		app.serverErrorResponse(c, err)
-		return nil
+		return app.serverErrorResponse(c, err)
 	}
 
 	app.logger.PrintInfo("user logged in", map[string]interface{}{
@@ -182,7 +179,7 @@ func (app *application) logoutUserHandler(c echo.Context) error {
 		switch {
 		// TODO: This case currently cannot be triggered as DeleteAllForUser doesn't return this type of error
 		case errors.Is(err, data.ErrRecordNotFound):
-			return app.invalidCredentialsReponse(c)
+			return app.invalidCredentialsResponse(c)
 		default:
 			return app.serverErrorResponse(c, err)
 		}
@@ -207,13 +204,66 @@ func (app *application) logoutUserHandler(c echo.Context) error {
 	return app.redirectResponse(c, "/sign-in", http.StatusAccepted, "successfully logged out")
 }
 
+func (app *application) updateUserPasswordPageHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
+
+	return app.Render(c, http.StatusAccepted, views.UpdateUserPasswordPage(u))
+}
+
+func (app *application) updateUserPasswordHandler(c echo.Context) error {
+	// Ensure user making request is the same as user that password will be updated for
+	user := app.contextGetUser(c)
+	input := PasswordUpdateInput{}
+
+	err := c.Bind(&input)
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error updating user password",
+			"user_id": user.ID,
+		})
+		return app.badRequestResponse(c, err)
+	}
+
+	// Ensure user's password matches the CurrentPassword provided by the client
+	match, err := user.Password.Matches(input.CurrentPassword)
+	if err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+	if !match {
+		return app.invalidCredentialsResponse(c)
+	}
+
+	v := validator.New()
+
+	if data.ValidatePasswordPlaintext(v, input.NewPassword); !v.Valid() {
+		return app.failedValidationResponse(c, v.Errors)
+	}
+
+	if err = user.Password.Set(input.NewPassword); err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	err = app.models.Users.Update(*user)
+	if err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	env := envelope{
+		"success": true,
+	}
+
+	return c.JSON(http.StatusAccepted, env)
+}
+
 func (app *application) getUsersPageHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
+
 	users, err := app.models.Users.GetAll()
 	if err != nil {
 		return app.serverErrorResponse(c, err)
 	}
 
-	return app.Render(c, http.StatusAccepted, views.UsersPage(users))
+	return app.Render(c, http.StatusAccepted, views.UsersPage(users, u))
 }
 
 func (app *application) getUserCount() (int, error) {

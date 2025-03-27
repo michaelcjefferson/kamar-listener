@@ -2,10 +2,11 @@ package views
 
 import "github.com/mjefferson-whs/listener/internal/data"
 
-templ ConfigPage(config []data.ConfigEntry) {
-  @Authenticated() {
+templ ConfigPage(config []data.ConfigEntry, u *data.User) {
+  @Authenticated(u) {
     <h2>Config Page</h2>
 
+    // TODO: If possible, split into two sections - one for checkboxes to turn on/off data types for the listener service, another for manual inputs such as username
     <table class="config-table">
       <thead>
         <tr>
@@ -16,6 +17,7 @@ templ ConfigPage(config []data.ConfigEntry) {
         </tr>
       </thead>
       <tbody>
+        // To prevent Google auto-fill for listener_username and listener_password, create hidden dummy inputs
         <input type="text" name="fake-user" style="display:none;">
         <input type="password" name="fake-pass" style="display:none;">
 
@@ -52,21 +54,22 @@ templ ConfigPage(config []data.ConfigEntry) {
                   data-config-type={ entry.Type }
                   class="config-input"
                   onblur="handleConfigChange(this)"
-                  onkeydown="if(event.key) === 'Enter') handleConfigChange(this)"
+                  onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
                 />
               } else if entry.Type == "password" {
-                <input
-                  type="password"
-                  autocomplete="new-password"
-                  id={ "config-" + entry.Key }
-                  name={ entry.Key }
-                  value=""
-                  data-config-key={ entry.Key }
-                  data-config-type={ entry.Type }
-                  class="config-input"
-                  onblur="handleConfigChange(this)"
-                  onkeydown="if(event.key) === 'Enter') handleConfigChange(this)"
-                />
+                // <input
+                //   type="password"
+                //   autocomplete="new-password"
+                //   id={ "config-" + entry.Key }
+                //   name={ entry.Key }
+                //   value=""
+                //   data-config-key={ entry.Key }
+                //   data-config-type={ entry.Type }
+                //   class="config-input"
+                //   onblur="handleConfigChange(this)"
+                //   onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
+                // />
+                <a href="/config/update/password">Update</a>
               } else if entry.Type == "string" && len(entry.Value) > 50 {
                 <textarea
                   id={ "config-" + entry.Key }

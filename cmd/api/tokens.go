@@ -39,7 +39,7 @@ func (app *application) createAuthenticationTokenHandler(c echo.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			app.invalidCredentialsReponse(c)
+			app.invalidCredentialsResponse(c)
 		default:
 			app.serverErrorResponse(c, err)
 		}
@@ -55,7 +55,7 @@ func (app *application) createAuthenticationTokenHandler(c echo.Context) {
 	}
 
 	if !match {
-		app.invalidCredentialsReponse(c)
+		app.invalidCredentialsResponse(c)
 		return
 	}
 

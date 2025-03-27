@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/mjefferson-whs/listener/internal/data"
 
-func ConfigPage(config []data.ConfigEntry) templ.Component {
+func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,7 +43,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Config Page</h2><table class=\"config-table\"><thead><tr><th>Key</th><th>Value</th><th>Updated At</th><th>Status</th></tr></thead> <tbody><input type=\"text\" name=\"fake-user\" style=\"display:none;\"> <input type=\"password\" name=\"fake-pass\" style=\"display:none;\"> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Config Page</h2> <table class=\"config-table\"><thead><tr><th>Key</th><th>Value</th><th>Updated At</th><th>Status</th></tr></thead> <tbody><input type=\"text\" name=\"fake-user\" style=\"display:none;\"> <input type=\"password\" name=\"fake-pass\" style=\"display:none;\"> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -55,7 +55,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 26, Col: 27}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 28, Col: 27}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -68,7 +68,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Description)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 27, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 29, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 35, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 37, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 36, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 38, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -122,7 +122,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 38, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 40, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 39, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 41, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 43, Col: 52}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 45, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -166,7 +166,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 48, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 50, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -179,7 +179,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 49, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 51, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -192,7 +192,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 50, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 52, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -205,7 +205,7 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 51, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 53, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -218,252 +218,200 @@ func ConfigPage(config []data.ConfigEntry) templ.Component {
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 52, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 54, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if(event.key) === &#39;Enter&#39;) handleConfigChange(this)\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if(event.key === &#39;Enter&#39;) handleConfigChange(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else if entry.Type == "password" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<input type=\"password\" autocomplete=\"new-password\" id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "            <a href=\"/config/update/password\">Update</a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else if entry.Type == "string" && len(entry.Value) > 50 {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<textarea id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 61, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 75, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 62, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 76, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" value=\"\" data-config-key=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" data-config-key=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 64, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 77, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" data-config-type=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" data-config-type=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 65, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 78, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if(event.key) === &#39;Enter&#39;) handleConfigChange(this)\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else if entry.Type == "string" && len(entry.Value) > 50 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<textarea id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if (event.key === &#39;Enter&#39;) handleConfigChange(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 72, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 82, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</textarea>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<input type=\"text\" autocomplete=\"off\" id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 73, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 88, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" data-config-key=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 74, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 89, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" data-config-type=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var22 string
-					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 75, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 90, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if (event.key === &#39;Enter&#39;) handleConfigChange(this)\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" data-config-key=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var23 string
-					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 79, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 91, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</textarea>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<input type=\"text\" autocomplete=\"off\" id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" data-config-type=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 85, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 92, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" name=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var25 string
-					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 86, Col: 34}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var26 string
-					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 87, Col: 37}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" data-config-key=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var27 string
-					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 88, Col: 45}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" data-config-type=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var28 string
-					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 89, Col: 47}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if (event.key === &#39;Enter&#39;) handleConfigChange(this)\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"config-input\" onblur=\"handleConfigChange(this)\" onkeydown=\"if (event.key === &#39;Enter&#39;) handleConfigChange(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var29 string
-				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(entry.UpdatedAt)
+				var templ_7745c5c3_Var25 string
+				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(entry.UpdatedAt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 96, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 99, Col: 33}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><td><span id=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var30 string
-				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs("status-" + entry.Key)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 98, Col: 46}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><td><span id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"status-indicator\"></span></td></tr>")
+				var templ_7745c5c3_Var26 string
+				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs("status-" + entry.Key)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 101, Col: 46}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" class=\"status-indicator\"></span></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</tbody></table><script>\n      // Debounce function to prevent too many requests\n      function debounce(func, wait) {\n        let timeout;\n        return function(...args) {\n          const context = this;\n          clearTimeout(timeout);\n          timeout = setTimeout(() => func.apply(context, args), wait);\n        };\n      }\n      \n      // Handler for config changes\n      function handleConfigChange(element) {\n        const key = element.getAttribute('data-config-key');\n        const type = element.getAttribute('data-config-type');\n        let value;\n        \n        // Handle different input types\n        if (element.type === 'checkbox') {\n          value = element.checked ? \"true\" : \"false\";\n        } else {\n          value = element.value;\n        }\n        \n        // Update status indicator to \"saving\"\n        const statusIndicator = document.getElementById('status-' + key);\n        statusIndicator.className = 'status-indicator status-saving';\n        \n        saveConfig(key, value, type, statusIndicator);\n      }\n      \n      // Debounced save function for text inputs\n      const debouncedSaveConfig = debounce(saveConfig, 500);\n      \n      function saveConfig(key, value, type, statusIndicator) {\n        console.log(JSON.stringify({\n          key: key,\n          value: value,\n          type: type\n        }))\n\n        // Send request to update config\n        fetch('/config/update', {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'application/json',\n          },\n          body: JSON.stringify({\n            key: key,\n            value: value,\n            type: type\n          })\n        })\n        .then(response => response.json())\n        .then(data => {\n          console.log(data);\n          if (data.success) {\n            // Show success indicator\n            statusIndicator.className = 'status-indicator status-success';\n            \n            // If the server returned an updated timestamp, update it in the UI\n            if (data.updatedAt) {\n              const row = statusIndicator.closest('tr');\n              const timestampCell = row.querySelector('td:nth-child(3)');\n              if (timestampCell) {\n                timestampCell.textContent = data.updatedAt;\n              }\n            }\n          } else {\n            // Show error indicator\n            statusIndicator.className = 'status-indicator status-error';\n            statusIndicator.title = data.error || 'Failed to update';\n            console.error('Error updating config:', data.error);\n          }\n        })\n        .catch(error => {\n          // Show error indicator\n          statusIndicator.className = 'status-indicator status-error';\n          statusIndicator.title = 'Network error';\n          console.error('Network error:', error);\n        });\n      }\n    </script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</tbody></table><script>\n      // Debounce function to prevent too many requests\n      function debounce(func, wait) {\n        let timeout;\n        return function(...args) {\n          const context = this;\n          clearTimeout(timeout);\n          timeout = setTimeout(() => func.apply(context, args), wait);\n        };\n      }\n      \n      // Handler for config changes\n      function handleConfigChange(element) {\n        const key = element.getAttribute('data-config-key');\n        const type = element.getAttribute('data-config-type');\n        let value;\n        \n        // Handle different input types\n        if (element.type === 'checkbox') {\n          value = element.checked ? \"true\" : \"false\";\n        } else {\n          value = element.value;\n        }\n        \n        // Update status indicator to \"saving\"\n        const statusIndicator = document.getElementById('status-' + key);\n        statusIndicator.className = 'status-indicator status-saving';\n        \n        saveConfig(key, value, type, statusIndicator);\n      }\n      \n      // Debounced save function for text inputs\n      const debouncedSaveConfig = debounce(saveConfig, 500);\n      \n      function saveConfig(key, value, type, statusIndicator) {\n        // console.log(JSON.stringify({\n        //   key: key,\n        //   value: value,\n        //   type: type\n        // }))\n\n        // Send request to update config\n        fetch('/config/update', {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'application/json',\n          },\n          body: JSON.stringify({\n            key: key,\n            value: value,\n            type: type\n          })\n        })\n        .then(response => response.json())\n        .then(data => {\n          // console.log(data);\n          if (data.success) {\n            // Show success indicator\n            statusIndicator.className = 'status-indicator status-success';\n            \n            // If the server returned an updated timestamp, update it in the UI\n            if (data.updatedAt) {\n              const row = statusIndicator.closest('tr');\n              const timestampCell = row.querySelector('td:nth-child(3)');\n              if (timestampCell) {\n                timestampCell.textContent = data.updatedAt;\n              }\n            }\n          } else {\n            // Show error indicator\n            statusIndicator.className = 'status-indicator status-error';\n            statusIndicator.title = data.error || 'Failed to update';\n            console.error('Error updating config:', data.error);\n          }\n        })\n        .catch(error => {\n          // Show error indicator\n          statusIndicator.className = 'status-indicator status-error';\n          statusIndicator.title = 'Network error';\n          console.error('Network error:', error);\n        });\n      }\n    </script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = Authenticated().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Authenticated(u).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

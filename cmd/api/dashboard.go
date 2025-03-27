@@ -8,5 +8,6 @@ import (
 )
 
 func (app *application) dashboardPageHandler(c echo.Context) error {
-	return app.Render(c, http.StatusOK, views.DashboardPage())
+	u := app.contextGetUser(c)
+	return app.Render(c, http.StatusOK, views.DashboardPage(u))
 }

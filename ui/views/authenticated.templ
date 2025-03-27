@@ -1,10 +1,13 @@
 package views
 
-import "github.com/mjefferson-whs/listener/ui/components"
+import (
+  "github.com/mjefferson-whs/listener/internal/data"
+  "github.com/mjefferson-whs/listener/ui/components"
+)
 
-templ Authenticated() {
+templ Authenticated(u *data.User) {
   @Base() {
-    @components.NavBar("home")
+    @components.NavBar("home", u)
     { children... }
     @components.LogOutButton()
   }
