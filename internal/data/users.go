@@ -66,7 +66,7 @@ func (m UserModel) Insert(user *User) error {
 		RETURNING id
 	`
 
-	args := []interface{}{user.Username, user.Password.hash}
+	args := []any{user.Username, user.Password.hash}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -74,7 +74,7 @@ func (m UserModel) Insert(user *User) error {
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID)
 	if err != nil {
 		switch {
-		case err.Error() == `Error while executing SQL query on database 'sms': UNIQUE constraint failed: users.username`:
+		case err.Error() == `UNIQUE constraint failed: users.username`:
 			return ErrUserAlreadyExists
 		default:
 			return err

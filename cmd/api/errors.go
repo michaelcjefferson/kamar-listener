@@ -24,7 +24,7 @@ func (app *application) logRequest(c echo.Context, message string) {
 	})
 }
 
-func (app *application) errorResponse(c echo.Context, status int, message interface{}) error {
+func (app *application) errorResponse(c echo.Context, status int, message any) error {
 	env := envelope{"error": message}
 	// env := envelope{
 	// 	"success": false,
