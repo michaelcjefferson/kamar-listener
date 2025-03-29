@@ -3,13 +3,13 @@ package components
 templ AuthForm(newUser bool) {
   <form id="auth-form">
     <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
+    <input type="text" id="username" name="username">
     <br>
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
+    <input type="password" id="password" name="password">
     if newUser {
       <label for="confirm-password">Confirm Password:</label>
-      <input type="password" id="confirm-password" name="confirm-password" required>
+      <input type="password" id="confirm-password" name="confirm-password">
       <br>
       <button type="submit">Register</button>
     } else {
@@ -71,7 +71,6 @@ templ AuthForm(newUser bool) {
         if (typeof j.error === "string") {
           document.getElementById("message").textContent = j.error;
         }
-        // TODO: Only works for first error response
         if (typeof j.error === "object") {
           const errorContainer = document.getElementById("error-container");
           errorContainer.innerHTML = "<ul class='error-list'></ul>";
@@ -79,7 +78,7 @@ templ AuthForm(newUser bool) {
 
           Object.entries(j.error).forEach(([key, value]) => {
               const li = document.createElement("li");
-              li.textContent = `${key}: ${value}`;
+              li.innerHTML = `<span class="error-text">${key}</span>: ${value}`;
               ul.appendChild(li);
           });
         }

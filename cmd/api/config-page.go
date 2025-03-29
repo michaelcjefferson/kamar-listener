@@ -88,7 +88,7 @@ func (app *application) updateConfigHandler(c echo.Context) error {
 func (app *application) updateConfigPasswordPageHandler(c echo.Context) error {
 	u := app.contextGetUser(c)
 
-	return app.Render(c, http.StatusAccepted, views.UpdateListenerPasswordPage(u))
+	return app.Render(c, http.StatusAccepted, views.UpdatePasswordPage(u, true))
 }
 
 func (app *application) updateConfigPasswordHandler(c echo.Context) error {

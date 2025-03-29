@@ -207,7 +207,7 @@ func (app *application) logoutUserHandler(c echo.Context) error {
 func (app *application) updateUserPasswordPageHandler(c echo.Context) error {
 	u := app.contextGetUser(c)
 
-	return app.Render(c, http.StatusAccepted, views.UpdateUserPasswordPage(u))
+	return app.Render(c, http.StatusAccepted, views.UpdatePasswordPage(u, false))
 }
 
 func (app *application) updateUserPasswordHandler(c echo.Context) error {

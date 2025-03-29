@@ -73,6 +73,10 @@ button:focus-visible {
   border: 1px solid #9ba0fa;
 }
 
+li {
+  list-style: none;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

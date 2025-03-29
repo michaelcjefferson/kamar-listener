@@ -6,10 +6,8 @@ toolchain go1.23.6
 
 require (
 	github.com/a-h/templ v0.3.833
-	github.com/julienschmidt/httprouter v1.3.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/mattn/go-sqlite3 v1.14.24
-	github.com/rs/cors v1.11.0
 	golang.org/x/crypto v0.33.0
 	golang.org/x/time v0.8.0
 )

@@ -32,14 +32,14 @@ func (u *User) IsAnonymous() bool {
 }
 
 func ValidateUsername(v *validator.Validator, username string) {
-	v.Check(username != "", "name", "must be provided")
-	v.Check(len(username) <= 500, "name", "must not be more than 500 bytes long")
+	v.Check(username != "", "username", "must be provided")
+	v.Check(len(username) <= 500, "username", "must not be more than 500 alphanumeric characters long")
 }
 
 func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")
-	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
-	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+	v.Check(len(password) >= 8, "password", "must be at least 8 alphanumeric characters long")
+	v.Check(len(password) <= 72, "password", "must not be more than 72 alphanumeric characters long")
 }
 
 func ValidateUser(v *validator.Validator, user *User) {
