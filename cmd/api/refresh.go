@@ -45,7 +45,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	err := c.Bind(&kamarData)
 	// err := app.readJSON(c, &kamarData)
 	if err != nil {
-		app.logger.PrintError(errors.New("failed to bind data from KAMAR to Go structs"), map[string]interface{}{
+		app.logger.PrintError(errors.New("listener: failed to bind data from KAMAR to Go structs"), map[string]interface{}{
 			"request body": c.Request().Body,
 		})
 		return app.badRequestResponse(c, err)
@@ -54,7 +54,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	// Establish the type of request from KAMAR
 	syncType := kamarData.Data.Sync
 	if syncType == "" {
-		app.logger.PrintError(errors.New("failed to get syncType from input"), map[string]interface{}{
+		app.logger.PrintError(errors.New("listener: failed to get syncType from input"), map[string]interface{}{
 			"data": kamarData.Data,
 		})
 		return app.authFailedResponse(c)
@@ -62,14 +62,14 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 
 	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
 	if syncType == "check" {
-		app.logger.PrintInfo("received and processed check request", map[string]interface{}{
+		app.logger.PrintInfo("listener: received and processed check request", map[string]interface{}{
 			"data": kamarData.Data,
 		})
 		return app.checkResponse(c)
 	}
 
 	// If syncType is populated, but its value is not "check", then it contains data. syncType will indicate the type of data included
-	app.logger.PrintInfo("attempting to write results to database...", map[string]interface{}{
+	app.logger.PrintInfo("listener: attempting to write results to database...", map[string]interface{}{
 		"count": kamarData.Data.Results.Count,
 		// "data":  kamarData.Data.Results.Data,
 		"sync": syncType,
@@ -105,7 +105,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		return app.authFailedResponse(c)
 	}
 
-	app.logger.PrintInfo("data successfully received from KAMAR and written to the SQLite database", nil)
+	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)
 	return app.successResponse(c)
 
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?

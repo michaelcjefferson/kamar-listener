@@ -1,15 +1,9 @@
 package views
 
-import "github.com/mjefferson-whs/listener/ui/components"
-import "github.com/mjefferson-whs/listener/internal/data"
-
-// templ Dashboard() {
-//   @Base() {
-//     @components.NavBar("home")
-//     @components.Hero("center")
-//     @components.LogOutButton()
-//   }
-// }
+import (
+  "github.com/mjefferson-whs/listener/ui/components"
+  "github.com/mjefferson-whs/listener/internal/data"
+)
 
 templ DashboardPage(u *data.User) {
   @Authenticated(u) {

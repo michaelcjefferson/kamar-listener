@@ -57,18 +57,6 @@ templ ConfigPage(config []data.ConfigEntry, u *data.User) {
                   onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
                 />
               } else if entry.Type == "password" {
-                // <input
-                //   type="password"
-                //   autocomplete="new-password"
-                //   id={ "config-" + entry.Key }
-                //   name={ entry.Key }
-                //   value=""
-                //   data-config-key={ entry.Key }
-                //   data-config-type={ entry.Type }
-                //   class="config-input"
-                //   onblur="handleConfigChange(this)"
-                //   onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
-                // />
                 <a href="/config/update/password">Update</a>
               } else if entry.Type == "string" && len(entry.Value) > 50 {
                 <textarea

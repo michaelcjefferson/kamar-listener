@@ -12,7 +12,7 @@ import (
 	"github.com/mjefferson-whs/listener/internal/data"
 )
 
-// TODO: Combine with UpdateListenerPasswordPage
+// TODO: Update so that rather than a bool, the second parameter is a string representing entity? So that "listener", "database", "user" etc. could all be updated via the same page?
 func UpdatePasswordPage(u *data.User, isListenerPassword bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

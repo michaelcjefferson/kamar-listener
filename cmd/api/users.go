@@ -248,6 +248,11 @@ func (app *application) updateUserPasswordHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
+	app.logger.PrintInfo("user config updated", map[string]any{
+		"message": "user password successfully updated",
+		"user_id": user.ID,
+	})
+
 	env := envelope{
 		"success": true,
 	}

@@ -229,7 +229,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				} else if entry.Type == "password" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "            <a href=\"/config/update/password\">Update</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<a href=\"/config/update/password\">Update</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -241,7 +241,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 75, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 63, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -254,7 +254,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 76, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 64, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -267,7 +267,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 77, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 65, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -280,7 +280,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 78, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 66, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -293,7 +293,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 82, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 70, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -311,7 +311,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs("config-" + entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 88, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 76, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -324,7 +324,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 89, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 77, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -337,7 +337,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Value)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 90, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 78, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -350,7 +350,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 91, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 79, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -363,7 +363,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 92, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 80, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -381,7 +381,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(entry.UpdatedAt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 99, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 87, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
@@ -394,7 +394,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs("status-" + entry.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 101, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/config-page.templ`, Line: 89, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 				if templ_7745c5c3_Err != nil {

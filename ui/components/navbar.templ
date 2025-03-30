@@ -2,7 +2,7 @@ package components
 
 import "github.com/mjefferson-whs/listener/internal/data"
 
-templ NavBar(currentPage string, u *data.User) {
+templ NavBar(u *data.User) {
   if u != nil {
     <h3 class="welcome-message">Welcome, { u.Username }</h3>
   }
