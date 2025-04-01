@@ -65,3 +65,45 @@ func TestInsert(t *testing.T) {
 		})
 	}
 }
+
+func TestGetAll(t *testing.T) {
+	type testUser struct {
+		ID       int64
+		Username string
+	}
+
+	tests := []struct {
+		name      string
+		wantUsers []testUser
+	}{
+		{
+			name: "Get All",
+			wantUsers: []testUser{
+				{
+					ID:       1,
+					Username: "test_user_1",
+				},
+				{
+					ID:       2,
+					Username: "geoff-the-test",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := newTestUserDB(t)
+
+			m := UserModel{DB: db}
+
+			users, err := m.GetAll()
+
+			assert.NilError(t, err)
+
+			for ind, user := range users {
+				assert.Equal(t, user.ID, tt.wantUsers[ind].ID)
+				assert.Equal(t, user.Username, tt.wantUsers[ind].Username)
+			}
+		})
+	}
+}
