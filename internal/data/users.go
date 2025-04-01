@@ -12,6 +12,8 @@ import (
 
 var (
 	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrMissingUsername   = errors.New("username is undefined")
+	ErrMissingPassword   = errors.New("password is undefined")
 )
 
 // For clients that have not provided an Authentication token as an Authorization header, allowing them to make user requests without being authenticated.
@@ -60,6 +62,13 @@ type UserModel struct {
 }
 
 func (m UserModel) Insert(user *User) error {
+	if user.Username == "" {
+		return ErrMissingUsername
+	}
+	if len(user.Password.hash) == 0 {
+		return ErrMissingPassword
+	}
+
 	query := `
 		INSERT INTO users (username, password_hash)
 		VALUES ($1, $2)

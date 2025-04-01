@@ -198,7 +198,7 @@ func createConfigTable(db *sql.DB) error {
 		('subjects', 'true', 'bool', 'Enable/disable subjects'),
 		('notices', 'true', 'bool', 'Enable/disable notices'),
 		('calendar', 'true', 'bool', 'Enable/disable calendar'),
-		('bookings', 'true', 'bool', 'Enable/disable bookings')
+		('bookings', 'true', 'bool', 'Enable/disable bookings');
 	`
 
 	_, err = db.Exec(configTableStmt)
@@ -237,7 +237,7 @@ func createSMSTables(db *sql.DB) error {
 		version         INTEGER,
 		year            INTEGER,
 		yearlevel       INTEGER
-	)`
+	);`
 
 	// If the results table doesn't already exist in the database, create it
 	// tableStmt := `CREATE TABLE IF NOT EXISTS results (

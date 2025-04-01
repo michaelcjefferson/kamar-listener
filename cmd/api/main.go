@@ -65,7 +65,7 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 8, "Rate limiter maximum burst.")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", false, "Enable rate limiter.")
 
-	// TODO: Remove once set up in database config
+	// TODO: Remove once set up in database config OR process these into DB, and prompt client to update with their own
 	flag.StringVar(&cfg.credentials.username, "username", "username", "For authentication from KAMAR.")
 	flag.StringVar(&cfg.credentials.password, "password", "password", "For authentication from KAMAR.")
 

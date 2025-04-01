@@ -37,25 +37,26 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
-			app.logger.PrintInfo("failed at authHeader", nil)
+			app.logger.PrintInfo("listener: failed at authHeader", nil)
 			app.noCredentialsResponse(c)
 			return errors.New("failed at authHeader")
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Basic" {
-			app.logger.PrintInfo("failed at headerParts", nil)
+			app.logger.PrintInfo("listener: failed at headerParts", nil)
 			app.authFailedResponse(c)
 			return errors.New("failed at headerParts")
 		}
 
 		decodedAuth, err := base64.StdEncoding.DecodeString(headerParts[1])
 		if err != nil {
-			app.logger.PrintInfo("failed at decodedAuth", nil)
+			app.logger.PrintInfo("listener: failed at decodedAuth", nil)
 			app.authFailedResponse(c)
 			return errors.New("failed at decodedAuth")
 		}
 
+		// TODO: Compare authCredentials to config from DB, rather than app.config.credentials
 		authCredentials := strings.Split(string(decodedAuth), ":")
 		if len(authCredentials) != 2 || authCredentials[0] != app.config.credentials.username || authCredentials[1] != app.config.credentials.password {
 			logInfo := make(map[string]interface{})
@@ -65,10 +66,12 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 			logInfo["app_pass"] = app.config.credentials.password
 			logInfo["req_user"] = authCredentials[0]
 			logInfo["req_pass"] = authCredentials[1]
-			app.logger.PrintInfo("failed at authCredentials", logInfo)
+			app.logger.PrintInfo("listener: failed at authCredentials", logInfo)
 			app.authFailedResponse(c)
 			return errors.New("failed at authCredentials")
 		}
+
+		app.logger.PrintInfo("listener: successfully authenticated request from KAMAR", nil)
 		return next(c)
 	}
 }
