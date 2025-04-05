@@ -38,21 +38,21 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
 			app.logger.PrintInfo("listener: failed at authHeader", nil)
-			app.noCredentialsResponse(c)
+			app.kamarNoCredentialsResponse(c)
 			return errors.New("failed at authHeader")
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Basic" {
 			app.logger.PrintInfo("listener: failed at headerParts", nil)
-			app.authFailedResponse(c)
+			app.kamarAuthFailedResponse(c)
 			return errors.New("failed at headerParts")
 		}
 
 		decodedAuth, err := base64.StdEncoding.DecodeString(headerParts[1])
 		if err != nil {
 			app.logger.PrintInfo("listener: failed at decodedAuth", nil)
-			app.authFailedResponse(c)
+			app.kamarAuthFailedResponse(c)
 			return errors.New("failed at decodedAuth")
 		}
 
@@ -67,7 +67,7 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 			logInfo["req_user"] = authCredentials[0]
 			logInfo["req_pass"] = authCredentials[1]
 			app.logger.PrintInfo("listener: failed at authCredentials", logInfo)
-			app.authFailedResponse(c)
+			app.kamarAuthFailedResponse(c)
 			return errors.New("failed at authCredentials")
 		}
 

@@ -4,7 +4,7 @@
 		"sync": "data",
 		"sms": "KAMAR",
 		"version": 1453,
-		"schools":["Wakatipu High School"],
+		"schools":["Test High School"],
 		"assessments": {
 			"count": 15,
 			"data": [

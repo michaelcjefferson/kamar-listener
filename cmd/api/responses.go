@@ -23,6 +23,7 @@ func (app *application) redirectResponse(c echo.Context, path string, jsonStatus
 	return err
 }
 
+// TODO: Incorporate config values from DB into responses, eg. so that service name reflects the one configured by the client
 // ------------KAMAR Responses------------ //
 func (app *application) kamarResponse(c echo.Context, status int, j map[string]interface{}) error {
 	c.Response().Header().Set(echo.HeaderServer, "WHS KAMAR Refresh")
@@ -38,8 +39,8 @@ func (app *application) kamarResponse(c echo.Context, status int, j map[string]i
 	return nil
 }
 
-// The three responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these two responses should ever be sent to KAMAR.
-func (app *application) successResponse(c echo.Context) error {
+// The responses below meet the requirements of KAMAR by adding expected headers and the expected JSON body - only these responses should ever be sent to KAMAR.
+func (app *application) kamarSuccessResponse(c echo.Context) error {
 	j := map[string]interface{}{
 		"error":   0,
 		"result":  "OK",
@@ -51,7 +52,7 @@ func (app *application) successResponse(c echo.Context) error {
 }
 
 // NOTE: The expected failed response here: https://directoryservices.kamar.nz/?listening-service/standard-response - includes a Content-Length: 123 header, whereas Content-Length is only 82 with this response.
-func (app *application) authFailedResponse(c echo.Context) error {
+func (app *application) kamarAuthFailedResponse(c echo.Context) error {
 	j := map[string]interface{}{
 		"error":   403,
 		"result":  "Authentication Failed",
@@ -62,7 +63,7 @@ func (app *application) authFailedResponse(c echo.Context) error {
 	return app.kamarResponse(c, http.StatusForbidden, j)
 }
 
-func (app *application) noCredentialsResponse(c echo.Context) error {
+func (app *application) kamarNoCredentialsResponse(c echo.Context) error {
 	j := map[string]interface{}{
 		"error":   401,
 		"result":  "No Credentials Provided",
@@ -73,7 +74,19 @@ func (app *application) noCredentialsResponse(c echo.Context) error {
 	return app.kamarResponse(c, http.StatusUnauthorized, j)
 }
 
-func (app *application) checkResponse(c echo.Context) error {
+// TODO: Receive specific error message indicating which aspect of the data was malformed (auth or body), and reflect in "result" message
+func (app *application) kamarUnprocessableEntityResponse(c echo.Context) error {
+	j := map[string]interface{}{
+		"error":   422,
+		"result":  "Request From KAMAR Was Malformed",
+		"service": "WHS KAMAR Refresh",
+		"version": "1.0",
+	}
+
+	return app.kamarResponse(c, http.StatusUnprocessableEntity, j)
+}
+
+func (app *application) kamarCheckResponse(c echo.Context) error {
 	j := map[string]any{
 		"error":             0,
 		"result":            "OK",

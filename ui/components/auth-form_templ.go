@@ -29,7 +29,7 @@ func AuthForm(newUser bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"auth-form\"><label for=\"username\">Username:</label> <input type=\"text\" id=\"username\" name=\"username\"><br><label for=\"password\">Password:</label> <input type=\"password\" id=\"password\" name=\"password\"> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"auth-form\"><label for=\"username\">Username:</label> <input type=\"text\" id=\"username\" name=\"username\" required><br><label for=\"password\">Password:</label> <input type=\"password\" id=\"password\" name=\"password\" required> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

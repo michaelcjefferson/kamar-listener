@@ -32,6 +32,7 @@ import (
 // 	Bookings         bool     `json:"bookings,omitempty"`
 // }
 
+// TODO: Add port
 var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "kamar_ip", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learning_support", "subjects", "notices", "calendar", "bookings"}
 
 type ConfigEntry struct {

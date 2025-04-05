@@ -44,8 +44,9 @@ type config struct {
 }
 
 type application struct {
-	assetHandler   http.Handler
-	config         config
+	assetHandler http.Handler
+	config       config
+	// Allows processes, eg. token deletion cycle, to respond to this channel closing (and eg. perform tidy up operations)
 	isShuttingDown chan struct{}
 	logger         *jsonlog.Logger
 	models         data.Models
@@ -106,6 +107,7 @@ func main() {
 	if cfg.dblogs_on {
 		logger = jsonlog.New(os.Stdout, jsonlog.LevelInfo, &models.Logs)
 	} else {
+		// If cfg.dblogs_on is false, logger will only write to stdout
 		logger = jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
 	}
 	app.logger = logger

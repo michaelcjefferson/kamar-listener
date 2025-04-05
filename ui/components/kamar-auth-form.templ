@@ -1,20 +1,16 @@
 package components
 
-templ AuthForm(newUser bool) {
-  <form id="auth-form">
+templ KamarAuthForm() {
+  <form id="kamar-auth-form">
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" required>
     <br>
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" required>
-    if newUser {
-      <label for="confirm-password">Confirm Password:</label>
-      <input type="password" id="confirm-password" name="confirm-password">
-      <br>
-      <button type="submit">Register</button>
-    } else {
-      <button type="submit">Sign In</button>
-    }
+    <label for="confirm-password">Confirm Password:</label>
+    <input type="password" id="confirm-password" name="confirm-password" required>
+    <br>
+    <button type="submit">Set KAMAR Auth</button>
   </form>
 
   <div id="error-container">
@@ -22,27 +18,18 @@ templ AuthForm(newUser bool) {
   </div>
 
   <script>
-    document.getElementById("auth-form").addEventListener("submit", async function(event) {
+    document.getElementById("kamar-auth-form").addEventListener("submit", async function(event) {
       event.preventDefault(); // Prevent default form submission
-
-      let urlString;
-      let redirectString = "/";
 
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
-      // If #confirm-password exists, get its value, otherwise set to ""
-      const confirmPassword = document.getElementById("confirm-password")?.value || "";
-      if (confirmPassword) {
-        if (password !== confirmPassword) {
-          document.getElementById("message").textContent = "Passwords don't match - try again.";
-          return;
-        }
-        urlString = "/register";
-      } else {
-        urlString = "/sign-in"
+      const confirmPassword = document.getElementById("confirm-password").value;
+      if (password !== confirmPassword) {
+        document.getElementById("message").textContent = "Passwords don't match - try again.";
+        return;
       }
 
-      const res = await fetch(urlString, {
+      const res = await fetch("/config/set/auth", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -63,10 +50,10 @@ templ AuthForm(newUser bool) {
 
       // Check if response is OK (status 200-299)
       if (res.ok) {
-        console.log('Successfully logged in.');
+        console.log('Successfully set KAMAR auth.');
       } else {
         // If it's not a redirect or successful response, check for JSON error
-        console.error('Login error:', j.error);
+        console.error('Error:', j.error);
         // TODO: Convert to templ component which is retrieved via HTMX
         if (typeof j.error === "string") {
           document.getElementById("message").textContent = j.error;

@@ -48,7 +48,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		app.logger.PrintError(errors.New("listener: failed to bind data from KAMAR to Go structs"), map[string]interface{}{
 			"request body": c.Request().Body,
 		})
-		return app.badRequestResponse(c, err)
+		return app.kamarUnprocessableEntityResponse(c)
 	}
 
 	// Establish the type of request from KAMAR
@@ -57,7 +57,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		app.logger.PrintError(errors.New("listener: failed to get syncType from input"), map[string]interface{}{
 			"data": kamarData.Data,
 		})
-		return app.authFailedResponse(c)
+		return app.kamarAuthFailedResponse(c)
 	}
 
 	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
@@ -65,7 +65,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		app.logger.PrintInfo("listener: received and processed check request", map[string]interface{}{
 			"data": kamarData.Data,
 		})
-		return app.checkResponse(c)
+		return app.kamarCheckResponse(c)
 	}
 
 	// If syncType is populated, but its value is not "check", then it contains data. syncType will indicate the type of data included
@@ -102,11 +102,11 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	}
 	if err != nil {
 		app.logError(c, err)
-		return app.authFailedResponse(c)
+		return app.kamarAuthFailedResponse(c)
 	}
 
 	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)
-	return app.successResponse(c)
+	return app.kamarSuccessResponse(c)
 
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?
 

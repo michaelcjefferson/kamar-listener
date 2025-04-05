@@ -178,3 +178,90 @@ func (app *application) updateConfigPasswordHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusAccepted, env)
 }
+
+// For setting KAMAR authentication - only available if auth hasn't already been set
+func (app *application) setKamarAuthHandler(c echo.Context) error {
+	// TODO: Check to see whether KAMAR auth has already been set, and if so, refuse this request
+
+	user := app.contextGetUser(c)
+	input := userInput{}
+
+	err := c.Bind(&input)
+	if err != nil {
+		app.badRequestResponse(c, err)
+		return nil
+	}
+
+	kamarAuth := &data.User{
+		Username: input.Username,
+	}
+
+	err = kamarAuth.Password.Set(input.Password)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return nil
+	}
+
+	v := validator.New()
+
+	if data.ValidateUser(v, kamarAuth); !v.Valid() {
+		app.failedValidationResponse(c, v.Errors)
+		return nil
+	}
+
+	currUserConf, err := app.models.Config.GetByKey("listener_username")
+	if err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	configEntry := data.ConfigEntry{
+		Key:         "listener_password",
+		Value:       kamarAuth.Username,
+		Type:        "string",
+		Description: currUserConf.Description,
+	}
+
+	err = app.models.Config.Set(configEntry)
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error setting listener username",
+			"key":     "listener_username",
+			"user_id": user.ID,
+		})
+		return app.serverErrorResponse(c, err)
+	}
+
+	currPassConf, err := app.models.Config.GetByKey("listener_password")
+	if err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	configEntry = data.ConfigEntry{
+		Key:         "listener_password",
+		Value:       string(kamarAuth.Password.Hash()),
+		Type:        "password",
+		Description: currPassConf.Description,
+	}
+
+	err = app.models.Config.Set(configEntry)
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error setting listener password",
+			"key":     "listener_password",
+			"user_id": user.ID,
+		})
+		return app.serverErrorResponse(c, err)
+	}
+
+	app.logger.PrintInfo("config updated", map[string]any{
+		"message": "successfully set listener auth",
+		"key":     "listener_username, listener_password",
+		"user_id": user.ID,
+	})
+
+	env := envelope{
+		"success": true,
+	}
+
+	return c.JSON(http.StatusAccepted, env)
+}
