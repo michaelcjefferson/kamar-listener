@@ -34,6 +34,7 @@ import (
 
 // TODO: Add port
 // "calendar" is an option from KAMAR, but it isn't particularly useful and its data structure is messy - to allow calendars to be received from KAMAR, a new data structure needs to be built and implemented before adding "calendar" to this list
+// UPDATE: calendars should be fine - it's just a long string - add later
 var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "kamar_ip", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learning_support", "subjects", "notices", "bookings"}
 
 type ConfigEntry struct {
