@@ -3,14 +3,18 @@ package main
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/mjefferson-whs/listener/internal/assert"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 )
@@ -60,10 +64,11 @@ func TestRefreshHandler(t *testing.T) {
 		password       string
 		includeAuth    bool
 		expectedStatus int
-		expectedBody   string
+		expectedBody   map[string]any
 		checkDB        func(*testing.T, *sql.DB)
 	}{
 		// TODO: Update to get config data from actual DB? Or include tests.dbSetup func which inserts appropriate config?
+		// TODO: Use setupFunc and checkDB functions to build more varied tests
 		{
 			name:           "Valid Check, Valid Credentials",
 			jsonFile:       "check.json",
@@ -71,8 +76,8 @@ func TestRefreshHandler(t *testing.T) {
 			password:       "password",
 			includeAuth:    true,
 			expectedStatus: http.StatusOK,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":             0,
 					"result":            "OK",
 					"service":           "WHS KAMAR Refresh",
@@ -81,9 +86,9 @@ func TestRefreshHandler(t *testing.T) {
 					"infourl":           "https://wakatipu.school.nz/",
 					"privacystatement":  "This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.",
 					"countryDataStored": "New Zealand",
-					"options": {
+					"options": map[string]any{
 						"ics": true,
-						"students": {
+						"students": map[string]any{
 							"details":         true,
 							"passwords":       false,
 							"photos":          false,
@@ -94,20 +99,20 @@ func TestRefreshHandler(t *testing.T) {
 							"assessments":     true,
 							"pastoral":        false,
 							"learningsupport": false,
-							"fields": {
+							"fields": map[string]any{
 								"required": "firstname;lastname;gender;nsn",
 								"optional": "username;caregivers;caregivers1;caregivers2;caregiver.name;caregiver.relationship;caregiver.mobile;caregiver.email",
-							}
+							},
 						},
-						"common": {
+						"common": map[string]any{
 							"subjects": false,
 							"notices":  false,
 							"calendar": false,
 							"bookings": false,
-						}
-					}
-				}
-			}`,
+						},
+					},
+				},
+			},
 		},
 		{
 			name:           "Valid Check, Invalid Credentials",
@@ -116,14 +121,14 @@ func TestRefreshHandler(t *testing.T) {
 			password:       "bassword",
 			includeAuth:    true,
 			expectedStatus: http.StatusForbidden,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":   403,
 					"result":  "Authentication Failed",
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
-				}
-			}`,
+				},
+			},
 		},
 		{
 			name:           "Valid Check, Missing Credentials",
@@ -132,14 +137,14 @@ func TestRefreshHandler(t *testing.T) {
 			password:       "",
 			includeAuth:    false,
 			expectedStatus: http.StatusUnauthorized,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":   401,
 					"result":  "No Credentials Provided",
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
-				}
-			}`,
+				},
+			},
 		},
 		{
 			name:           "Malformed Check, Valid Credentials",
@@ -148,14 +153,14 @@ func TestRefreshHandler(t *testing.T) {
 			password:       "password",
 			includeAuth:    true,
 			expectedStatus: http.StatusUnprocessableEntity,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":   422,
 					"result":  "Request From KAMAR Was Malformed",
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
-				}
-			}`,
+				},
+			},
 		},
 		{
 			name:           "Valid Results Data",
@@ -164,14 +169,14 @@ func TestRefreshHandler(t *testing.T) {
 			password:       "password",
 			includeAuth:    true,
 			expectedStatus: http.StatusOK,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":   0,
 					"result":  "OK",
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
-				}
-			}`,
+				},
+			},
 		},
 		{
 			name:           "Valid Results Data, Invalid Credentials",
@@ -180,30 +185,30 @@ func TestRefreshHandler(t *testing.T) {
 			password:       "password",
 			includeAuth:    true,
 			expectedStatus: http.StatusForbidden,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":   403,
 					"result":  "Authentication Failed",
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
-				}
-			}`,
+				},
+			},
 		},
 		{
 			name:           "Malformed Results Data",
-			jsonFile:       "refresh-test.json",
+			jsonFile:       "malformed-refresh-test.json",
 			username:       "username",
 			password:       "password",
 			includeAuth:    true,
 			expectedStatus: http.StatusUnprocessableEntity,
-			expectedBody: `{
-				"SMSDirectoryData": {
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
 					"error":   422,
 					"result":  "Request From KAMAR Was Malformed",
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
-				}
-			}`,
+				},
+			},
 		},
 		// {
 		// 	name:     "Results Data with Incorrect (attendance) Sync Label",
@@ -227,8 +232,12 @@ func TestRefreshHandler(t *testing.T) {
 
 			// Set credentials to check against for basic auth
 			// TODO: Middleware currently checks against username and password individually, so set them here
+			app.config.credentials.username = "username"
+			app.config.credentials.password = "password"
 			app.config.credentials.full = "username:password"
-			logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
+			// logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
+			// io.Discard means logs won't be written to terminal when tests are run - replace with the line above to see logs during testing
+			logger := jsonlog.New(io.Discard, jsonlog.LevelInfo, nil)
 			app.logger = logger
 
 			jsonPath := filepath.Join("../../test", tt.jsonFile)
@@ -253,20 +262,32 @@ func TestRefreshHandler(t *testing.T) {
 
 			handler := app.authenticateKAMAR(app.kamarRefreshHandler)
 			err = handler(c)
-			if err != nil {
-				t.Fatal(err)
-			}
+			assert.NilError(t, err)
 
 			if status := rec.Code; status != tt.expectedStatus {
 				t.Errorf("handler returned unexpected status code: got %v want %v", status, tt.expectedStatus)
 			}
 
-			if tt.expectedBody != "" {
-				responseBody := bytes.TrimSpace(rec.Body.Bytes())
-				if string(responseBody) != tt.expectedBody {
-					t.Errorf("handler returned unexpected body: got %v want %v", string(responseBody), tt.expectedBody)
-				}
+			var responseBody map[string]any
+			err = json.Unmarshal(rec.Body.Bytes(), &responseBody)
+			if err != nil {
+				t.Fatalf("error unmarshalling json response: %v", err)
 			}
+
+			// Convert tt.expectedBody to JSON and back, to ensure datatypes within the map reflect the ones that will be unmarshalled from the JSON response
+			expectedBody, err := NormaliseJSONMapTypes(tt.expectedBody)
+			if err != nil {
+				t.Fatalf("error normalising expectedBody: %v", err)
+			}
+
+			if !reflect.DeepEqual(responseBody, expectedBody) {
+				t.Errorf("handler returned unexpected body: got %v want %v", responseBody, expectedBody)
+			}
+
+			// responseBody := bytes.TrimSpace(rec.Body.Bytes())
+			// if string(responseBody) != tt.expectedBody {
+			// 	t.Errorf("handler returned unexpected body: got %v want %v", string(responseBody), tt.expectedBody)
+			// }
 
 			if tt.checkDB != nil {
 				tt.checkDB(t, db)

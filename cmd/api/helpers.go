@@ -30,7 +30,23 @@ func (app *application) readIDParam(c echo.Context) (int, error) {
 	return int(id), nil
 }
 
-type envelope map[string]interface{}
+type envelope map[string]any
+
+// To allow deep comparison of maps and JSON data, first run the map through this function to ensure the map's datatypes reflect the ones json.Unmarshal uses by default
+func NormaliseJSONMapTypes(data map[string]any) (map[string]any, error) {
+	j, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	var newMap map[string]any
+	err = json.Unmarshal(j, &newMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return newMap, nil
+}
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	// js, err := json.Marshal(data)

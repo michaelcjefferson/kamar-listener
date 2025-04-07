@@ -38,22 +38,22 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
 			app.logger.PrintInfo("listener: failed at authHeader", nil)
-			app.kamarNoCredentialsResponse(c)
-			return errors.New("failed at authHeader")
+			return app.kamarNoCredentialsResponse(c)
+			// return errors.New("failed at authHeader")
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Basic" {
 			app.logger.PrintInfo("listener: failed at headerParts", nil)
-			app.kamarAuthFailedResponse(c)
-			return errors.New("failed at headerParts")
+			return app.kamarAuthFailedResponse(c)
+			// return errors.New("failed at headerParts")
 		}
 
 		decodedAuth, err := base64.StdEncoding.DecodeString(headerParts[1])
 		if err != nil {
 			app.logger.PrintInfo("listener: failed at decodedAuth", nil)
-			app.kamarAuthFailedResponse(c)
-			return errors.New("failed at decodedAuth")
+			return app.kamarAuthFailedResponse(c)
+			// return errors.New("failed at decodedAuth")
 		}
 
 		// TODO: Compare authCredentials to config from DB, rather than app.config.credentials
@@ -67,8 +67,8 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 			logInfo["req_user"] = authCredentials[0]
 			logInfo["req_pass"] = authCredentials[1]
 			app.logger.PrintInfo("listener: failed at authCredentials", logInfo)
-			app.kamarAuthFailedResponse(c)
-			return errors.New("failed at authCredentials")
+			return app.kamarAuthFailedResponse(c)
+			// return errors.New("failed at authCredentials")
 		}
 
 		app.logger.PrintInfo("listener: successfully authenticated request from KAMAR", nil)
