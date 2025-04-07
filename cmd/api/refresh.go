@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -22,17 +21,22 @@ type KAMARData struct {
 }
 
 type SMSDirectoryData struct {
-	DateTime         int          `json:"datetime,omitempty"`
-	FullSync         int          `json:"fullsync,omitempty"`
-	InfoURL          string       `json:"infourl,omitempty"`
-	Results          ResultsField `json:"results,omitempty"`
-	PrivacyStatement string       `json:"privacystatement,omitempty"`
-	Schools          []School     `json:"schools,omitempty"`
-	SMS              string       `json:"sms,omitempty"`
-	Sync             string       `json:"sync,omitempty"`
-	Version          int          `json:"version,omitempty"`
+	DateTime         int              `json:"datetime,omitempty"`
+	FullSync         int              `json:"fullsync,omitempty"`
+	InfoURL          string           `json:"infourl,omitempty"`
+	PrivacyStatement string           `json:"privacystatement,omitempty"`
+	Schools          []School         `json:"schools,omitempty"`
+	SMS              string           `json:"sms,omitempty"`
+	Sync             string           `json:"sync,omitempty"`
+	Version          int              `json:"version,omitempty"`
+	Assessments      AssessmentsField `json:"assessments,omitempty"`
+	Results          ResultsField     `json:"results,omitempty"`
 }
 
+type AssessmentsField struct {
+	Count int               `json:"count,omitempty"`
+	Data  []data.Assessment `json:"data,omitempty"`
+}
 type ResultsField struct {
 	Count int           `json:"count,omitempty"`
 	Data  []data.Result `json:"data,omitempty"`
@@ -45,7 +49,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	err := c.Bind(&kamarData)
 	// err := app.readJSON(c, &kamarData)
 	if err != nil {
-		app.logger.PrintError(errors.New("listener: failed to bind data from KAMAR to Go structs"), map[string]interface{}{
+		app.logger.PrintError(errors.New("listener: failed to bind data from KAMAR to Go structs"), map[string]any{
 			"request body": c.Request().Body,
 		})
 		return app.kamarUnprocessableEntityResponse(c)
@@ -54,30 +58,42 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	// Establish the type of request from KAMAR
 	syncType := kamarData.Data.Sync
 	if syncType == "" {
-		app.logger.PrintError(errors.New("listener: failed to get syncType from input"), map[string]interface{}{
+		app.logger.PrintError(errors.New("listener: failed to get syncType from input"), map[string]any{
 			"data": kamarData.Data,
 		})
-		return app.kamarAuthFailedResponse(c)
+		return app.kamarUnprocessableEntityResponse(c)
 	}
 
+	// Check sync type, and respond accordingly
+	switch syncType {
 	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
-	if syncType == "check" {
-		app.logger.PrintInfo("listener: received and processed check request", map[string]interface{}{
+	case "check":
+		app.logger.PrintInfo("listener: received and processed check request", map[string]any{
 			"data": kamarData.Data,
 		})
 		return app.kamarCheckResponse(c)
+	case "results":
+		app.logger.PrintInfo("listener: attempting to write results to database...", map[string]any{
+			"count": kamarData.Data.Results.Count,
+			// "data":  kamarData.Data.Results.Data,
+			"sync": syncType,
+			// "schools": kamarData.Data.Schools,
+		})
+		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
+	case "assessments":
+		app.logger.PrintInfo("listener: attempting to write assessments to database...", map[string]any{
+			"count": kamarData.Data.Assessments.Count,
+			"sync":  syncType,
+		})
+		err = app.models.Assessments.InsertManyAssessments(kamarData.Data.Assessments.Data)
+	// If synctype doesn't match any of these cases, return an unprocessable entity error
+	default:
+		app.logger.PrintError(errors.New("listener: synctype not available"), map[string]any{
+			"sync": syncType,
+		})
+		return app.kamarUnprocessableEntityResponse(c)
 	}
 
-	// If syncType is populated, but its value is not "check", then it contains data. syncType will indicate the type of data included
-	app.logger.PrintInfo("listener: attempting to write results to database...", map[string]interface{}{
-		"count": kamarData.Data.Results.Count,
-		// "data":  kamarData.Data.Results.Data,
-		"sync": syncType,
-		// "schools": kamarData.Data.Schools,
-	})
-
-	// TODO: either check the value of "sync", or check for the existence of various keys in the struct, to decide which database queries to run
-	// ? Seeing as the struct will omit empty fields in the JSON file, it may be more efficient to just write everything that exists to the DB without checking which fields have been received
 	/* "sync" contains the type of data that the message includes.
 	it also reflects which keys exist in the SMSDirectoryData JSON file.
 
@@ -94,15 +110,10 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	- subjects
 	- studenttimetables/stafftimetables (json key="timetables")
 	*/
-	switch syncType {
-	case "results":
-		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
-	default:
-		err = fmt.Errorf("sync type wasn't recognised. sync type: %s", syncType)
-	}
+
 	if err != nil {
 		app.logError(c, err)
-		return app.kamarAuthFailedResponse(c)
+		return app.kamarUnprocessableEntityResponse(c)
 	}
 
 	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)

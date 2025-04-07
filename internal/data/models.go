@@ -10,19 +10,21 @@ var (
 )
 
 type Models struct {
-	Config  ConfigModel
-	Logs    LogModel
-	Results ResultModel
-	Tokens  TokenModel
-	Users   UserModel
+	Assessments AssessmentModel
+	Config      ConfigModel
+	Logs        LogModel
+	Results     ResultModel
+	Tokens      TokenModel
+	Users       UserModel
 }
 
 func NewModels(db *sql.DB, background func(fn func())) Models {
 	return Models{
-		Config:  ConfigModel{DB: db},
-		Logs:    LogModel{DB: db, background: background},
-		Results: ResultModel{DB: db},
-		Tokens:  TokenModel{DB: db},
-		Users:   UserModel{DB: db},
+		Assessments: AssessmentModel{DB: db},
+		Config:      ConfigModel{DB: db},
+		Logs:        LogModel{DB: db, background: background},
+		Results:     ResultModel{DB: db},
+		Tokens:      TokenModel{DB: db},
+		Users:       UserModel{DB: db},
 	}
 }

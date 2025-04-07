@@ -33,7 +33,8 @@ import (
 // }
 
 // TODO: Add port
-var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "kamar_ip", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learning_support", "subjects", "notices", "calendar", "bookings"}
+// "calendar" is an option from KAMAR, but it isn't particularly useful and its data structure is messy - to allow calendars to be received from KAMAR, a new data structure needs to be built and implemented before adding "calendar" to this list
+var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "kamar_ip", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learning_support", "subjects", "notices", "bookings"}
 
 type ConfigEntry struct {
 	Key         string `json:"key"`
@@ -134,13 +135,13 @@ func (c *ListenerConfig) GetPassword(key string) (Password, bool) {
 	return Password{}, false
 }
 
-func (c *ConfigModel) GetAll() ([]ConfigEntry, error) {
+func (m *ConfigModel) GetAll() ([]ConfigEntry, error) {
 	query := `SELECT key, value, type, description, updated_at FROM config;`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := c.DB.QueryContext(ctx, query)
+	rows, err := m.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -163,20 +164,20 @@ func (c *ConfigModel) GetAll() ([]ConfigEntry, error) {
 }
 
 // GetByKey retrieves a single configuration item
-func (c *ConfigModel) GetByKey(key string) (ConfigEntry, error) {
+func (m *ConfigModel) GetByKey(key string) (ConfigEntry, error) {
 	var entry ConfigEntry
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := c.DB.QueryRowContext(ctx, "SELECT key, value, type, description, updated_at FROM config WHERE key = ?", key).
+	err := m.DB.QueryRowContext(ctx, "SELECT key, value, type, description, updated_at FROM config WHERE key = ?", key).
 		Scan(&entry.Key, &entry.Value, &entry.Type, &entry.Description, &entry.UpdatedAt)
 	return entry, err
 }
 
 // LoadConfig loads all configs as a typed ListenerConfig object
-func (c *ConfigModel) LoadConfig() (*ListenerConfig, error) {
-	entries, err := c.GetAll()
+func (m *ConfigModel) LoadConfig() (*ListenerConfig, error) {
+	entries, err := m.GetAll()
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +186,7 @@ func (c *ConfigModel) LoadConfig() (*ListenerConfig, error) {
 }
 
 // Set stores or updates a configuration item
-func (c *ConfigModel) Set(entry ConfigEntry) error {
+func (m *ConfigModel) Set(entry ConfigEntry) error {
 	// query := `
 	// 	INSERT INTO config (key, value, type) VALUES (?, ?, ?)
 	// 	ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, updated_at = CURRENT_TIMESTAMP
@@ -208,7 +209,7 @@ func (c *ConfigModel) Set(entry ConfigEntry) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err := c.DB.ExecContext(ctx, query, args...)
+	_, err := m.DB.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
 	}

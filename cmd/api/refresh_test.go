@@ -47,7 +47,23 @@ func setupTestDB(t *testing.T) *sql.DB {
 		version         INTEGER,
 		year            INTEGER,
 		yearlevel       INTEGER
-	)`)
+	);
+	
+	CREATE TABLE assessments (
+		credits			INTEGER,
+		description TEXT,
+		internalexternal TEXT,
+		level INTEGER,
+		number TEXT,
+		points TEXT,
+		purpose TEXT,
+		subfield TEXT,
+		title TEXT,
+		tnv TEXT,
+		type TEXT,
+		version INTEGER,
+		weighting TEXT
+	);`)
 	if err != nil {
 		t.Fatalf("Failed to create schema: %v", err)
 	}
@@ -214,6 +230,22 @@ func TestRefreshHandler(t *testing.T) {
 		// 	name:     "Results Data with Incorrect (attendance) Sync Label",
 		// 	jsonFile: "refresh-test.json",
 		// },
+		{
+			name:           "Valid Assessments Data",
+			jsonFile:       "actual-requests/assessments_18122024_161942.json",
+			username:       "username",
+			password:       "password",
+			includeAuth:    true,
+			expectedStatus: http.StatusOK,
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
+					"error":   0,
+					"result":  "OK",
+					"service": "WHS KAMAR Refresh",
+					"version": "1.0",
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {

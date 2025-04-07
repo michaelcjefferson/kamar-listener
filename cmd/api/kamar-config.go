@@ -33,6 +33,9 @@ func (app *application) updateConfigHandler(c echo.Context) error {
 	if req.Key == "listener_password" {
 		return app.badRequestResponse(c, errors.New("password cannot be updated at this endpoint"))
 	}
+	if req.Key == "calendar" {
+		return app.badRequestResponse(c, errors.New("calendar data cannot be received from KAMAR in this version"))
+	}
 
 	v := validator.New()
 	data.ValidateConfigUpdate(v, req)

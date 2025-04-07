@@ -261,6 +261,24 @@ func createSMSTables(db *sql.DB) error {
 
 	_, err := db.Exec(resultTableStmt)
 
+	assessmentTableStmt := `CREATE TABLE IF NOT EXISTS assessments (
+		credits			INTEGER,
+		description TEXT,
+		internalexternal TEXT,
+		level INTEGER,
+		number TEXT,
+		points TEXT,
+		purpose TEXT,
+		subfield TEXT,
+		title TEXT,
+		tnv TEXT,
+		type TEXT,
+		version INTEGER,
+		weighting TEXT
+	);`
+
+	_, err = db.Exec(assessmentTableStmt)
+
 	return err
 }
 

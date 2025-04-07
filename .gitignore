@@ -1,10 +1,12 @@
 bin/
 tls/
+screenshots/
+test/actual-requests/
+test/refresh-test.json
+cmd/api/ui/
+cmd/api/assets/
 .envrc
 *.db
 *.db-journal
 *.db-shm
 *.db-wal
-test/refresh-test.json
-cmd/api/ui/
-cmd/api/assets/
