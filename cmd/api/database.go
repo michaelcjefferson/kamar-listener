@@ -279,6 +279,63 @@ func createSMSTables(db *sql.DB) error {
 
 	_, err = db.Exec(assessmentTableStmt)
 
+	attendanceTableStmt := `CREATE TABLE IF NOT EXISTS attendance (
+		id INTEGER PRIMARY KEY,
+		nsn TEXT
+	);`
+
+	_, err = db.Exec(attendanceTableStmt)
+
+	// Secondary table for attendance values joined on attendance ID - necessary as values is an array
+	attendanceValuesTableStmt := `CREATE TABLE IF NOT EXISTS attendance_values (
+		attendance_id INTEGER NOT NULL,
+		date TEXT,
+		codes TEXT,
+		alt TEXT,
+		hdu INTEGER,
+		hdj INTEGER,
+		hdp INTEGER,
+		FOREIGN KEY (attendance_id) REFERENCES attendance(id) ON DELETE CASCADE
+	);`
+
+	_, err = db.Exec(attendanceValuesTableStmt)
+
+	pastoralTableStmt := `CREATE TABLE IF NOT EXISTS pastoral (
+		credits			INTEGER,
+		description TEXT,
+		internalexternal TEXT,
+		level INTEGER,
+		number TEXT,
+		points TEXT,
+		purpose TEXT,
+		subfield TEXT,
+		title TEXT,
+		tnv TEXT,
+		type TEXT,
+		version INTEGER,
+		weighting TEXT
+	);`
+
+	_, err = db.Exec(pastoralTableStmt)
+
+	timetablesTableStmt := `CREATE TABLE IF NOT EXISTS timetables (
+		credits			INTEGER,
+		description TEXT,
+		internalexternal TEXT,
+		level INTEGER,
+		number TEXT,
+		points TEXT,
+		purpose TEXT,
+		subfield TEXT,
+		title TEXT,
+		tnv TEXT,
+		type TEXT,
+		version INTEGER,
+		weighting TEXT
+	);`
+
+	_, err = db.Exec(timetablesTableStmt)
+
 	return err
 }
 

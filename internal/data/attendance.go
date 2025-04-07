@@ -18,3 +18,58 @@ type Attendance struct {
 type AttendanceModel struct {
 	DB *sql.DB
 }
+
+func (m AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
+	// Start a transaction (tx)
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() // Rollback transaction if there's an error
+
+	attStmt, err := tx.Prepare(`
+	INSERT INTO attendance (id, nsn) VALUES ($1, $2)`)
+	if err != nil {
+		return err
+	}
+	defer attStmt.Close()
+
+	attValStmt, err := tx.Prepare(`
+	INSERT INTO attendance_values (attendance_id, date, codes, alt, hdu, hdj, hdp) VALUES ($1, $2, $3, $4, $5, $6, $7)
+	`)
+	if err != nil {
+		return err
+	}
+	defer attValStmt.Close()
+
+	// Insert entries in batches - extrapolate into own function
+	batchSize := 100 // adjust as needed
+	for i := 0; i < len(attendance); i += batchSize {
+		// Create a slice of 100 results
+		batch := attendance[i:min(i+batchSize, len(attendance))]
+
+		// Insert each entry
+		for _, att := range batch {
+			_, err := attStmt.Exec(att.ID, att.Nsn)
+			if err != nil {
+				return err
+			}
+
+			for _, val := range att.Values {
+				_, err = attValStmt.Exec(att.ID, val.Date, val.Codes, val.Alt, val.Hdu, val.Hdj, val.Hdp)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	// Database insert succeeded
+	return nil
+}

@@ -26,46 +26,9 @@ func setupTestDB(t *testing.T) *sql.DB {
 		t.Fatalf("Failed to open in-memory database: %v", err)
 	}
 
-	// Initialize schema
-	_, err = db.Exec(`CREATE TABLE results (
-		code			TEXT,
-		comment         TEXT,
-		course          TEXT,
-		curriculumlevel,
-		date            TEXT,
-		enrolled		INTEGER,
-		id              INTEGER,
-		nsn             TEXT,
-		number          TEXT,
-		published		INTEGER,
-		result          TEXT,
-		resultData TEXT,
-		results TEXT,
-		subject         TEXT,
-		tnv 			TEXT,
-		type            TEXT,
-		version         INTEGER,
-		year            INTEGER,
-		yearlevel       INTEGER
-	);
-	
-	CREATE TABLE assessments (
-		credits			INTEGER,
-		description TEXT,
-		internalexternal TEXT,
-		level INTEGER,
-		number TEXT,
-		points TEXT,
-		purpose TEXT,
-		subfield TEXT,
-		title TEXT,
-		tnv TEXT,
-		type TEXT,
-		version INTEGER,
-		weighting TEXT
-	);`)
+	err = createSMSTables(db)
 	if err != nil {
-		t.Fatalf("Failed to create schema: %v", err)
+		t.Fatalf("Failed to create SMS tables in database: %v", err)
 	}
 
 	return db
