@@ -331,19 +331,10 @@ func createSMSTables(db *sql.DB) error {
 	_, err = db.Exec(pastoralTableStmt)
 
 	timetablesTableStmt := `CREATE TABLE IF NOT EXISTS timetables (
-		credits			INTEGER,
-		description TEXT,
-		internalexternal TEXT,
-		level INTEGER,
-		number TEXT,
-		points TEXT,
-		purpose TEXT,
-		subfield TEXT,
-		title TEXT,
-		tnv TEXT,
-		type TEXT,
-		version INTEGER,
-		weighting TEXT
+		student INTEGER,
+		uuid TEXT,
+		grid TEXT,
+		timetable TEXT
 	);`
 
 	_, err = db.Exec(timetablesTableStmt)

@@ -52,8 +52,13 @@ func (p *Password) Hash() []byte {
 }
 
 // OTHER HELPERS
+// Attempts to insert a large set of data in batches (for improved performance)
+// func BatchInsert(statement string, ) error {
+
+// }
+
 // Tries to read and convert an interface{} value (eg. the ones in log.Properties) to an int value - returns an int (or 0 on failure) and a bool (ok)
-func ToInt(value interface{}) (int, bool) {
+func ToInt(value any) (int, bool) {
 	switch v := value.(type) {
 	case int:
 		return v, true

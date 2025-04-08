@@ -31,8 +31,9 @@ type SMSDirectoryData struct {
 	Version          int              `json:"version,omitempty"`
 	Assessments      AssessmentsField `json:"assessments,omitempty"`
 	Attendance       AttendanceField  `json:"attendance,omitempty"`
-	Pastoral         PastoralField    `json:"attendance,omitempty"`
+	Pastoral         PastoralField    `json:"pastoral,omitempty"`
 	Results          ResultsField     `json:"results,omitempty"`
+	Timetables       TimetablesField  `json:"studenttimetables,omitempty"`
 }
 
 type AssessmentsField struct {
@@ -50,6 +51,10 @@ type PastoralField struct {
 type ResultsField struct {
 	Count int           `json:"count,omitempty"`
 	Data  []data.Result `json:"data,omitempty"`
+}
+type TimetablesField struct {
+	Count int              `json:"count,omitempty"`
+	Data  []data.Timetable `json:"data,omitempty"`
 }
 
 func (app *application) kamarRefreshHandler(c echo.Context) error {
@@ -108,6 +113,14 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			// "schools": kamarData.Data.Schools,
 		})
 		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
+	case "studenttimetables":
+		app.logger.PrintInfo("listener: attempting to write student timetables to database...", map[string]any{
+			"count": kamarData.Data.Timetables.Count,
+			// "data":  kamarData.Data.Results.Data,
+			"sync": syncType,
+			// "schools": kamarData.Data.Schools,
+		})
+		err = app.models.Timetables.InsertManyTimetables(kamarData.Data.Timetables.Data)
 	// If synctype doesn't match any of these cases, return an unprocessable entity error
 	default:
 		app.logger.PrintError(errors.New("listener: synctype not available"), map[string]any{
