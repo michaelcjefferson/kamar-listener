@@ -280,7 +280,8 @@ func createSMSTables(db *sql.DB) error {
 	_, err = db.Exec(assessmentTableStmt)
 
 	attendanceTableStmt := `CREATE TABLE IF NOT EXISTS attendance (
-		id INTEGER PRIMARY KEY,
+		row_id INTEGER PRIMARY KEY AUTOINCREMENT,
+		student_id INTEGER NOT NULL,
 		nsn TEXT
 	);`
 
@@ -295,7 +296,7 @@ func createSMSTables(db *sql.DB) error {
 		hdu INTEGER,
 		hdj INTEGER,
 		hdp INTEGER,
-		FOREIGN KEY (attendance_id) REFERENCES attendance(id) ON DELETE CASCADE
+		FOREIGN KEY (attendance_id) REFERENCES attendance(row_id) ON DELETE CASCADE
 	);`
 
 	_, err = db.Exec(attendanceValuesTableStmt)

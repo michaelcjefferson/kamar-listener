@@ -28,7 +28,7 @@ func (m AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	attStmt, err := tx.Prepare(`
-	INSERT INTO attendance (id, nsn) VALUES ($1, $2)`)
+	INSERT INTO attendance (student_id, nsn) VALUES ($1, $2)`)
 	if err != nil {
 		return err
 	}

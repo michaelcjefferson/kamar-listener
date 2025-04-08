@@ -30,12 +30,17 @@ type SMSDirectoryData struct {
 	Sync             string           `json:"sync,omitempty"`
 	Version          int              `json:"version,omitempty"`
 	Assessments      AssessmentsField `json:"assessments,omitempty"`
+	Attendance       AttendanceField  `json:"attendance,omitempty"`
 	Results          ResultsField     `json:"results,omitempty"`
 }
 
 type AssessmentsField struct {
 	Count int               `json:"count,omitempty"`
 	Data  []data.Assessment `json:"data,omitempty"`
+}
+type AttendanceField struct {
+	Count int               `json:"count,omitempty"`
+	Data  []data.Attendance `json:"data,omitempty"`
 }
 type ResultsField struct {
 	Count int           `json:"count,omitempty"`
@@ -86,6 +91,12 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			"sync":  syncType,
 		})
 		err = app.models.Assessments.InsertManyAssessments(kamarData.Data.Assessments.Data)
+	case "attendance":
+		app.logger.PrintInfo("listener: attempting to write attendance to database...", map[string]any{
+			"count": kamarData.Data.Attendance.Count,
+			"sync":  syncType,
+		})
+		err = app.models.Attendance.InsertManyAttendance(kamarData.Data.Attendance.Data)
 	// If synctype doesn't match any of these cases, return an unprocessable entity error
 	default:
 		app.logger.PrintError(errors.New("listener: synctype not available"), map[string]any{

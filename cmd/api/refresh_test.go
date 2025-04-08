@@ -209,6 +209,22 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:           "Valid Attendance Data",
+			jsonFile:       "actual-requests/attendance_18122024_152843.json",
+			username:       "username",
+			password:       "password",
+			includeAuth:    true,
+			expectedStatus: http.StatusOK,
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
+					"error":   0,
+					"result":  "OK",
+					"service": "WHS KAMAR Refresh",
+					"version": "1.0",
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
