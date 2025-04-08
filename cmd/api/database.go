@@ -302,19 +302,30 @@ func createSMSTables(db *sql.DB) error {
 	_, err = db.Exec(attendanceValuesTableStmt)
 
 	pastoralTableStmt := `CREATE TABLE IF NOT EXISTS pastoral (
-		credits			INTEGER,
-		description TEXT,
-		internalexternal TEXT,
-		level INTEGER,
-		number TEXT,
-		points TEXT,
-		purpose TEXT,
-		subfield TEXT,
-		title TEXT,
-		tnv TEXT,
+		id			INTEGER,
+		nsn TEXT,
 		type TEXT,
-		version INTEGER,
-		weighting TEXT
+		ref INTEGER,
+		reason TEXT,
+		reason_pb TEXT,
+		motivation TEXT,
+		motivation_pb TEXT,
+		location TEXT,
+		location_pb TEXT,
+		others_involved TEXT,
+		action1 TEXT,
+		action2 TEXT,
+		action3 TEXT,
+		action_pb1 TEXT,
+		action_pb2 TEXT,
+		action_pb3 TEXT,
+		teacher TEXT,
+		points INTEGER,
+		demerits INTEGER,
+		dateevent TEXT,
+		timeevent TEXT,
+		datedue TEXT,
+		duestatus TEXT
 	);`
 
 	_, err = db.Exec(pastoralTableStmt)

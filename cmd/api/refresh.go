@@ -31,6 +31,7 @@ type SMSDirectoryData struct {
 	Version          int              `json:"version,omitempty"`
 	Assessments      AssessmentsField `json:"assessments,omitempty"`
 	Attendance       AttendanceField  `json:"attendance,omitempty"`
+	Pastoral         PastoralField    `json:"attendance,omitempty"`
 	Results          ResultsField     `json:"results,omitempty"`
 }
 
@@ -41,6 +42,10 @@ type AssessmentsField struct {
 type AttendanceField struct {
 	Count int               `json:"count,omitempty"`
 	Data  []data.Attendance `json:"data,omitempty"`
+}
+type PastoralField struct {
+	Count int             `json:"count,omitempty"`
+	Data  []data.Pastoral `json:"data,omitempty"`
 }
 type ResultsField struct {
 	Count int           `json:"count,omitempty"`
@@ -77,14 +82,6 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			"data": kamarData.Data,
 		})
 		return app.kamarCheckResponse(c)
-	case "results":
-		app.logger.PrintInfo("listener: attempting to write results to database...", map[string]any{
-			"count": kamarData.Data.Results.Count,
-			// "data":  kamarData.Data.Results.Data,
-			"sync": syncType,
-			// "schools": kamarData.Data.Schools,
-		})
-		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
 	case "assessments":
 		app.logger.PrintInfo("listener: attempting to write assessments to database...", map[string]any{
 			"count": kamarData.Data.Assessments.Count,
@@ -97,6 +94,20 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			"sync":  syncType,
 		})
 		err = app.models.Attendance.InsertManyAttendance(kamarData.Data.Attendance.Data)
+	case "pastoral":
+		app.logger.PrintInfo("listener: attempting to write pastoral records to database...", map[string]any{
+			"count": kamarData.Data.Pastoral.Count,
+			"sync":  syncType,
+		})
+		err = app.models.Pastoral.InsertManyPastoral(kamarData.Data.Pastoral.Data)
+	case "results":
+		app.logger.PrintInfo("listener: attempting to write results to database...", map[string]any{
+			"count": kamarData.Data.Results.Count,
+			// "data":  kamarData.Data.Results.Data,
+			"sync": syncType,
+			// "schools": kamarData.Data.Schools,
+		})
+		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
 	// If synctype doesn't match any of these cases, return an unprocessable entity error
 	default:
 		app.logger.PrintError(errors.New("listener: synctype not available"), map[string]any{
