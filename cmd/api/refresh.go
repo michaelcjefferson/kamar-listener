@@ -33,7 +33,7 @@ type SMSDirectoryData struct {
 	Attendance       AttendanceField  `json:"attendance,omitempty"`
 	Pastoral         PastoralField    `json:"pastoral,omitempty"`
 	Results          ResultsField     `json:"results,omitempty"`
-	Timetables       TimetablesField  `json:"studenttimetables,omitempty"`
+	Timetables       TimetablesField  `json:"timetables,omitempty"`
 }
 
 type AssessmentsField struct {

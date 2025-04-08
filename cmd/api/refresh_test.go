@@ -44,7 +44,8 @@ func TestRefreshHandler(t *testing.T) {
 		includeAuth    bool
 		expectedStatus int
 		expectedBody   map[string]any
-		checkDB        func(*testing.T, *sql.DB)
+		expectedCount  int
+		checkDB        func(*testing.T, int, *sql.DB)
 	}{
 		// TODO: Update to get config data from actual DB? Or include tests.dbSetup func which inserts appropriate config?
 		// TODO: Use setupFunc and checkDB functions to build more varied tests
@@ -156,6 +157,19 @@ func TestRefreshHandler(t *testing.T) {
 					"version": "1.0",
 				},
 			},
+			expectedCount: 5,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM results;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of results from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of results inserted into database: want %d got %d", expectedCount, actualCount)
+				}
+			},
 		},
 		{
 			name:           "Valid Results Data, Invalid Credentials",
@@ -208,6 +222,19 @@ func TestRefreshHandler(t *testing.T) {
 					"version": "1.0",
 				},
 			},
+			expectedCount: 2365,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM assessments;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of assessments from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of assessments inserted into database: want %d got %d", expectedCount, actualCount)
+				}
+			},
 		},
 		{
 			name:           "Valid Attendance Data",
@@ -223,6 +250,19 @@ func TestRefreshHandler(t *testing.T) {
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
 				},
+			},
+			expectedCount: 3982,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM attendance;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of attendance from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of attendance records inserted into database: want %d got %d", expectedCount, actualCount)
+				}
 			},
 		},
 		{
@@ -240,6 +280,19 @@ func TestRefreshHandler(t *testing.T) {
 					"version": "1.0",
 				},
 			},
+			expectedCount: 3262,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM pastoral;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of pastoral from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of pastoral records inserted into database: want %d got %d", expectedCount, actualCount)
+				}
+			},
 		},
 		{
 			name:           "Valid Student Timetables Data",
@@ -255,6 +308,19 @@ func TestRefreshHandler(t *testing.T) {
 					"service": "WHS KAMAR Refresh",
 					"version": "1.0",
 				},
+			},
+			expectedCount: 8,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM timetables;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of timetables from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of timetables inserted into database: want %d got %d", expectedCount, actualCount)
+				}
 			},
 		},
 	}
@@ -333,7 +399,7 @@ func TestRefreshHandler(t *testing.T) {
 			// }
 
 			if tt.checkDB != nil {
-				tt.checkDB(t, db)
+				tt.checkDB(t, tt.expectedCount, db)
 			}
 		})
 	}
