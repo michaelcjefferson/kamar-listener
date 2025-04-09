@@ -16,6 +16,8 @@ type Models struct {
 	Logs        LogModel
 	Pastoral    PastoralModel
 	Results     ResultModel
+	Staff       StaffModel
+	Students    StudentModel
 	Timetables  TimetableModel
 	Tokens      TokenModel
 	Users       UserModel
@@ -29,6 +31,8 @@ func NewModels(db *sql.DB, background func(fn func())) Models {
 		Logs:        LogModel{DB: db, background: background},
 		Pastoral:    PastoralModel{DB: db},
 		Results:     ResultModel{DB: db},
+		Staff:       StaffModel{DB: db},
+		Students:    StudentModel{DB: db},
 		Timetables:  TimetableModel{DB: db},
 		Tokens:      TokenModel{DB: db},
 		Users:       UserModel{DB: db},
