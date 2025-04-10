@@ -80,7 +80,7 @@ func createLogsTable(db *sql.DB) error {
 		message TEXT NOT NULL,
 		properties TEXT,
 		trace TEXT
-	)`
+	);`
 
 	_, err := db.Exec(userTableStmt)
 
@@ -329,6 +329,191 @@ func createSMSTables(db *sql.DB) error {
 	);`
 
 	_, err = db.Exec(pastoralTableStmt)
+
+	// TODO: Consider creating a singular "groups" table with a polymorphic foreign key - as it is, groups don't have an ID anyway, so would it be useful?
+	// TODO: Consider joining on id rather than uniqueid - though id is text rather than numerical (it's the teacher code, eg. MJE), each teacher is guaranteed to have one? Or perhaps students should be joined to other tables on uniqueid?
+	staffTableStmt := `CREATE TABLE IF NOT EXISTS staff (
+		id TEXT,
+		uuid TEXT,
+		role TEXT,
+		created INTEGER,
+		uniqueid INTEGER NOT NULL,
+		username TEXT,
+		firstname TEXT,
+		lastname TEXT,
+		gender TEXT,
+		schoolindex INTEGER,
+		title TEXT,
+		email TEXT,
+		mobile TEXT,
+		extension TEXT,
+		classification TEXT,
+		position TEXT,
+		house TEXT,
+		tutor TEXT,
+		datebirth TEXT,
+		leavingdate TEXT,
+		startingdate TEXT,
+		eslguid TEXT,
+		moenumber TEXT,
+		photocopierid TEXT,
+		registrationnumber TEXT,
+		custom TEXT
+	);
+	
+	CREATE TABLE IF NOT EXISTS staff_groups (
+		staff_uniqueid INTEGER NOT NULL,
+		type TEXT,
+		subject TEXT,
+		coreoption TEXT
+		FOREIGN KEY (staff_uniqueid) REFERENCES staff(unique_id) ON DELETE CASCADE
+	);`
+
+	_, err = db.Exec(staffTableStmt)
+
+	studentTableStmt := `CREATE TABLE IF NOT EXISTS students (
+		id INTEGER NOT NULL,
+		uuid TEXT,
+		role TEXT,
+		created INTEGER,
+		uniqueid INTEGER,
+		nsn TEXT,
+		username TEXT,
+		firstname TEXT,
+		firstnamelegal TEXT,
+		lastname TEXT,
+		lastnamelegal TEXT,
+		forenames TEXT,
+		forenameslegal TEXT,
+		gender TEXT,
+		genderpreferred TEXT,
+		gendercode INTEGER,
+		schoolindex INTEGER,
+		email TEXT,
+		mobile TEXT,
+		house TEXT,
+		whanau TEXT,
+		boarder TEXT,
+		byodinfo TEXT,
+		ece TEXT,
+		esol TEXT,
+		ors TEXT,
+		languagespoken TEXT,
+		datebirth INTEGER,
+		startingdate INTEGER,
+		startschooldate TEXT,
+		leavingdate INTEGER,
+		leavingreason TEXT,
+		leavingschool TEXT,
+		leavingactivity TEXT,
+		moetype TEXT,
+		ethnicityL1 TEXT,
+		ethnicityL2 TEXT,
+		ethnicity TEXT,
+		iwi TEXT,
+		yearlevel TEXT,
+		fundinglevel TEXT,
+		tutor TEXT,
+		timetablebottom1 TEXT,
+		timetablebottom2 TEXT,
+		timetablebottom3 TEXT,
+		timetablebottom4 TEXT,
+		timetabletop1 TEXT,
+		timetabletop2 TEXT,
+		timetabletop3 TEXT,
+		timetabletop4 TEXT,
+		maorilevel TEXT,
+		pacificlanguage TEXT,
+		pacificlevel TEXT,
+		siblinglink TEXT,
+		photocopierid TEXT,
+		signedagreement TEXT,
+		accountdisabled TEXT,
+		networkaccess TEXT,
+		altdescription TEXT,
+		althomedrive TEXT,
+		custom  TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS student_awards (
+		student_id INTEGER NOT NULL,
+		type TEXT,
+		name TEXT,
+		year INTEGER,
+		date TEXT,
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);
+	
+	CREATE TABLE IF NOT EXISTS student_caregivers (
+		student_id INTEGER NOT NULL,
+		ref INTEGER,
+		role TEXT,
+		name TEXT,
+		email TEXT,
+		mobile TEXT,
+		relationship TEXT,
+		status TEXT,
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);
+	
+	CREATE TABLE IF NOT EXISTS student_datasharing (
+		student_id INTEGER NOT NULL,
+		details INTEGER,
+		photo INTEGER,
+		other INTEGER,
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);
+	
+	CREATE TABLE IF NOT EXISTS student_emergency (
+		student_id INTEGER NOT NULL,
+		name TEXT,
+		relationship TEXT,
+		mobile TEXT,
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);
+
+	CREATE TABLE IF NOT EXISTS student_flags (
+		student_id INTEGER NOT NULL,
+		general TEXT,
+		notes TEXT,
+		alert TEXT,
+		conditions TEXT,
+		dietary TEXT,
+		ibuprofen TEXT,
+		medical TEXT,
+		paracetamol TEXT,
+		pastoral TEXT,
+		reactions TEXT,
+		specialneeds TEXT,
+		vaccinations TEXT,
+		eotcconsent TEXT,
+		eotcform TEXT,
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);
+
+	CREATE TABLE IF NOT EXISTS student_groups (
+		student_id INTEGER NOT NULL,
+		type TEXT,
+		subject TEXT,
+		coreoption TEXT
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);
+
+	CREATE TABLE IF NOT EXISTS student_residences (
+		student_id INTEGER NOT NULL,
+		title TEXT,
+		salutation TEXT,
+		email TEXT,
+		numFlatUnit TEXT,
+		numStreet TEXT,
+		ruralDelivery TEXT,
+		suburb TEXT,
+		town TEXT,
+		postcode TEXT,
+		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+	);`
+
+	_, err = db.Exec(studentTableStmt)
 
 	timetablesTableStmt := `CREATE TABLE IF NOT EXISTS timetables (
 		student INTEGER,

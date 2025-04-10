@@ -9,10 +9,9 @@ import (
 type Student struct {
 	ID               int             `json:"id,omitempty"`
 	UUID             string          `json:"uuid,omitempty"`
-	Created          int64           `json:"created,omitempty"`
 	Role             string          `json:"role,omitempty"`
+	Created          int64           `json:"created,omitempty"`
 	Uniqueid         int             `json:"uniqueid,omitempty"`
-	SchoolIndex      int             `json:"schoolindex,omitempty"`
 	Nsn              string          `json:"nsn,omitempty"`
 	Username         string          `json:"username,omitempty"`
 	Firstname        string          `json:"firstname,omitempty"`
@@ -24,8 +23,9 @@ type Student struct {
 	Gender           any             `json:"gender,omitempty"`
 	GenderPreferred  any             `json:"genderpreffered,omitempty"`
 	Gendercode       int             `json:"gendercode,omitempty"`
-	Mobile           string          `json:"mobile,omitempty"`
+	SchoolIndex      int             `json:"schoolindex,omitempty"`
 	Email            string          `json:"email,omitempty"`
+	Mobile           string          `json:"mobile,omitempty"`
 	House            string          `json:"house,omitempty"`
 	Whanau           string          `json:"whanau,omitempty"`
 	Boarder          any             `json:"boarder,omitempty"`
@@ -144,4 +144,145 @@ type Residence struct {
 
 type StudentModel struct {
 	DB *sql.DB
+}
+
+func (m StudentModel) InsertManyStudents(students []Student) error {
+	// Start a transaction (tx)
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() // Rollback transaction if there's an error
+
+	studentStmt, err := tx.Prepare(`
+	INSERT INTO students (id, uuid, role, created, uniqueid, nsn, username, firstname, firstnamelegal, lastname, lastnamelegal, forenames, forenameslegal, gender, genderpreferred, gendercode, schoolindex, email, mobile, house, whanau, boarder, byodinfo, ece, esol, ors, languagespoken, datebirth, startingdate, startschooldate, leavingdate, leavingreason, leavingschool, leavingactivity, moetype, ethnicityL1, ethnicityL2, ethnicity, iwi, yearlevel, fundinglevel, tutor, timetablebottom1, timetablebottom2, timetablebottom3, timetablebottom4, timetabletop1, timetabletop2, timetabletop3, timetabletop4, maorilevel, pacificlanguage, pacificlevel, siblinglink, photocopierid, signedagreement, accountdisabled, networkaccess, altdescription, althomedrive, custom) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, $61)`)
+	if err != nil {
+		return err
+	}
+	defer studentStmt.Close()
+
+	studentAwardStmt, err := tx.Prepare(`
+	INSERT INTO student_awards (student_id, type, name, year, date) VALUES ($1, $2, $3, $4, $5)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentAwardStmt.Close()
+
+	studentCareStmt, err := tx.Prepare(`
+	INSERT INTO student_caregivers (student_id, ref, role, name, email, mobile, relationship, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentCareStmt.Close()
+
+	studentDataStmt, err := tx.Prepare(`
+	INSERT INTO student_datasharing (student_id, details, photo, other) VALUES ($1, $2, $3, $4)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentDataStmt.Close()
+
+	studentEmgyStmt, err := tx.Prepare(`
+	INSERT INTO student_emergency (student_id, name, relationship, mobile) VALUES ($1, $2, $3, $4)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentEmgyStmt.Close()
+
+	studentFlagStmt, err := tx.Prepare(`
+	INSERT INTO student_flags (student_id, general, notes, alert, conditions, dietary, ibuprofen, medical, paracetamol, pastoral, reactions, specialneeds, vaccinations, eotcconsent, eotcform) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentFlagStmt.Close()
+
+	studentGrpStmt, err := tx.Prepare(`
+	INSERT INTO student_groups (student_id, type, subject, coreoption) VALUES ($1, $2, $3, $4)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentGrpStmt.Close()
+
+	studentResStmt, err := tx.Prepare(`
+	INSERT INTO student_residences (student_id, title, salutation, email, numFlatUnit, numStreet, ruralDelivery, suburb, town, postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	`)
+	if err != nil {
+		return err
+	}
+	defer studentResStmt.Close()
+
+	// Insert entries in batches - extrapolate into own function
+	batchSize := 100 // adjust as needed
+	for i := 0; i < len(students); i += batchSize {
+		// Create a slice of 100 results
+		batch := students[i:min(i+batchSize, len(students))]
+
+		// Insert each entry
+		for _, s := range batch {
+			_, err := studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, s.LeavingSchool, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, s.Ethnicity, s.Iwi, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, s.Custom)
+			if err != nil {
+				return err
+			}
+
+			for _, a := range s.Awards {
+				_, err = studentAwardStmt.Exec(s.ID, a.Type, a.Name, a.Year, a.Date)
+				if err != nil {
+					return err
+				}
+			}
+
+			for _, c := range s.Caregivers {
+				_, err = studentCareStmt.Exec(s.ID, c.Ref, c.Role, c.Name, c.Email, c.Mobile, c.Relationship, c.Status)
+				if err != nil {
+					return err
+				}
+			}
+
+			_, err = studentDataStmt.Exec(s.ID, s.Datasharing.Details, s.Datasharing.Photo, s.Datasharing.Other)
+			if err != nil {
+				return err
+			}
+
+			for _, e := range s.Emergency {
+				_, err = studentEmgyStmt.Exec(s.ID, e.Name, e.Relationship, e.Mobile)
+				if err != nil {
+					return err
+				}
+			}
+
+			_, err = studentFlagStmt.Exec(s.ID, s.Flags.General, s.Flags.Notes, s.Flags.Alert, s.Flags.Conditions, s.Flags.Dietary, s.Flags.Ibuprofen, s.Flags.Medical, s.Flags.Paracetamol, s.Flags.Pastoral, s.Flags.Reactions, s.Flags.SpecialNeeds, s.Flags.Vaccinations, s.Flags.EOTCConsent, s.Flags.EOTCForm)
+			if err != nil {
+				return err
+			}
+
+			for _, g := range s.Groups {
+				_, err = studentGrpStmt.Exec(s.ID, g.Type, g.Subject, g.Coreoption)
+				if err != nil {
+					return err
+				}
+			}
+
+			for _, r := range s.Res {
+				_, err = studentResStmt.Exec(s.ID, r.Title, r.Salutation, r.Email, r.NumFlatUnit, r.NumStreet, r.RuralDelivery, r.Suburb, r.Town, r.Postcode)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	// Database insert succeeded
+	return nil
 }

@@ -25,9 +25,9 @@ type Staff struct {
 	Position           string          `json:"position,omitempty"`
 	House              string          `json:"house,omitempty"`
 	Tutor              string          `json:"tutor,omitempty"`
-	DateBirth          string          `json:"datebirth,omitempty"`
-	LeavingDate        string          `json:"leavingdate,omitempty"`
-	StartingDate       string          `json:"startingdate,omitempty"`
+	DateBirth          any             `json:"datebirth,omitempty"`
+	LeavingDate        any             `json:"leavingdate,omitempty"`
+	StartingDate       any             `json:"startingdate,omitempty"`
 	ESLGUID            any             `json:"eslguid,omitempty"`
 	MOENumber          any             `json:"moenumber,omitempty"`
 	PhotocopierID      any             `json:"photocopierid,omitempty"`
@@ -37,4 +37,59 @@ type Staff struct {
 
 type StaffModel struct {
 	DB *sql.DB
+}
+
+func (m StaffModel) InsertManyStaff(staff []Staff) error {
+	// Start a transaction (tx)
+	tx, err := m.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() // Rollback transaction if there's an error
+
+	staffStmt, err := tx.Prepare(`
+	INSERT INTO staff (id, uuid, role, created, uniqueid, username, firstname, lastname, gender, schoolindex, title, email, mobile, extension, classification, position, house, tutor, datebirth, leavingdate, startingdate, eslguid, moenumber, photocopierid, registrationnumber, custom) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`)
+	if err != nil {
+		return err
+	}
+	defer staffStmt.Close()
+
+	staffGrpStmt, err := tx.Prepare(`
+	INSERT INTO staff_groups (staff_uniqueid, type, subject, coreoption) VALUES ($1, $2, $3, $4)
+	`)
+	if err != nil {
+		return err
+	}
+	defer staffGrpStmt.Close()
+
+	// Insert entries in batches - extrapolate into own function
+	batchSize := 100 // adjust as needed
+	for i := 0; i < len(staff); i += batchSize {
+		// Create a slice of 100 results
+		batch := staff[i:min(i+batchSize, len(staff))]
+
+		// Insert each entry
+		for _, s := range batch {
+			_, err := staffStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Username, s.Firstname, s.Lastname, s.Gender, s.SchoolIndex, s.Title, s.Email, s.Mobile, s.Extension, s.Classification, s.Position, s.House, s.Tutor, s.DateBirth, s.LeavingDate, s.StartingDate, s.ESLGUID, s.MOENumber, s.PhotocopierID, s.RegistrationNumber, s.Custom)
+			if err != nil {
+				return err
+			}
+
+			for _, g := range s.Groups {
+				_, err = staffGrpStmt.Exec(s.Uniqueid, g.Type, g.Subject, g.Coreoption)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	// Database insert succeeded
+	return nil
 }
