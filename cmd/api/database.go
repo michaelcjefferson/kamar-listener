@@ -365,8 +365,8 @@ func createSMSTables(db *sql.DB) error {
 		staff_uniqueid INTEGER NOT NULL,
 		type TEXT,
 		subject TEXT,
-		coreoption TEXT
-		FOREIGN KEY (staff_uniqueid) REFERENCES staff(unique_id) ON DELETE CASCADE
+		coreoption TEXT,
+		FOREIGN KEY (staff_uniqueid) REFERENCES staff(uniqueid) ON DELETE CASCADE
 	);`
 
 	_, err = db.Exec(staffTableStmt)
@@ -495,7 +495,7 @@ func createSMSTables(db *sql.DB) error {
 		student_id INTEGER NOT NULL,
 		type TEXT,
 		subject TEXT,
-		coreoption TEXT
+		coreoption TEXT,
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 
@@ -514,6 +514,18 @@ func createSMSTables(db *sql.DB) error {
 	);`
 
 	_, err = db.Exec(studentTableStmt)
+
+	subjectTableStmt := `CREATE TABLE IF NOT EXISTS subjects (
+		id TEXT NOT NULL,
+		created INTEGER,
+		name TEXT,
+		department TEXT,
+		subdepartment TEXT,
+		qualification TEXT,
+		level INTEGER
+	);`
+
+	_, err = db.Exec(subjectTableStmt)
 
 	timetablesTableStmt := `CREATE TABLE IF NOT EXISTS timetables (
 		student INTEGER,

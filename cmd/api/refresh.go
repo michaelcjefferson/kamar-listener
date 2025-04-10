@@ -33,7 +33,11 @@ type SMSDirectoryData struct {
 	Attendance       AttendanceField  `json:"attendance,omitempty"`
 	Pastoral         PastoralField    `json:"pastoral,omitempty"`
 	Results          ResultsField     `json:"results,omitempty"`
-	Timetables       TimetablesField  `json:"timetables,omitempty"`
+	// Use pointers to the three fields below, to allow easy checking for nil values (rather than 0 values)
+	Staff      *StaffField     `json:"staff,omitempty"`
+	Students   *StudentsField  `json:"students,omitempty"`
+	Subjects   *SubjectsField  `json:"subjects,omitempty"`
+	Timetables TimetablesField `json:"timetables,omitempty"`
 }
 
 type AssessmentsField struct {
@@ -51,6 +55,18 @@ type PastoralField struct {
 type ResultsField struct {
 	Count int           `json:"count,omitempty"`
 	Data  []data.Result `json:"data,omitempty"`
+}
+type StaffField struct {
+	Count int          `json:"count,omitempty"`
+	Data  []data.Staff `json:"data,omitempty"`
+}
+type StudentsField struct {
+	Count int            `json:"count,omitempty"`
+	Data  []data.Student `json:"data,omitempty"`
+}
+type SubjectsField struct {
+	Count int            `json:"count,omitempty"`
+	Data  []data.Subject `json:"data,omitempty"`
 }
 type TimetablesField struct {
 	Count int              `json:"count,omitempty"`
@@ -99,6 +115,28 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			"sync":  syncType,
 		})
 		err = app.models.Attendance.InsertManyAttendance(kamarData.Data.Attendance.Data)
+	case "full", "part":
+		if kamarData.Data.Staff != nil {
+			app.logger.PrintInfo("listener: attempting to write staff to database...", map[string]any{
+				"count": kamarData.Data.Staff.Count,
+				"sync":  syncType,
+			})
+			err = app.models.Staff.InsertManyStaff(kamarData.Data.Staff.Data)
+		}
+		if kamarData.Data.Students != nil {
+			app.logger.PrintInfo("listener: attempting to write students to database...", map[string]any{
+				"count": kamarData.Data.Students.Count,
+				"sync":  syncType,
+			})
+			err = app.models.Students.InsertManyStudents(kamarData.Data.Students.Data)
+		}
+		if kamarData.Data.Subjects != nil {
+			app.logger.PrintInfo("listener: attempting to write subjects to database...", map[string]any{
+				"count": kamarData.Data.Subjects.Count,
+				"sync":  syncType,
+			})
+			err = app.models.Subjects.InsertManySubjects(kamarData.Data.Subjects.Data)
+		}
 	case "pastoral":
 		app.logger.PrintInfo("listener: attempting to write pastoral records to database...", map[string]any{
 			"count": kamarData.Data.Pastoral.Count,

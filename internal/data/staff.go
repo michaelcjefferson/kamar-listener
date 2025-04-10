@@ -39,6 +39,7 @@ type StaffModel struct {
 	DB *sql.DB
 }
 
+// TODO: Check if ID already exists, and update instead of insert in those cases - change query to ON CONFLICT? It shouldn't happen often
 func (m StaffModel) InsertManyStaff(staff []Staff) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
@@ -48,7 +49,7 @@ func (m StaffModel) InsertManyStaff(staff []Staff) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	staffStmt, err := tx.Prepare(`
-	INSERT INTO staff (id, uuid, role, created, uniqueid, username, firstname, lastname, gender, schoolindex, title, email, mobile, extension, classification, position, house, tutor, datebirth, leavingdate, startingdate, eslguid, moenumber, photocopierid, registrationnumber, custom) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`)
+	INSERT INTO staff (id, uuid, role, created, uniqueid, username, firstname, lastname, gender, schoolindex, title, email, mobile, extension, classification, position, house, tutor, datebirth, leavingdate, startingdate, eslguid, moenumber, photocopierid, registrationnumber, custom) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`)
 	if err != nil {
 		return err
 	}

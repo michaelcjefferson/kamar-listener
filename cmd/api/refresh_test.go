@@ -295,6 +295,111 @@ func TestRefreshHandler(t *testing.T) {
 			},
 		},
 		{
+			name:           "Valid Student Details (Full) Data",
+			jsonFile:       "actual-requests/full_18122024_151311.json",
+			username:       "username",
+			password:       "password",
+			includeAuth:    true,
+			expectedStatus: http.StatusOK,
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
+					"error":   0,
+					"result":  "OK",
+					"service": "WHS KAMAR Refresh",
+					"version": "1.0",
+				},
+			},
+			expectedCount: 1777,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM students;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of students from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of students records inserted into database: want %d got %d", expectedCount, actualCount)
+				}
+			},
+		},
+		{
+			name:           "Valid Student Details (Part) Data",
+			jsonFile:       "actual-requests/part_18122024_201702.json",
+			username:       "username",
+			password:       "password",
+			includeAuth:    true,
+			expectedStatus: http.StatusOK,
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
+					"error":   0,
+					"result":  "OK",
+					"service": "WHS KAMAR Refresh",
+					"version": "1.0",
+				},
+			},
+			expectedCount: 1,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM students;").Scan(&actualCount)
+				if err != nil {
+					t.Fatalf("error getting count of students from db: %v", err)
+				}
+
+				if actualCount != expectedCount {
+					t.Errorf("unexpected number of students records inserted into database: want %d got %d", expectedCount, actualCount)
+				}
+			},
+		},
+		{
+			name:           "Valid Staff, Student, and Subject Details (Full) Data",
+			jsonFile:       "actual-requests/full_19122024_154006.json",
+			username:       "username",
+			password:       "password",
+			includeAuth:    true,
+			expectedStatus: http.StatusOK,
+			expectedBody: map[string]any{
+				"SMSDirectoryData": map[string]any{
+					"error":   0,
+					"result":  "OK",
+					"service": "WHS KAMAR Refresh",
+					"version": "1.0",
+				},
+			},
+			expectedCount: 1,
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+				var actualStaffCount, actualStudentCount, actualSubjectCount int
+
+				err := db.QueryRow("SELECT COUNT(*) FROM staff;").Scan(&actualStaffCount)
+				if err != nil {
+					t.Fatalf("error getting count of staff from db: %v", err)
+				}
+
+				if actualStaffCount != 227 {
+					t.Errorf("unexpected number of staff records inserted into database: want %d got %d", 227, actualStaffCount)
+				}
+
+				err = db.QueryRow("SELECT COUNT(*) FROM students;").Scan(&actualStudentCount)
+				if err != nil {
+					t.Fatalf("error getting count of students from db: %v", err)
+				}
+
+				if actualStudentCount != 1777 {
+					t.Errorf("unexpected number of students records inserted into database: want %d got %d", 1777, actualStudentCount)
+				}
+
+				err = db.QueryRow("SELECT COUNT(*) FROM subjects;").Scan(&actualSubjectCount)
+				if err != nil {
+					t.Fatalf("error getting count of subjects from db: %v", err)
+				}
+
+				if actualSubjectCount != 255 {
+					t.Errorf("unexpected number of subject records inserted into database: want %d got %d", 255, actualSubjectCount)
+				}
+			},
+		},
+		{
 			name:           "Valid Student Timetables Data",
 			jsonFile:       "actual-requests/studenttimetables_18122024_152357.json",
 			username:       "username",
@@ -396,6 +501,24 @@ func TestRefreshHandler(t *testing.T) {
 			// responseBody := bytes.TrimSpace(rec.Body.Bytes())
 			// if string(responseBody) != tt.expectedBody {
 			// 	t.Errorf("handler returned unexpected body: got %v want %v", string(responseBody), tt.expectedBody)
+			// }
+
+			// Log the names of each table that exists in the database
+			// rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;`)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			// defer rows.Close()
+
+			// for rows.Next() {
+			// 	var name string
+			// 	if err := rows.Scan(&name); err != nil {
+			// 		log.Fatal(err)
+			// 	}
+			// 	fmt.Println(name)
+			// }
+			// if err := rows.Err(); err != nil {
+			// 	log.Fatal(err)
 			// }
 
 			if tt.checkDB != nil {

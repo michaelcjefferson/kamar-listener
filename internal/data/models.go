@@ -18,6 +18,7 @@ type Models struct {
 	Results     ResultModel
 	Staff       StaffModel
 	Students    StudentModel
+	Subjects    SubjectModel
 	Timetables  TimetableModel
 	Tokens      TokenModel
 	Users       UserModel
@@ -33,6 +34,7 @@ func NewModels(db *sql.DB, background func(fn func())) Models {
 		Results:     ResultModel{DB: db},
 		Staff:       StaffModel{DB: db},
 		Students:    StudentModel{DB: db},
+		Subjects:    SubjectModel{DB: db},
 		Timetables:  TimetableModel{DB: db},
 		Tokens:      TokenModel{DB: db},
 		Users:       UserModel{DB: db},
