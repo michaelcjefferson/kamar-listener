@@ -9,7 +9,7 @@ import (
 )
 
 // SQLite config for reads and writes (avoid SQLITE BUSY error): https://kerkour.com/sqlite-for-servers
-func openDB(dbpath string) (*sql.DB, bool, error) {
+func openAppDB(dbpath string) (*sql.DB, bool, error) {
 	// Create string of connection params to prevent "SQLITE_BUSY" errors - to be further improved based on the above article
 	dbParams := "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL"
 
@@ -56,13 +56,6 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 		return nil, false, err
 	}
 
-	// Set up tables for data to be consumed from SMS
-	err = createSMSTables(db)
-	if err != nil {
-		db.Close()
-		return nil, false, err
-	}
-
 	// Check to see whether a user already exists in the database - if not, a user must be created before the admin dashboard can be used
 	exists, err := userExists(db)
 	if err != nil {
@@ -70,6 +63,36 @@ func openDB(dbpath string) (*sql.DB, bool, error) {
 	}
 
 	return db, exists, nil
+}
+
+// SQLite config for reads and writes (avoid SQLITE BUSY error): https://kerkour.com/sqlite-for-servers
+func openKamarDB(dbpath string) (*sql.DB, error) {
+	// Create string of connection params to prevent "SQLITE_BUSY" errors - to be further improved based on the above article
+	dbParams := "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL"
+
+	// Either connect to or create (if it doesn't exist) the database at the provided path
+	db, err := sql.Open("sqlite3", dbpath+dbParams)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create context with 5 second deadline so that we can ping the db and finish establishing a db connection
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set up tables for data to be consumed from SMS
+	err = createSMSTables(db)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func createLogsTable(db *sql.DB) error {

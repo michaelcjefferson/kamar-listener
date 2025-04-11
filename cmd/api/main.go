@@ -17,11 +17,12 @@ import (
 )
 
 type config struct {
-	port      int
-	env       string
-	dblogs_on bool
-	dbpath    string
-	https_on  bool
+	port               int
+	env                string
+	dblogs_on          bool
+	app_db_path        string
+	kamar_data_db_path string
+	https_on           bool
 	// rps (requests per second) must be float, burst must be int for limiter. enabled allows turning off the rate limiter for, for example load testing.
 	limiter struct {
 		rps     float64
@@ -60,7 +61,8 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 8085, "API server port.")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production).")
 
-	flag.StringVar(&cfg.dbpath, "db-path", "./db/kamar-directory-service.db", "Path to SQLite .db (database) file.")
+	flag.StringVar(&cfg.app_db_path, "app-db-path", "./db/app.db", "Path to SQLite .db file holding user data, config, logs etc.")
+	flag.StringVar(&cfg.kamar_data_db_path, "kamar-data-db-path", "./db/listener.db", "Path to SQLite .db file holding data from KAMAR directory service.")
 
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 4, "Rate limiter maximum requests per second.")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 8, "Rate limiter maximum burst.")
@@ -90,16 +92,25 @@ func main() {
 
 	fmt.Println("attempting to set up SQLite db")
 
-	db, userExists, err := openDB(cfg.dbpath)
+	appdb, userExists, err := openAppDB(cfg.app_db_path)
 	if err != nil {
-		fmt.Printf("error setting up database: %v\n", err)
+		fmt.Printf("error setting up app database: %v\n", err)
 		time.Sleep(20 * time.Second)
 	}
 
-	defer db.Close()
+	defer appdb.Close()
 	app.userExists = userExists
 
-	models := data.NewModels(db, app.background)
+	kamardb, err := openKamarDB(cfg.kamar_data_db_path)
+	if err != nil {
+		fmt.Printf("error setting up app database: %v\n", err)
+		time.Sleep(20 * time.Second)
+	}
+
+	defer appdb.Close()
+	app.userExists = userExists
+
+	models := data.NewModels(appdb, kamardb, app.background)
 	app.models = models
 
 	// Instantiate logger that will log anything at or above info level. To write from a different level, change this parameter.

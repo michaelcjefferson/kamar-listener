@@ -24,19 +24,19 @@ type Models struct {
 	Users       UserModel
 }
 
-func NewModels(db *sql.DB, background func(fn func())) Models {
+func NewModels(appdb, kamardb *sql.DB, background func(fn func())) Models {
 	return Models{
-		Assessments: AssessmentModel{DB: db},
-		Attendance:  AttendanceModel{DB: db},
-		Config:      ConfigModel{DB: db},
-		Logs:        LogModel{DB: db, background: background},
-		Pastoral:    PastoralModel{DB: db},
-		Results:     ResultModel{DB: db},
-		Staff:       StaffModel{DB: db},
-		Students:    StudentModel{DB: db},
-		Subjects:    SubjectModel{DB: db},
-		Timetables:  TimetableModel{DB: db},
-		Tokens:      TokenModel{DB: db},
-		Users:       UserModel{DB: db},
+		Assessments: AssessmentModel{DB: kamardb},
+		Attendance:  AttendanceModel{DB: kamardb},
+		Config:      ConfigModel{DB: appdb},
+		Logs:        LogModel{DB: appdb, background: background},
+		Pastoral:    PastoralModel{DB: kamardb},
+		Results:     ResultModel{DB: kamardb},
+		Staff:       StaffModel{DB: kamardb},
+		Students:    StudentModel{DB: kamardb},
+		Subjects:    SubjectModel{DB: kamardb},
+		Timetables:  TimetableModel{DB: kamardb},
+		Tokens:      TokenModel{DB: appdb},
+		Users:       UserModel{DB: appdb},
 	}
 }

@@ -455,7 +455,7 @@ func TestRefreshHandler(t *testing.T) {
 			}
 
 			app := &application{}
-			app.models = data.NewModels(db, app.background)
+			app.models = data.NewModels(nil, db, app.background)
 
 			// Set credentials to check against for basic auth
 			// TODO: Middleware currently checks against username and password individually - for now set them here, but in future either make use of or remove credentials.full
