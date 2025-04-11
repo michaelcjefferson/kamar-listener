@@ -1,9 +1,12 @@
 package data
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Assessment struct {
@@ -72,6 +75,48 @@ func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error 
 	return nil
 }
 
-func (m *AssessmentModel) GetByNumber(num string) (*Assessment, error) {
-	return nil, nil
+// Return one assessment that matches the provided assessment number
+func (m *AssessmentModel) GetByAssNumber(num string) (*Assessment, error) {
+	var ass Assessment
+
+	if i, err := strconv.Atoi(num); i < 1 || err != nil {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+		SELECT credits, description, internalexternal, level, number, points, purpose, subfield, title, tnv, type, version, weighting
+		FROM assessments
+		WHERE number = ?
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, num).Scan(
+		&ass.Credits,
+		&ass.Description,
+		&ass.Internalexternal,
+		&ass.Level,
+		&ass.Number,
+		&ass.Points,
+		&ass.Purpose,
+		&ass.Subfield,
+		&ass.Title,
+		&ass.TNV,
+		&ass.Type,
+		&ass.Version,
+		&ass.Weighting,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &ass, nil
 }

@@ -34,6 +34,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
+// TODO: Remove *sql.DB from checkDB function and run everything from app.models - this requires creating a count() query for each model
 func TestRefreshHandler(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -45,7 +46,7 @@ func TestRefreshHandler(t *testing.T) {
 		expectedStatus int
 		expectedBody   map[string]any
 		expectedCount  int
-		checkDB        func(*testing.T, int, *sql.DB)
+		checkDB        func(*testing.T, int, *sql.DB, *application)
 	}{
 		// TODO: Update to get config data from actual DB? Or include tests.dbSetup func which inserts appropriate config?
 		// TODO: Use setupFunc and checkDB functions to build more varied tests
@@ -158,7 +159,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 5,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM results;").Scan(&actualCount)
@@ -223,7 +224,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 2365,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM assessments;").Scan(&actualCount)
@@ -233,6 +234,48 @@ func TestRefreshHandler(t *testing.T) {
 
 				if actualCount != expectedCount {
 					t.Errorf("unexpected number of assessments inserted into database: want %d got %d", expectedCount, actualCount)
+				}
+
+				ass, err := app.models.Assessments.GetByAssNumber("91402")
+				if err != nil {
+					t.Fatalf("error getting assessment from db: %v", err)
+				}
+
+				if ass.Type != "A" {
+					t.Errorf("unexpected value in db for assessment.type: want %v got %v", "A", ass.Type)
+				}
+				if ass.Number != "91402" {
+					t.Errorf("unexpected value in db for assessment.number: want %v got %v", "91402", ass.Number)
+				}
+				if ass.Version != 3 {
+					t.Errorf("unexpected value in db for assessment.version: want %v got %v", 3, ass.Version)
+				}
+				if ass.Level != 3 {
+					t.Errorf("unexpected value in db for assessment.level: want %v got %v", 3, ass.Level)
+				}
+				if ass.Credits != 5 {
+					t.Errorf("unexpected value in db for assessment.credits: want %v got %v", 5, ass.Credits)
+				}
+				if ass.Weighting != nil {
+					t.Errorf("unexpected value in db for assessment.weighting: want %v got %v", nil, ass.Weighting)
+				}
+				if ass.Points != nil {
+					t.Errorf("unexpected value in db for assessment.points: want %v got %v", nil, ass.Points)
+				}
+				if ass.Title != "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes" {
+					t.Errorf("unexpected value in db for assessment.title: want %v got %v", "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes", ass.Title)
+				}
+				if ass.Description != nil {
+					t.Errorf("unexpected value in db for assessment.description: want %v got %v", "", ass.Description)
+				}
+				if ass.Purpose != nil {
+					t.Errorf("unexpected value in db for assessment.purpose: want %v got %v", "", ass.Purpose)
+				}
+				if ass.Subfield != "Economic Theory and Practice" {
+					t.Errorf("unexpected value in db for assessment.subfield: want %v got %v", "Economic Theory and Practice", ass.Subfield)
+				}
+				if ass.Internalexternal != "I" {
+					t.Errorf("unexpected value in db for assessment.internalexternal: want %v got %v", "I", ass.Internalexternal)
 				}
 
 				// "type": "A",
@@ -265,7 +308,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 3982,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM attendance;").Scan(&actualCount)
@@ -294,7 +337,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 3262,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM pastoral;").Scan(&actualCount)
@@ -323,7 +366,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 1777,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM students;").Scan(&actualCount)
@@ -352,7 +395,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 1,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM students;").Scan(&actualCount)
@@ -381,7 +424,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 1,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualStaffCount, actualStudentCount, actualSubjectCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM staff;").Scan(&actualStaffCount)
@@ -428,7 +471,7 @@ func TestRefreshHandler(t *testing.T) {
 				},
 			},
 			expectedCount: 8,
-			checkDB: func(t *testing.T, expectedCount int, db *sql.DB) {
+			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 
 				err := db.QueryRow("SELECT COUNT(*) FROM timetables;").Scan(&actualCount)
@@ -535,7 +578,7 @@ func TestRefreshHandler(t *testing.T) {
 			// }
 
 			if tt.checkDB != nil {
-				tt.checkDB(t, tt.expectedCount, db)
+				tt.checkDB(t, tt.expectedCount, db, app)
 			}
 		})
 	}
