@@ -39,7 +39,7 @@ func (r *Result) CreateTNV() {
 	r.TNV = tnv
 }
 
-func (m ResultModel) InsertManyResults(results []Result) error {
+func (m *ResultModel) InsertManyResults(results []Result) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {
@@ -80,12 +80,4 @@ func (m ResultModel) InsertManyResults(results []Result) error {
 
 	// Database insert succeeded
 	return nil
-}
-
-// Utility function for the minimum of two integers
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

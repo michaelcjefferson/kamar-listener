@@ -49,7 +49,7 @@ func (app *application) serve() error {
 		// This will block until a signal is received
 		s := <-quit
 
-		app.logger.PrintInfo("shutting down server", map[string]interface{}{
+		app.logger.PrintInfo("shutting down server", map[string]any{
 			"signal": s.String(),
 		})
 
@@ -65,7 +65,7 @@ func (app *application) serve() error {
 			shutdownError <- err
 		}
 
-		app.logger.PrintInfo("completing background tasks", map[string]interface{}{
+		app.logger.PrintInfo("completing background tasks", map[string]any{
 			"addr": srv.Addr,
 		})
 
@@ -76,7 +76,7 @@ func (app *application) serve() error {
 
 	app.initiateTokenDeletionCycle()
 
-	app.logger.PrintInfo("starting server", map[string]interface{}{
+	app.logger.PrintInfo("starting server", map[string]any{
 		"addr":     srv.Addr,
 		"env":      app.config.env,
 		"https_on": app.config.https_on,
@@ -100,7 +100,7 @@ func (app *application) serve() error {
 	}
 
 	// Otherwise, Shutdown completed successfully - log that fact, and return nil.
-	app.logger.PrintInfo("stopped server", map[string]interface{}{
+	app.logger.PrintInfo("stopped server", map[string]any{
 		"addr": srv.Addr,
 	})
 

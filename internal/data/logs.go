@@ -225,7 +225,7 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 	return logs, metadata, logsMetadata, nil
 }
 
-func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]interface{}, filters Filters) {
+func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]any, filters Filters) {
 	if filters.LogFilters.Message != "" {
 		q.WriteString(" AND logs_fts MATCH ?")
 		*args = append(*args, filters.LogFilters.Message)

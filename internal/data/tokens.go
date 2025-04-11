@@ -56,7 +56,7 @@ type TokenModel struct {
 }
 
 // Whenever a token is created, the next step will be for it to be stored in the tokens table on the database. So, call m.Insert() as part of the token creation process.
-func (m TokenModel) New(userID int64, ttl time.Duration) (*Token, error) {
+func (m *TokenModel) New(userID int64, ttl time.Duration) (*Token, error) {
 	token, err := generateToken(userID, ttl)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (m TokenModel) New(userID int64, ttl time.Duration) (*Token, error) {
 	return token, err
 }
 
-func (m TokenModel) Insert(token *Token) error {
+func (m *TokenModel) Insert(token *Token) error {
 	query := `
 		INSERT INTO tokens (hash, user_id, expiry)
 		VALUES ($1, $2, $3);
@@ -82,7 +82,7 @@ func (m TokenModel) Insert(token *Token) error {
 	return err
 }
 
-func (m TokenModel) DeleteAllForUser(userID int64) (int64, error) {
+func (m *TokenModel) DeleteAllForUser(userID int64) (int64, error) {
 	query := `
 		DELETE FROM tokens
 		WHERE user_id = $1
@@ -96,7 +96,7 @@ func (m TokenModel) DeleteAllForUser(userID int64) (int64, error) {
 	return r, err
 }
 
-func (m TokenModel) DeleteExpiredTokens() (int64, error) {
+func (m *TokenModel) DeleteExpiredTokens() (int64, error) {
 	query := `
 		DELETE FROM tokens
 		WHERE expiry < strftime('%Y-%m-%dT%H:%M:%SZ', 'now')

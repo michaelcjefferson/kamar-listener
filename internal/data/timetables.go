@@ -14,7 +14,7 @@ type TimetableModel struct {
 	DB *sql.DB
 }
 
-func (m TimetableModel) InsertManyTimetables(timetables []Timetable) error {
+func (m *TimetableModel) InsertManyTimetables(timetables []Timetable) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {

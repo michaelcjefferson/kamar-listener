@@ -234,6 +234,19 @@ func TestRefreshHandler(t *testing.T) {
 				if actualCount != expectedCount {
 					t.Errorf("unexpected number of assessments inserted into database: want %d got %d", expectedCount, actualCount)
 				}
+
+				// "type": "A",
+				// "number": "91402",
+				// "version": 3,
+				// "level": 3,
+				// "credits": 5,
+				// "weighting": null,
+				// "points": null,
+				// "title": "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes",
+				// "description": null,
+				// "purpose": null,
+				// "subfield": "Economic Theory and Practice",
+				// "internalexternal": "I"
 			},
 		},
 		{

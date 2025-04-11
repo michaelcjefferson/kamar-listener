@@ -61,7 +61,7 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m UserModel) Insert(user *User) error {
+func (m *UserModel) Insert(user *User) error {
 	if user.Username == "" {
 		return ErrMissingUsername
 	}
@@ -93,7 +93,7 @@ func (m UserModel) Insert(user *User) error {
 	return nil
 }
 
-func (m UserModel) GetAll() ([]*User, error) {
+func (m *UserModel) GetAll() ([]*User, error) {
 	query := `
 		SELECT id, created_at, last_authenticated_at, username FROM users;
 	`
@@ -134,7 +134,7 @@ func (m UserModel) GetAll() ([]*User, error) {
 	return users, nil
 }
 
-func (m UserModel) GetByID(id int64) (*User, error) {
+func (m *UserModel) GetByID(id int64) (*User, error) {
 	query := `
 		SELECT id, created_at, username, password_hash
 		FROM users
@@ -165,7 +165,7 @@ func (m UserModel) GetByID(id int64) (*User, error) {
 	return &user, nil
 }
 
-func (m UserModel) GetByUsername(username string) (*User, error) {
+func (m *UserModel) GetByUsername(username string) (*User, error) {
 	query := `
 		SELECT id, created_at, username, password_hash
 		FROM users
@@ -196,7 +196,7 @@ func (m UserModel) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (m UserModel) GetForToken(tokenPlaintext string) (*User, string, error) {
+func (m *UserModel) GetForToken(tokenPlaintext string) (*User, string, error) {
 	// This returns an array ([32]byte, specified length) rather than a slice ([]byte, unspecified length)
 	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
 
@@ -238,7 +238,7 @@ func (m UserModel) GetForToken(tokenPlaintext string) (*User, string, error) {
 }
 
 // Get number of users registered in database
-func (m UserModel) GetUserCount() (int, error) {
+func (m *UserModel) GetUserCount() (int, error) {
 	query := `
 		SELECT COUNT(*) FROM users
 	`
@@ -253,7 +253,7 @@ func (m UserModel) GetUserCount() (int, error) {
 	return count, err
 }
 
-func (m UserModel) Update(user User) error {
+func (m *UserModel) Update(user User) error {
 	query := `
 		UPDATE users
 		SET username = $1, password_hash = $2

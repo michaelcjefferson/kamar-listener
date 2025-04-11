@@ -19,7 +19,7 @@ type AttendanceModel struct {
 	DB *sql.DB
 }
 
-func (m AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
+func (m *AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {

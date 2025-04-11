@@ -147,7 +147,7 @@ type StudentModel struct {
 }
 
 // TODO: Check if ID already exists, and update instead of insert in those cases - change query to ON CONFLICT? It shouldn't happen often
-func (m StudentModel) InsertManyStudents(students []Student) error {
+func (m *StudentModel) InsertManyStudents(students []Student) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {

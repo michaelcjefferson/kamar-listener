@@ -31,7 +31,7 @@ func (a *Assessment) CreateTNV() {
 	a.TNV = tnv
 }
 
-func (m AssessmentModel) InsertManyAssessments(assessments []Assessment) error {
+func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {
@@ -70,4 +70,8 @@ func (m AssessmentModel) InsertManyAssessments(assessments []Assessment) error {
 
 	// Database insert succeeded
 	return nil
+}
+
+func (m *AssessmentModel) GetByNumber(num string) (*Assessment, error) {
+	return nil, nil
 }

@@ -80,3 +80,11 @@ func ToInt(value any) (int, bool) {
 func placeholders(n int) string {
 	return strings.TrimSuffix(strings.Repeat("?,", n), ",")
 }
+
+// Utility function for the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

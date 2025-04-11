@@ -43,7 +43,7 @@ func NewLogsMetadata() LogsMetadata {
 }
 
 // If f.Sort matches something in the SortSafeList, return it after removing the hyphen prefix if it exists. Otherwise, throw a panic, because it means there's potential for SQL injection. It should not however be possible to trigger this panic in the first place, as the validator should already have returned a user error if the sort query doesn't match something in the safe list - this is just a fail-safe.
-func (f Filters) sortColumn() string {
+func (f *Filters) sortColumn() string {
 	for _, safeValue := range f.SortSafeList {
 		if f.Sort == safeValue {
 			return strings.TrimPrefix(f.Sort, "-")
@@ -53,7 +53,7 @@ func (f Filters) sortColumn() string {
 	panic("unsafe sort parameter: " + f.Sort)
 }
 
-func (f Filters) sortDirection() string {
+func (f *Filters) sortDirection() string {
 	if strings.HasPrefix(f.Sort, "-") {
 		return "DESC"
 	}
@@ -61,12 +61,12 @@ func (f Filters) sortDirection() string {
 	return "ASC"
 }
 
-func (f Filters) limit() int {
+func (f *Filters) limit() int {
 	return f.PageSize
 }
 
 // OFFSET skips the number of rows provided in the OFFSET query, so to calculate the correct offset, use the formula below. The validation of page and page size prevent this integer from ever being too large.
-func (f Filters) offset() int {
+func (f *Filters) offset() int {
 	return (f.Page - 1) * f.PageSize
 }
 

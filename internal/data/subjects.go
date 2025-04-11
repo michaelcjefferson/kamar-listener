@@ -17,7 +17,7 @@ type SubjectModel struct {
 }
 
 // TODO: Possibly check if ID already exists, and update instead of insert in those cases - change query to ON CONFLICT? It shouldn't happen often
-func (m SubjectModel) InsertManySubjects(subjects []Subject) error {
+func (m *SubjectModel) InsertManySubjects(subjects []Subject) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {

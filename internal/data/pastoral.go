@@ -33,7 +33,7 @@ type PastoralModel struct {
 	DB *sql.DB
 }
 
-func (m PastoralModel) InsertManyPastoral(pastoral []Pastoral) error {
+func (m *PastoralModel) InsertManyPastoral(pastoral []Pastoral) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
 	if err != nil {
