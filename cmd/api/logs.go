@@ -24,7 +24,7 @@ func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
 		Page:         1,
 		PageSize:     10,
 		Sort:         "-time",
-		SortSafeList: []string{"level", "time", "userID", "-level", "-time", "-user_id"},
+		SortSafeList: []string{"level", "time", "user_id", "-level", "-time", "-user_id"},
 	}
 
 	filters.LogFilters.Level = c.QueryParams()["level"]

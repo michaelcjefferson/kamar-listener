@@ -15,7 +15,7 @@ type Log struct {
 	Level      string                 `json:"level"`
 	Time       string                 `json:"time"`
 	Message    string                 `json:"message"`
-	Properties map[string]interface{} `json:"properties,omitempty"`
+	Properties map[string]any `json:"properties,omitempty"`
 	Trace      string                 `json:"trace,omitempty"`
 	UserID     int                    `json:"user_id,omitempty"`
 }
@@ -129,6 +129,7 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 	return &log, nil
 }
 
+// Get all logs that match the provided filters, and return them along with metadata i.e. count of each type of log
 func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, error) {
 	// It's not possible to interpolate ORDER BY column or direction into an SQL query using $ values, so use Sprintf to create the query.
 	// Subquery SELECT COUNT(*) FROM logs_fts provides the total number of rows returned by the query, and appends it to each row in the location specified (in this case, it is the last column of each row, i.e. after trace)
@@ -147,7 +148,7 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 	// `, filters.sortColumn(), filters.sortDirection())
 
 	var queryBuilder strings.Builder
-	args := []interface{}{}
+	args := []any{}
 
 	queryBuilder.WriteString(`
 		SELECT logs.id, logs.level, logs.time, logs.message, logs.properties, logs.user_id,
@@ -225,6 +226,7 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 	return logs, metadata, logsMetadata, nil
 }
 
+// Dynamically build filters for log query, based on filters provided
 func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]any, filters Filters) {
 	if filters.LogFilters.Message != "" {
 		q.WriteString(" AND logs_fts MATCH ?")
@@ -278,6 +280,7 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]any, filters Filter
 //     log.Fatal(err)
 // }
 
+// Get information about how many logs there are total, and how many logs are connected to each level and user
 func GetLogsMetadata(m *LogModel) (*LogsMetadata, error) {
 	query := `
 		SELECT type, level, user_id, count FROM logs_metadata;

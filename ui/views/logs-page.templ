@@ -21,7 +21,7 @@ func constructParams(filters data.Filters) string {
 
   if len(filters.LogFilters.UserID) > 0 {
     for _, val := range filters.LogFilters.UserID {
-      vals = append(vals, fmt.Sprintf("userid=%v", val))
+      vals = append(vals, fmt.Sprintf("user_id=%v", val))
     }
   }
 

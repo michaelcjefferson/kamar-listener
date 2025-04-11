@@ -8,7 +8,6 @@ import (
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-// TODO: User ID filters currently don't carry across pages
 templ LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) {
   // Create sorted slices of filters in logsMetadata
   {{
