@@ -76,8 +76,8 @@ func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error 
 }
 
 // Return one assessment that matches the provided assessment number
-func (m *AssessmentModel) GetByAssNumber(num string) (*Assessment, error) {
-	var ass Assessment
+func (m *AssessmentModel) GetByAssessmntNumber(num string) (*Assessment, error) {
+	var assessment Assessment
 
 	if i, err := strconv.Atoi(num); i < 1 || err != nil {
 		return nil, ErrRecordNotFound
@@ -94,19 +94,19 @@ func (m *AssessmentModel) GetByAssNumber(num string) (*Assessment, error) {
 	defer cancel()
 
 	err := m.DB.QueryRowContext(ctx, query, num).Scan(
-		&ass.Credits,
-		&ass.Description,
-		&ass.Internalexternal,
-		&ass.Level,
-		&ass.Number,
-		&ass.Points,
-		&ass.Purpose,
-		&ass.Subfield,
-		&ass.Title,
-		&ass.TNV,
-		&ass.Type,
-		&ass.Version,
-		&ass.Weighting,
+		&assessment.Credits,
+		&assessment.Description,
+		&assessment.Internalexternal,
+		&assessment.Level,
+		&assessment.Number,
+		&assessment.Points,
+		&assessment.Purpose,
+		&assessment.Subfield,
+		&assessment.Title,
+		&assessment.TNV,
+		&assessment.Type,
+		&assessment.Version,
+		&assessment.Weighting,
 	)
 
 	if err != nil {
@@ -118,5 +118,5 @@ func (m *AssessmentModel) GetByAssNumber(num string) (*Assessment, error) {
 		}
 	}
 
-	return &ass, nil
+	return &assessment, nil
 }

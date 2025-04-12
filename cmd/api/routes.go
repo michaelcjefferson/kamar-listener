@@ -67,6 +67,7 @@ func (app *application) routes() http.Handler {
 
 	isAuthenticatedGroup.GET("/users/update/password", app.updateUserPasswordPageHandler)
 	isAuthenticatedGroup.POST("/users/update/password", app.updateUserPasswordHandler)
+	isAuthenticatedGroup.GET("/users/delete", app.deleteUserHandler)
 	isAuthenticatedGroup.GET("/users", app.getUsersPageHandler)
 
 	isAuthenticatedGroup.GET("/", app.dashboardPageHandler)

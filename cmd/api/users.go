@@ -260,6 +260,30 @@ func (app *application) updateUserPasswordHandler(c echo.Context) error {
 	return c.JSON(http.StatusAccepted, env)
 }
 
+func (app *application) deleteUserHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
+
+	err := app.models.Users.Delete(u.ID)
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error deleting user",
+			"user_id": u.ID,
+		})
+		if err == data.ErrUserAlreadyExists {
+			return app.notFoundResponse(c)
+		} else {
+			return app.serverErrorResponse(c, err)
+		}
+	}
+
+	app.logger.PrintInfo("user deleted", map[string]any{
+		"message": "user successfully deleted",
+		"user_id": u.ID,
+	})
+
+	return app.redirectResponse(c, "/sign-in", http.StatusOK, "user successfully deleted")
+}
+
 func (app *application) getUsersPageHandler(c echo.Context) error {
 	u := app.contextGetUser(c)
 

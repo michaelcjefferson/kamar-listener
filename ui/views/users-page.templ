@@ -28,7 +28,7 @@ templ UsersPage(users []*data.User, u *data.User) {
               <td>{ user.Username }</td>
               <td><a href="/users/update/password">Change Password</a></td>
               <td>{ user.LastAuthenticatedAt }</td>
-              <td>X</td>
+              <td><button id="delete-user-button">X</button></td>
             </tr>
           } else {
             <tr>
@@ -49,8 +49,41 @@ templ UsersPage(users []*data.User, u *data.User) {
       </a>
     </div>
 
-    // for _, user := range users {
-    //   @components.UserCard(user)
-    // }
+    <div id="confirm-delete-modal" class="modal hidden">
+      <div class="modal-content">
+        <p>Are you sure you want to delete your account?</p>
+        <p>Another admin will need to create a new account for you if you want to use this service again.</p>
+        <p>If this is the last existing admin account, you will need to set up the whole service again from scratch to access it.</p>
+        <button id="confirm-delete">Yes</button>
+        <button id="confirm-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById("confirm-delete-modal");
+
+      document.getElementById("delete-user-button").addEventListener("click", () => {
+        modal.classList.remove("hidden");
+      });
+
+      document.getElementById("confirm-cancel").addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      document.getElementById("confirm-delete").addEventListener("click", async () => {
+        try {
+          const res = await fetch("/users/delete", { method: "GET" });
+          if (res.ok) {
+            window.location.href = "/sign-in";
+          } else {
+            // TODO: Switch this for an error message following the same flow as other HTML pages that make requests
+            alert("Something went wrong.")
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Network error");
+        }
+      });
+    </script>
   }
 }

@@ -261,7 +261,7 @@ func (m *UserModel) Update(user User) error {
 		RETURNING username
 	`
 
-	args := []interface{}{
+	args := []any{
 		user.Username,
 		user.Password.hash,
 		user.ID,
@@ -275,6 +275,27 @@ func (m *UserModel) Update(user User) error {
 		switch {
 		case err.Error() == `Error while executing SQL query on database 'sms': UNIQUE constraint failed: users.username`:
 			return ErrUserAlreadyExists
+		default:
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UserModel) Delete(userID int64) error {
+	query := `
+		DELETE FROM users WHERE id = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(ctx, query, userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrRecordNotFound
 		default:
 			return err
 		}

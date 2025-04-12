@@ -236,11 +236,12 @@ func TestRefreshHandler(t *testing.T) {
 					t.Errorf("unexpected number of assessments inserted into database: want %d got %d", expectedCount, actualCount)
 				}
 
-				ass, err := app.models.Assessments.GetByAssNumber("91402")
+				ass, err := app.models.Assessments.GetByAssessmntNumber("91402")
 				if err != nil {
 					t.Fatalf("error getting assessment from db: %v", err)
 				}
 
+				// TODO: Move to test table - optional data verification check, with two test table parameters - key (eg. assmnt number for select query) and expected returned struct values
 				if ass.Type != "A" {
 					t.Errorf("unexpected value in db for assessment.type: want %v got %v", "A", ass.Type)
 				}

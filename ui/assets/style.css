@@ -181,7 +181,7 @@ nav a.active {
   opacity: 1;
 }
 
-/* Style for checkboxes */
+/* CHECKBOXES */
 .checkbox-wrapper {
   position: relative;
   display: flex;
@@ -225,7 +225,7 @@ nav a.active {
   transform: rotate(45deg);
 }
 
-/* Status indicator styling */
+/* STATUS INDICATORS */
 .status-indicator {
   display: inline-block;
   width: 12px;
@@ -259,4 +259,25 @@ nav a.active {
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #447;
+  padding: 1rem;
+  border-radius: 5px;
+}
+.hidden { 
+  display: none;
 }
