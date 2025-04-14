@@ -4,7 +4,7 @@ import "github.com/mjefferson-whs/listener/ui/components"
 
 templ RegisterPage() {
   @Base() {
-    <h2>Register an Admin User</h2>
+    <h2 class="header">Register an Admin User</h2>
     <p>Only registered users are able to access the dashboard.</p>
     <p>If at least one admin has already been created, they will need to be logged in in order to register new admin users via this page.</p>
     @components.AuthForm(true)

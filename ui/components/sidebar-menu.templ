@@ -1,0 +1,147 @@
+package components
+
+type MenuItem struct {
+  ID string
+  Label string
+  Content templ.Component
+  Active bool
+  IconName string // Optional - path to icon asset
+}
+
+templ SidebarMenu(menuItems []MenuItem) {
+  <div class="sidebar-content-wrapper">
+		<div class="sidebar">
+			<nav class="sidebar-menu">
+				<ul>
+					for _, item := range menuItems {
+						<li class={ templ.KV("active", item.Active) }>
+							<a href="#" onclick={ templ.JSFuncCall("toggleContent", item.ID) } id={ item.ID + "-link" }>
+								if item.IconName != "" {
+									<span class={ "icon icon-" + item.IconName }></span>
+								}
+								<span>{ item.Label }</span>
+							</a>
+						</li>
+					}
+				</ul>
+			</nav>
+		</div>
+		<div class="content-container">
+			<div class="content-header">
+				<h2 id="content-title">
+					<!-- Title will be updated via JavaScript -->
+					for _, item := range menuItems {
+						if item.Active {
+							{ item.Label }
+						}
+					}
+				</h2>
+			</div>
+			<div class="content" id="content-area">
+				<!-- Content components will be rendered here -->
+				for _, panel := range menuItems {
+          <div id={ panel.ID } class={ "content-panel", templ.KV("hidden", !panel.Active) }>
+            @panel.Content
+          </div>
+        }
+			</div>
+			// <div class="content" id="content-area">
+			// 	<!-- Content components will be rendered here -->
+			// 	<div id="mkcert-setup" class="content-panel">
+			// 		@MkCertInstructions()
+			// 	</div>
+			// 	<!-- Additional content panels go here -->
+			// 	<div id="other-component" class="content-panel hidden">
+			// 		<!-- Placeholder for another component -->
+			// 		<p>Other component content would go here.</p>
+			// 	</div>
+			// </div>
+		</div>
+
+		<script>
+			function toggleContent(contentId) {
+				// Hide all content panels
+				const contentPanels = document.querySelectorAll('.content-panel');
+				contentPanels.forEach(panel => {
+					panel.classList.add('hidden');
+				});
+
+				// Show the selected content panel
+				const selectedPanel = document.getElementById(contentId);
+				if (selectedPanel) {
+					selectedPanel.classList.remove('hidden');
+				}
+
+				// Update menu active state
+				const menuItems = document.querySelectorAll('.sidebar-menu li');
+				menuItems.forEach(item => {
+					item.classList.remove('active');
+				});
+				document.getElementById(contentId + '-link').parentNode.classList.add('active');
+
+				// Update the content title
+				const menuItemLabel = document.getElementById(contentId + '-link').querySelector('span:last-child').textContent;
+				document.getElementById('content-title').textContent = menuItemLabel;
+
+				// In mobile view, toggle the sidebar if it's visible
+				if (window.innerWidth <= 768 && document.querySelector('.sidebar').classList.contains('mobile-visible')) {
+					toggleMobileSidebar();
+				}
+
+				// Return false to prevent default anchor behavior
+				return false;
+			}
+
+			function toggleMobileSidebar() {
+				const sidebar = document.querySelector('.sidebar');
+				sidebar.classList.toggle('mobile-visible');
+				
+				// Toggle overlay
+				let overlay = document.getElementById('sidebar-overlay');
+				if (!overlay) {
+					overlay = document.createElement('div');
+					overlay.id = 'sidebar-overlay';
+					overlay.onclick = toggleMobileSidebar;
+					document.querySelector('.sidebar-content-wrapper').appendChild(overlay);
+				}
+				
+				overlay.classList.toggle('visible');
+				
+				// Prevent body scrolling when sidebar is open
+				document.body.classList.toggle('sidebar-open');
+			}
+
+			// Initialize the first item as active if none is active
+			document.addEventListener('DOMContentLoaded', function() {
+				const activeItems = document.querySelectorAll('.sidebar-menu li.active');
+				if (activeItems.length === 0 && document.querySelector('.sidebar-menu li')) {
+					const firstItem = document.querySelector('.sidebar-menu li a');
+					if (firstItem) {
+						const contentId = firstItem.id.replace('-link', '');
+						toggleContent(contentId);
+					}
+				}
+				
+				// Add mobile menu toggle button
+				const sidebarMenu = document.querySelector('.sidebar-menu');
+				const menuToggle = document.createElement('button');
+				menuToggle.className = 'mobile-menu-toggle';
+				menuToggle.innerHTML = '<span></span><span></span><span></span>';
+				menuToggle.setAttribute('aria-label', 'Toggle sidebar navigation');
+				menuToggle.onclick = toggleMobileSidebar;
+				
+				// Insert the toggle button at the top of the content header
+				const contentHeader = document.querySelector('.content-header');
+				contentHeader.insertBefore(menuToggle, contentHeader.firstChild);
+			});
+		</script>
+	</div>
+}
+
+// Example of how to register content components with their IDs
+// This can be used to dynamically add new content panels
+templ RegisterContentComponent(id string, isActive bool) {
+	<div id={ id } class={ "content-panel", templ.KV("hidden", !isActive) }>
+		{ children... }
+	</div>
+}

@@ -50,7 +50,7 @@ func NavBar(u *data.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav><ul><li class=\"nav-item\"><a class=\"nav-link\" href=\"/\">Home</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/config\">Config</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/logs\">Logs</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/users\">Users</a></li></ul></nav><script>\n  document.addEventListener(\"DOMContentLoaded\", function() {\n    const currentPath = window.location.pathname;\n    document.querySelectorAll(\"nav a\").forEach(link => {\n      if (link.getAttribute(\"href\") === currentPath) {\n        link.classList.add(\"active\");\n      }\n    });\n  });\n</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav><ul><li class=\"nav-item\"><a class=\"nav-link\" href=\"/\">Home</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/config\">Config</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/logs\">Logs</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/users\">Users</a></li><li class=\"nav-item\"><a class=\"nav-link\" href=\"/help\">Help</a></li></ul></nav><script>\n  document.addEventListener(\"DOMContentLoaded\", function() {\n    const currentPath = window.location.pathname;\n    document.querySelectorAll(\"nav a\").forEach(link => {\n      if (link.getAttribute(\"href\") === currentPath) {\n        link.classList.add(\"active\");\n      }\n    });\n  });\n</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

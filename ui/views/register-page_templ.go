@@ -43,7 +43,7 @@ func RegisterPage() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Register an Admin User</h2><p>Only registered users are able to access the dashboard.</p><p>If at least one admin has already been created, they will need to be logged in in order to register new admin users via this page.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2 class=\"header\">Register an Admin User</h2><p>Only registered users are able to access the dashboard.</p><p>If at least one admin has already been created, they will need to be logged in in order to register new admin users via this page.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

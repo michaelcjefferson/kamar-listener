@@ -43,7 +43,7 @@ func SignInPage() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Sign In</h2><p>Only registered users are able to access the dashboard.</p><p>If at least one admin has already been created, they will need to register any new users from their account.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2 class=\"header\">Sign In</h2><p>Only registered users are able to access the dashboard.</p><p>If at least one admin has already been created, they will need to register any new users from their account.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

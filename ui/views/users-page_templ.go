@@ -47,7 +47,7 @@ func UsersPage(users []*data.User, u *data.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2>Users Page</h2><table class=\"users-table\"><thead><tr><th>ID</th><th>Username</th><th>Created At</th><th>Last Authenticated At</th><th>Remove</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2 class=\"header\">Users Page</h2><table class=\"users-table\"><thead><tr><th>ID</th><th>Username</th><th>Created At</th><th>Last Authenticated At</th><th>Remove</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

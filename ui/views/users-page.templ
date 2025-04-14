@@ -8,7 +8,7 @@ import (
 
 templ UsersPage(users []*data.User, u *data.User) {
   @Authenticated(u) {
-    <h2>Users Page</h2>
+    <h2 class="header">Users Page</h2>
 
     <table class="users-table">
       <thead>

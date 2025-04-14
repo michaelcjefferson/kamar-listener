@@ -4,7 +4,7 @@ import "github.com/mjefferson-whs/listener/ui/components"
 
 templ SignInPage() {
   @Base() {
-    <h2>Sign In</h2>
+    <h2 class="header">Sign In</h2>
     <p>Only registered users are able to access the dashboard.</p>
     <p>If at least one admin has already been created, they will need to register any new users from their account.</p>
     @components.AuthForm(false)

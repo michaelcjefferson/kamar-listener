@@ -38,7 +38,7 @@ func constructParams(filters data.Filters) string {
 
 templ LogsPage(logs []*data.Log, metadata data.Metadata, logsMetadata *data.LogsMetadata, filters data.Filters, u *data.User) {
   @Authenticated(u) {
-    <h2>Logs Page</h2>
+    <h2 class="header">Logs Page</h2>
 
     @components.LogMetadata(metadata)
 

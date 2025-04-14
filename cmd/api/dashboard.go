@@ -8,8 +8,14 @@ import (
 )
 
 func (app *application) dashboardPageHandler(c echo.Context) error {
-	// TODO: If KAMAR auth hasn't been set, render DashboardPage with parameter true
+	// TODO: If KAMAR auth hasn't been set, render DashboardPage with parameter false
 
 	u := app.contextGetUser(c)
 	return app.Render(c, http.StatusOK, views.DashboardPage(u, true))
+}
+
+func (app *application) getHelpPageHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
+
+	return app.Render(c, http.StatusOK, views.HelpPage(u))
 }
