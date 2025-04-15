@@ -304,8 +304,8 @@ nav a.active {
 /* Sidebar styles */
 .sidebar {
   width: 250px;
-  background-color: #2c3e50;
-  color: #ecf0f1;
+  background-color: #333;
+  color: #ddd;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #34495e;
@@ -322,6 +322,8 @@ nav a.active {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-menu li {
@@ -338,12 +340,12 @@ nav a.active {
 }
 
 .sidebar-menu li a:hover {
-  background-color: #34495e;
+  background-color: #444;
   color: #ecf0f1;
 }
 
 .sidebar-menu li.active a {
-  background-color: #3498db;
+  background-color: #646cff;
   color: white;
   font-weight: 500;
 }
@@ -371,13 +373,13 @@ nav a.active {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background-color: #222;
   min-width: 0; /* Prevents content from pushing the sidebar */
   overflow: hidden; /* Prevents double scrollbars */
 }
 
 .content-header {
-  background-color: white;
+  background-color: #333;
   border-bottom: 1px solid #e0e0e0;
   padding: 16px 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -389,7 +391,7 @@ nav a.active {
   margin: 0;
   font-size: 22px;
   font-weight: 500;
-  color: #333;
+  color: #ddd;
   flex: 1;
 }
 
@@ -400,7 +402,7 @@ nav a.active {
 }
 
 .content-panel {
-  background-color: white;
+  background-color: #333;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -511,67 +513,66 @@ body.sidebar-open {
   }
 }
 
-/* MKCERT INSTRUCTIONS */
-/* Mkcert Instructions Component Styles */
-.mkcert-instructions {
+/* HELP PAGE INSTRUCTIONS */
+.help-content {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  color: #333;
+  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; */
+  color: #ddd;
   line-height: 1.5;
 }
 
-.mkcert-instructions h1 {
+.help-content h1 {
   font-size: 28px;
   font-weight: bold;
   margin-bottom: 20px;
-  color: #222;
+  /* color: #222; */
 }
 
-.mkcert-instructions h2 {
+.help-content h2 {
   font-size: 22px;
   font-weight: 600;
   margin: 24px 0 16px;
-  color: #333;
+  /* color: #333; */
 }
 
-.mkcert-instructions h3 {
+.help-content h3 {
   font-size: 18px;
   font-weight: 600;
   margin: 20px 0 10px;
-  color: #444;
+  /* color: #444; */
 }
 
-.mkcert-instructions p {
+.help-content p {
   margin: 12px 0;
 }
 
-.mkcert-instructions a {
+/* .help-content a {
   color: #0366d6;
   text-decoration: none;
-}
+} */
 
-.mkcert-instructions a:hover {
+/* .help-content a:hover {
   text-decoration: underline;
-}
+} */
 
-.mkcert-instructions .intro {
+.help-content .intro {
   margin-bottom: 24px;
 }
 
 /* Tabs */
-.mkcert-instructions .tabs {
+.help-content .tabs {
   margin: 24px 0;
 }
 
-.mkcert-instructions .tab-buttons {
+.help-content .tab-buttons {
   display: flex;
   border-bottom: 1px solid #ddd;
   margin-bottom: 20px;
 }
 
-.mkcert-instructions .tab-button {
+.help-content .tab-button {
   padding: 10px 16px;
   background: none;
   border: none;
@@ -579,24 +580,24 @@ body.sidebar-open {
   font-size: 16px;
   cursor: pointer;
   margin-right: 12px;
-  color: #555;
+  color: #777;
 }
 
-.mkcert-instructions .tab-button:hover {
-  color: #0366d6;
+.help-content .tab-button:hover {
+  color: #646cff;
 }
 
-.mkcert-instructions .tab-button.active {
-  border-bottom: 2px solid #0366d6;
-  color: #0366d6;
+.help-content .tab-button.active {
+  border-bottom: 2px solid #646cff;
+  color: #646cff;
   font-weight: 500;
 }
 
-.mkcert-instructions .tab-content {
+.help-content .tab-content {
   display: none;
 }
 
-.mkcert-instructions .tab-content.active {
+.help-content .tab-content.active {
   display: block;
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -607,22 +608,22 @@ body.sidebar-open {
 }
 
 /* Steps */
-.mkcert-instructions .steps {
+.help-content .steps {
   margin-top: 20px;
 }
 
-.mkcert-instructions .step {
+.help-content .step {
   margin-bottom: 28px;
   padding-bottom: 20px;
   border-bottom: 1px solid #eee;
 }
 
-.mkcert-instructions .step:last-child {
+.help-content .step:last-child {
   border-bottom: none;
 }
 
 /* Code blocks */
-.mkcert-instructions .code-block {
+.help-content .code-block {
   background-color: #f6f8fa;
   border-radius: 6px;
   padding: 16px;
@@ -630,23 +631,24 @@ body.sidebar-open {
   overflow-x: auto;
 }
 
-.mkcert-instructions code {
+.help-content code {
   font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 14px;
+  color: #333;
 }
 
-.mkcert-instructions p code {
+.help-content p code {
   background-color: #f6f8fa;
   padding: 2px 5px;
   border-radius: 3px;
 }
 
 /* Images */
-.mkcert-instructions .image-container {
+.help-content .image-container {
   margin: 16px 0;
 }
 
-.mkcert-instructions .image-container img {
+.help-content .image-container img {
   max-width: 100%;
   height: auto;
   border: 1px solid #ddd;
@@ -655,41 +657,42 @@ body.sidebar-open {
 }
 
 /* Notes */
-.mkcert-instructions .note {
+.help-content .note {
   font-size: 14px;
   color: #666;
   margin-top: 8px;
 }
 
 /* Troubleshooting */
-.mkcert-instructions .troubleshooting {
+.help-content .troubleshooting {
   margin-top: 32px;
   padding: 16px;
   background-color: #f8f9fa;
+  color: #333;
   border-radius: 6px;
 }
 
-.mkcert-instructions .troubleshooting h3 {
+.help-content .troubleshooting h3 {
   margin-top: 0;
   margin-bottom: 12px;
 }
 
-.mkcert-instructions .troubleshooting ul {
+.help-content .troubleshooting ul {
   list-style-type: disc;
   padding-left: 20px;
   margin: 0;
 }
 
-.mkcert-instructions .troubleshooting li {
+.help-content .troubleshooting li {
   margin-bottom: 8px;
 }
 
-.mkcert-instructions .troubleshooting li:last-child {
+.help-content .troubleshooting li:last-child {
   margin-bottom: 0;
 }
 
 /* Focus styles for accessibility */
-.mkcert-instructions button:focus {
+.help-content button:focus {
   outline: 2px solid rgba(3, 102, 214, 0.5);
   outline-offset: 2px;
 }

@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mjefferson-whs/listener/internal/checkrundir"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 
@@ -59,7 +60,7 @@ func main() {
 	var cfg config
 
 	flag.IntVar(&cfg.port, "port", 8085, "API server port.")
-	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production).")
+	flag.StringVar(&cfg.env, "env", "production", "Environment (development|staging|production).")
 
 	flag.StringVar(&cfg.app_db_path, "app-db-path", "./db/app.db", "Path to SQLite .db file holding user data, config, logs etc.")
 	flag.StringVar(&cfg.kamar_data_db_path, "kamar-data-db-path", "./db/listener.db", "Path to SQLite .db file holding data from KAMAR directory service.")
@@ -76,6 +77,10 @@ func main() {
 	flag.BoolVar(&cfg.dblogs_on, "dblogs_on", true, "Turn writing logs to database on or off.")
 
 	flag.Parse()
+
+	if cfg.env == "production" {
+		checkrundir.EnforceRunLocation()
+	}
 
 	cfg.credentials.full = strings.Join([]string{cfg.credentials.username, cfg.credentials.password}, ":")
 

@@ -29,7 +29,7 @@ func SQLiteInstructions() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"sqlite-instructions\"><h3>Viewing your SQLite Databases</h3><div class=\"intro\"><p>This application will create two SQLite databases for you - one that holds your app configuration, logs, user authentication etc., and one that holds the data from KAMAR.<br>These databases exist as files on your computer, and can be viewed (and altered, though it is not recommended) in a few different ways.</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"help-content\" id=\"sqlite-instructions\"><h3>Viewing your SQLite Databases</h3><div class=\"intro\"><p>This application will create two SQLite databases for you - one that holds your app configuration, logs, user authentication etc., and one that holds the data from KAMAR.<br>These databases exist as files on your computer, and can be viewed (and altered, though it is not recommended) in a few different ways.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

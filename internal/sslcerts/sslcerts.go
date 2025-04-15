@@ -76,6 +76,8 @@ func GenerateSSLCert(logger *jsonlog.Logger) error {
 		}
 	}
 
+	os.UserHomeDir()
+
 	// Define the TLS directory
 	// TODO: Make this an absolute path if possible
 	tlsDir := "./tls"

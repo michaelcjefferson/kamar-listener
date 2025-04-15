@@ -71,7 +71,7 @@ install/frontend:
 .PHONY: run/api
 run/api: build/templates
 	@echo Running KAMAR Refresh API...
-	go run -tags "sqlite_fts5" ./cmd/api
+	go run -tags "sqlite_fts5" ./cmd/api -env "development"
 
 # ==================================================================================== #
 # QUALITY CONTROL

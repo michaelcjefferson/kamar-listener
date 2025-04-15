@@ -5,7 +5,7 @@ import "github.com/mjefferson-whs/listener/ui/components"
 
 templ HelpPage(u *data.User) {
   @Authenticated(u) {
-    <h2 class="header">Help</h2>
+    // <h2 class="header">Help</h2>
 
     @components.SidebarMenu([]components.MenuItem{
       {ID: "mkcert-instructions", Label: "SSL Certificate Setup", Content: components.MkCertInstructions(), Active: true, IconName: ""},

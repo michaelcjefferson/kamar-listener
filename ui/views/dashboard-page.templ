@@ -12,7 +12,5 @@ templ DashboardPage(u *data.User, kamarAuthSet bool) {
     if !kamarAuthSet {
       @components.KamarAuthForm()
     }
-
-    @components.MkCertInstructions()
   }
 }

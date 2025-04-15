@@ -1,12 +1,12 @@
 package components
 
 templ MkCertInstructions() {
-  <div class="mkcert-instructions">
+  <div class="help-content" id="mkcert-instructions">
 		<h3>Setting Up SSL Certificates with mkcert</h3>
 		
 		<div class="intro">
 			<p>
-				To enable secure HTTPS connections, you'll need to generate SSL certificates using mkcert.
+				KAMAR requires HTTPS to send data to this service. To enable secure HTTPS connections, you'll need to generate SSL certificates using mkcert.
 				Follow the instructions below for your operating system.
 			</p>
 		</div>
@@ -52,24 +52,42 @@ templ MkCertInstructions() {
 						<div class="code-block">
 							<code>mkcert -install</code>
 						</div>
-						<div class="image-container">
-							<img src="/api/placeholder/600/350" alt="Windows mkcert install prompt" />
-						</div>
+						// <div class="image-container">
+						// 	<img src="/api/placeholder/600/350" alt="Windows mkcert install prompt" />
+						// </div>
 					</div>
 
 					<div class="step">
-						<h3>Step 3: Generate certificates</h3>
+						<h3>Navigate to the Listener tls folder:</h3>
+						<p>In the same Command Prompt, run:</p>
+						<div class="code-block">
+							<code>cd </code>
+						</div>
+						<p>In the output, look for a line that says...</p>
+					</div>
+					
+          <div class="step">
+						<h3>Step 4: Get your computer's IP address</h3>
+						<p>Open Command Prompt and run:</p>
+						<div class="code-block">
+							<code>ipconfig</code>
+						</div>
+						<p>In the output, look for a line that says...</p>
+					</div>
+					
+          <div class="step">
+						<h3>Step 5: Generate certificates</h3>
 						<p>Navigate to your application directory and run:</p>
 						<div class="code-block">
-							<code>mkcert localhost 127.0.0.1 ::1</code>
+							<code>mkcert -key-file key.pem -cert-file cert.pem listener localhost 127.0.0.1 ::1 &lt;your-local-ip&gt;</code>
 						</div>
-						<p>This will create two files: <code>localhost+2.pem</code> and <code>localhost+2-key.pem</code></p>
+						<p>This will create two files: <code>cert.pem</code> and <code>key.pem</code></p>
 					</div>
 
-					<div class="step">
-						<h3>Step 4: Configure the application</h3>
-						<p>Place both certificate files in the same directory as your application or in the directory specified in your application's configuration.</p>
-					</div>
+					// <div class="step">
+					// 	<h3>Step 5: Configure the application</h3>
+					// 	<p>Place both certificate files in the same directory as your application or in the directory specified in your application's configuration.</p>
+					// </div>
 				</div>
 			</div>
 
