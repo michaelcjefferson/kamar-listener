@@ -43,7 +43,7 @@ func ConfigPage(config []data.ConfigEntry, u *data.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2 class=\"header\">Config Page</h2> <table class=\"config-table\"><thead><tr><th>Key</th><th>Value</th><th>Updated At</th><th></th></tr></thead> <tbody><input type=\"text\" name=\"fake-user\" style=\"display:none;\"> <input type=\"password\" name=\"fake-pass\" style=\"display:none;\"> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "  <table class=\"config-table\"><thead><tr><th>Key</th><th>Value</th><th>Updated At</th><th></th></tr></thead> <tbody><input type=\"text\" name=\"fake-user\" style=\"display:none;\"> <input type=\"password\" name=\"fake-pass\" style=\"display:none;\"> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

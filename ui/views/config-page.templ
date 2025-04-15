@@ -4,7 +4,7 @@ import "github.com/mjefferson-whs/listener/internal/data"
 
 templ ConfigPage(config []data.ConfigEntry, u *data.User) {
   @Authenticated(u) {
-    <h2 class="header">Config Page</h2>
+    // <h2 class="header">Config Page</h2>
 
     // TODO: If possible, split into two sections - one for checkboxes to turn on/off data types for the listener service, another for manual inputs such as username
     <table class="config-table">

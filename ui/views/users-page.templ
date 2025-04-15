@@ -8,7 +8,7 @@ import (
 
 templ UsersPage(users []*data.User, u *data.User) {
   @Authenticated(u) {
-    <h2 class="header">Users Page</h2>
+    // <h2 class="header">Users Page</h2>
 
     <table class="users-table">
       <thead>
@@ -17,18 +17,18 @@ templ UsersPage(users []*data.User, u *data.User) {
           <th>Username</th>
           <th>Created At</th>
           <th>Last Authenticated At</th>
-          <th>Remove</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         for _, user := range users {
           if user.ID == u.ID {
-            <tr class="highlight-border">
+            <tr>
               <td>{ fmt.Sprintf("%v", user.ID) }</td>
               <td>{ user.Username }</td>
               <td><a href="/users/update/password">Change Password</a></td>
               <td>{ user.LastAuthenticatedAt }</td>
-              <td><button id="delete-user-button">X</button></td>
+              <td><button id="delete-user-button" class="fatal-text">DELETE</button></td>
             </tr>
           } else {
             <tr>
@@ -36,7 +36,7 @@ templ UsersPage(users []*data.User, u *data.User) {
               <td>{ user.Username }</td>
               <td>{ user.CreatedAt }</td>
               <td>{ user.LastAuthenticatedAt }</td>
-              <td>X</td>
+              <td></td>
             </tr>
           }
         }
@@ -45,7 +45,7 @@ templ UsersPage(users []*data.User, u *data.User) {
 
     <div class="card">
       <a href="/register">
-        <button id="register-button">New User</button>
+        <button id="register-button" class="info-text">New User</button>
       </a>
     </div>
 

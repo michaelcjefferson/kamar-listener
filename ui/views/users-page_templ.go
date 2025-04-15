@@ -47,13 +47,13 @@ func UsersPage(users []*data.User, u *data.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h2 class=\"header\">Users Page</h2><table class=\"users-table\"><thead><tr><th>ID</th><th>Username</th><th>Created At</th><th>Last Authenticated At</th><th>Remove</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <table class=\"users-table\"><thead><tr><th>ID</th><th>Username</th><th>Created At</th><th>Last Authenticated At</th><th></th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, user := range users {
 				if user.ID == u.ID {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr class=\"highlight-border\"><td>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -92,7 +92,7 @@ func UsersPage(users []*data.User, u *data.User) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td><button id=\"delete-user-button\">X</button></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td><button id=\"delete-user-button\" class=\"fatal-text\">DELETE</button></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -149,13 +149,13 @@ func UsersPage(users []*data.User, u *data.User) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td>X</td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</tbody></table><div class=\"card\"><a href=\"/register\"><button id=\"register-button\">New User</button></a></div><div id=\"confirm-delete-modal\" class=\"modal hidden\"><div class=\"modal-content\"><p>Are you sure you want to delete your account?</p><p>Another admin will need to create a new account for you if you want to use this service again.</p><p>If this is the last existing admin account, you will need to set up the whole service again from scratch to access it.</p><button id=\"confirm-delete\">Yes</button> <button id=\"confirm-cancel\">Cancel</button></div></div><script>\n      const modal = document.getElementById(\"confirm-delete-modal\");\n\n      document.getElementById(\"delete-user-button\").addEventListener(\"click\", () => {\n        modal.classList.remove(\"hidden\");\n      });\n\n      document.getElementById(\"confirm-cancel\").addEventListener(\"click\", () => {\n        modal.classList.add(\"hidden\");\n      });\n\n      document.getElementById(\"confirm-delete\").addEventListener(\"click\", async () => {\n        try {\n          const res = await fetch(\"/users/delete\", { method: \"GET\" });\n          if (res.ok) {\n            window.location.href = \"/sign-in\";\n          } else {\n            // TODO: Switch this for an error message following the same flow as other HTML pages that make requests\n            alert(\"Something went wrong.\")\n          }\n        } catch (err) {\n          console.error(err);\n          alert(\"Network error\");\n        }\n      });\n    </script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</tbody></table><div class=\"card\"><a href=\"/register\"><button id=\"register-button\" class=\"info-text\">New User</button></a></div><div id=\"confirm-delete-modal\" class=\"modal hidden\"><div class=\"modal-content\"><p>Are you sure you want to delete your account?</p><p>Another admin will need to create a new account for you if you want to use this service again.</p><p>If this is the last existing admin account, you will need to set up the whole service again from scratch to access it.</p><button id=\"confirm-delete\">Yes</button> <button id=\"confirm-cancel\">Cancel</button></div></div><script>\n      const modal = document.getElementById(\"confirm-delete-modal\");\n\n      document.getElementById(\"delete-user-button\").addEventListener(\"click\", () => {\n        modal.classList.remove(\"hidden\");\n      });\n\n      document.getElementById(\"confirm-cancel\").addEventListener(\"click\", () => {\n        modal.classList.add(\"hidden\");\n      });\n\n      document.getElementById(\"confirm-delete\").addEventListener(\"click\", async () => {\n        try {\n          const res = await fetch(\"/users/delete\", { method: \"GET\" });\n          if (res.ok) {\n            window.location.href = \"/sign-in\";\n          } else {\n            // TODO: Switch this for an error message following the same flow as other HTML pages that make requests\n            alert(\"Something went wrong.\")\n          }\n        } catch (err) {\n          console.error(err);\n          alert(\"Network error\");\n        }\n      });\n    </script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

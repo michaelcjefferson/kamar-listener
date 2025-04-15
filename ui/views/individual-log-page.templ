@@ -5,7 +5,7 @@ import "github.com/mjefferson-whs/listener/internal/data"
 
 templ IndividualLogPage(log data.Log, ref string, u *data.User) {
   @Authenticated(u) {
-    <h2 class="header">Logs Page</h2>
+    // <h2 class="header">Logs Page</h2>
 
     if ref != "" {
       <a href={ templ.SafeURL(ref) }>BACK</a>
