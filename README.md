@@ -2,6 +2,15 @@
 This repository allows for a binary to be built that when executed, runs a server that listens for connections from KAMAR's directory services. It is able to receive datasets and save them to an SQLite database for consumption by PowerBI or another service.
 
 ## Day-to-day Operation
+1. Install mkcert by following the instructions below.
+2. Go to your Documents folder and create a new folder there called "listener" (ensure "listener" is all lowercase).
+3. Download the latest release of this application, and move it to the "listener" folder in your Documents.
+4. Run the .exe file - a terminal will open representing the running server. DO NOT CLOSE THIS - it will stop the listener service.
+5. Open a browser and navigate to https://localhost:8085 - this is the user interface for this application. You will be prompted to create an admin account, allowing you to view logs etc. from the listener service.
+6. If you want to end the listener service, go to the terminal that opened when you started the .exe, and either close it or press Ctrl+C to stop the process.
+7. To restart the service again, open the .exe.
+
+## Development
 ### Setting things up
 1. Build a new .exe file, by following the steps in **To build a new .exe binary**.
 2. Copy the kamarRefresh.exe across to C:\\KamarListener\ on whichever computer will be running the listener service. Please also download SQLite Studio and install:
