@@ -1,0 +1,15 @@
+package components
+
+import "time"
+
+templ LastUpdateTime(t time.Time) {
+  <div class="widget">
+    <p>
+      if t.IsZero() {
+        <strong>Last Update: None</strong>
+      } else {
+        <strong>Last Update: { time.Since(t).String() }</strong>
+      }
+    </p>
+  </div>
+}

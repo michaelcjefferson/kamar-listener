@@ -11,6 +11,7 @@ import (
 )
 
 // TODO: Modify to just check for the existence of both mkcert -CAROOT and key.pem/cert.pem in the correct directory. If this fails, prompt the user to install and run mkcert to generate certificates
+// TODO UPDATE: ensure the user is running the app from their Documents folder (or Applications for Mac, /usr/bin for Linux?), and if they are, generate SSL certs OR generate SSL certs and DBs in another standard location so that the app can be run from anywhere
 // installMkcert downloads and installs mkcert if not found
 func installMkcert(logger *jsonlog.Logger) error {
 	logger.PrintInfo("mkcert not found, installing...", nil)
@@ -75,8 +76,6 @@ func GenerateSSLCert(logger *jsonlog.Logger) error {
 			return fmt.Errorf("failed to run mkcert -install: %w", err)
 		}
 	}
-
-	os.UserHomeDir()
 
 	// Define the TLS directory
 	// TODO: Make this an absolute path if possible

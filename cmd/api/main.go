@@ -12,6 +12,7 @@ import (
 	"github.com/mjefferson-whs/listener/internal/checkrundir"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
+	"github.com/mjefferson-whs/listener/internal/sslcerts"
 
 	// _ "modernc.org/sqlite"
 	_ "github.com/mattn/go-sqlite3"
@@ -113,7 +114,6 @@ func main() {
 	}
 
 	defer appdb.Close()
-	app.userExists = userExists
 
 	models := data.NewModels(appdb, kamardb, app.background)
 	app.models = models
@@ -128,6 +128,13 @@ func main() {
 	}
 	app.logger = logger
 	app.logger.PrintInfo("database connection established", nil)
+
+	if cfg.env == "production" {
+		err = sslcerts.GenerateSSLCert(app.logger)
+		if err != nil {
+			app.logger.PrintFatal(err, nil)
+		}
+	}
 
 	err = app.serve()
 	if err != nil {
