@@ -6,5 +6,9 @@ templ WidgetContainer(w data.WidgetData) {
   <div id="widget-container">
     @LastUpdateTime(w.LastUpdated)
     @TotalRecords(w.TotalRecords)
+    @RecordsToday(w.RecordsToday)
+    @DBSize(w.DBSize)
+    @Logs(w.TotalLogs, w.RecentLogs)
+    @ErrorLogs(w.TotalErrors, w.RecentErrorLogs)
   </div>
 }

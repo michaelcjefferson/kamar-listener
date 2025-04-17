@@ -143,13 +143,21 @@ nav a.active {
 
 .widget {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 360px;
+  max-height: 320px;
   border: 1px solid #555;
   border-radius: 20px;
   padding: 1rem;
   margin: .5rem;
+}
+
+.scroll-window {
+  width: 100%;
+  overflow-y: auto;
+  max-height: 250px;
 }
 
 /* LOGS */

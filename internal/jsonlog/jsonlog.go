@@ -50,22 +50,22 @@ func New(out io.Writer, minLevel Level, logModel *data.LogModel) *Logger {
 	}
 }
 
-func (l *Logger) PrintInfo(message string, properties map[string]interface{}) {
+func (l *Logger) PrintInfo(message string, properties map[string]any) {
 	l.print(LevelInfo, message, properties)
 }
 
-func (l *Logger) PrintError(err error, properties map[string]interface{}) {
+func (l *Logger) PrintError(err error, properties map[string]any) {
 	l.print(LevelError, err.Error(), properties)
 }
 
-func (l *Logger) PrintFatal(err error, properties map[string]interface{}) {
+func (l *Logger) PrintFatal(err error, properties map[string]any) {
 	l.print(LevelFatal, err.Error(), properties)
 	// As it is a fatal error, terminate the application
 	os.Exit(1)
 }
 
 // As print is an internal function only (PrintInfo/Error/Fatal are the only ones that will be called from outside this package), it is not capitalised.
-func (l *Logger) print(level Level, message string, properties map[string]interface{}) (int, error) {
+func (l *Logger) print(level Level, message string, properties map[string]any) (int, error) {
 	if level < l.minLevel {
 		return 0, nil
 	}

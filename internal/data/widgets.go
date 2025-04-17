@@ -6,8 +6,14 @@ import (
 )
 
 type WidgetData struct {
-	LastUpdated  time.Time
-	TotalRecords int64
+	DBSize          float64
+	LastUpdated     time.Time
+	RecentErrorLogs []*Log
+	RecentLogs      []*Log
+	RecordsToday    int64
+	TotalErrors     int64
+	TotalLogs       int64
+	TotalRecords    int64
 }
 
 type WidgetModel struct {

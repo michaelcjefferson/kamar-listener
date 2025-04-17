@@ -1,0 +1,19 @@
+package widgets
+
+import (
+  "fmt"
+
+  "github.com/mjefferson-whs/listener/internal/data"
+  "github.com/mjefferson-whs/listener/ui/components"
+)
+
+templ ErrorLogs(totalCount int64, errorLogs []*data.Log) {
+  <div class="widget">
+    <p>
+      <strong>Total Errors:</strong> { fmt.Sprintf("%d", totalCount) }
+    </p>
+    <div class="scroll-window">
+      @components.LogList(errorLogs)
+    </div>
+  </div>
+}
