@@ -6,7 +6,8 @@ import (
 )
 
 type WidgetData struct {
-	LastUpdated time.Time
+	LastUpdated  time.Time
+	TotalRecords int64
 }
 
 type WidgetModel struct {

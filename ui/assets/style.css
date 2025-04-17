@@ -134,6 +134,24 @@ nav a.active {
   pointer-events: none;
 }
 
+/* WIDGETS */
+#widget-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.widget {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 360px;
+  border: 1px solid #555;
+  border-radius: 20px;
+  padding: 1rem;
+  margin: .5rem;
+}
+
 /* LOGS */
 .log-card {
   border: 1px solid rgb(62, 62, 230);

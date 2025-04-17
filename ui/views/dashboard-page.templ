@@ -2,17 +2,18 @@ package views
 
 import (
   "github.com/mjefferson-whs/listener/ui/components"
+  "github.com/mjefferson-whs/listener/ui/widgets"
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-templ DashboardPage(u *data.User, kamarAuthSet bool, w WidgetData) {
+templ DashboardPage(u *data.User, kamarAuthSet bool, w data.WidgetData) {
   @Authenticated(u) {
     @components.Hero("center")
 
     if !kamarAuthSet {
       @components.KamarAuthForm()
     } else {
-
+      @widgets.WidgetContainer(w)
     }
   }
 }

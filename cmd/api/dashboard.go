@@ -16,6 +16,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	w := data.WidgetData{}
 	w.LastUpdated = time.Now()
+	w.TotalRecords = 30247
 
 	return app.Render(c, http.StatusOK, views.DashboardPage(u, true, w))
 }

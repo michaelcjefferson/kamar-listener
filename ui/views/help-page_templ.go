@@ -50,6 +50,7 @@ func HelpPage(u *data.User) templ.Component {
 			}
 			templ_7745c5c3_Err = components.SidebarMenu([]components.MenuItem{
 				{ID: "mkcert-instructions", Label: "SSL Certificate Setup", Content: components.MkCertInstructions(), Active: true, IconName: ""},
+				{ID: "directory-service-instructions", Label: "KAMAR Directory Service", Content: components.DirectoryServiceInstructions(), Active: false, IconName: ""},
 				{ID: "sqlite-instructions", Label: "SQLite", Content: components.SQLiteInstructions(), Active: false, IconName: ""},
 				{ID: "powerbi-instructions", Label: "Linking to PowerBI", Content: components.PowerBIInstructions(), Active: false, IconName: ""},
 			}).Render(ctx, templ_7745c5c3_Buffer)

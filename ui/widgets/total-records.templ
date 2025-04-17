@@ -1,0 +1,11 @@
+package widgets
+
+import "fmt"
+
+templ TotalRecords(t int64) {
+  <div class="widget">
+    <p>
+      <strong>Total Records:</strong> { fmt.Sprintf("%d", t) }
+    </p>
+  </div>
+}

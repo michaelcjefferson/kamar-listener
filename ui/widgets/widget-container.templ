@@ -1,0 +1,10 @@
+package widgets
+
+import "github.com/mjefferson-whs/listener/internal/data"
+
+templ WidgetContainer(w data.WidgetData) {
+  <div id="widget-container">
+    @LastUpdateTime(w.LastUpdated)
+    @TotalRecords(w.TotalRecords)
+  </div>
+}

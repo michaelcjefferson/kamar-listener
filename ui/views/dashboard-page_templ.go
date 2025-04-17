@@ -11,9 +11,10 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/ui/components"
+	"github.com/mjefferson-whs/listener/ui/widgets"
 )
 
-func DashboardPage(u *data.User, kamarAuthSet bool) templ.Component {
+func DashboardPage(u *data.User, kamarAuthSet bool, w data.WidgetData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -56,6 +57,11 @@ func DashboardPage(u *data.User, kamarAuthSet bool) templ.Component {
 			}
 			if !kamarAuthSet {
 				templ_7745c5c3_Err = components.KamarAuthForm().Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = widgets.WidgetContainer(w).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

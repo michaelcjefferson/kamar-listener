@@ -1,4 +1,4 @@
-package components
+package widgets
 
 import "time"
 
@@ -6,9 +6,9 @@ templ LastUpdateTime(t time.Time) {
   <div class="widget">
     <p>
       if t.IsZero() {
-        <strong>Last Update: None</strong>
+        <strong>Last Update:</strong> None
       } else {
-        <strong>Last Update: { time.Since(t).String() }</strong>
+        <strong>Last Update:</strong> { time.Since(t).String() } ago.
       }
     </p>
   </div>
