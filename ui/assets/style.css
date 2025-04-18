@@ -111,6 +111,13 @@ li {
   color: red;
 }
 
+.truncate-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* NAV BAR */
 nav {
   flex-shrink: 0; /* Prevent nav from shrinking */

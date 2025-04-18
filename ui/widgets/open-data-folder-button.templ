@@ -1,5 +1,20 @@
 package widgets
 
 templ OpenDataFolderButton() {
-  
+  <button id="open-db-folder-button">Open Database Folder</button>
+
+  <script>
+    document.getElementById("open-db-folder-button").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/opendatafolder", {method: "GET"});
+        if (!res.ok) {
+          alert("Something went wrong.")
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Network error");
+      }
+    }
+  );
+  </script>
 }

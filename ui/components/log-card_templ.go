@@ -61,7 +61,7 @@ func LogCard(log *data.Log) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 = []any{strings.ToLower(log.Level) + "-text"}
+		var templ_7745c5c3_Var4 = []any{strings.ToLower(log.Level) + "-text truncate-text"}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var4...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -86,7 +86,7 @@ func LogCard(log *data.Log) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(log.Message)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-card.templ`, Line: 12, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/log-card.templ`, Line: 12, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {

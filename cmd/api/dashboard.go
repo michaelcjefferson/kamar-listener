@@ -1,8 +1,12 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -23,11 +27,13 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	aDBStat, err := os.Stat(app.config.app_db_path)
 	if err != nil {
-		return app.serverErrorResponse(c, err)
+		app.serverErrorResponse(c, err)
+		panic(err)
 	}
 	lDBStat, err := os.Stat(app.config.kamar_data_db_path)
 	if err != nil {
-		return app.serverErrorResponse(c, err)
+		app.serverErrorResponse(c, err)
+		panic(err)
 	}
 	appDBSize := float64(aDBStat.Size()) / 1024.0 / 1024.0
 	listenerDBSize := float64(lDBStat.Size()) / 1024.0 / 1024.0
@@ -68,8 +74,31 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 	return app.Render(c, http.StatusOK, views.DashboardPage(u, true, w))
 }
 
-func (app *application) getHelpPageHandler(c echo.Context) error {
-	u := app.contextGetUser(c)
+func (app *application) openDataFolderHandler(c echo.Context) error {
+	appDBpath := app.config.app_db_path
+	folderPath := filepath.Dir(appDBpath)
 
-	return app.Render(c, http.StatusOK, views.HelpPage(u))
+	// Check whether app DB exists - if not, return an error
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		return app.badRequestResponse(c, errors.New("Can't find database folder on your device - make sure that you are using the device that the application is running on."))
+	}
+
+	// Open DB folder in whichever file explorer the user's OS uses
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("explorer", folderPath)
+	case "darwin":
+		cmd = exec.Command("open", folderPath)
+	case "linux":
+		cmd = exec.Command("xdg-open", folderPath)
+	default:
+		return app.badRequestResponse(c, errors.New("Unsupported operating system"))
+	}
+
+	if err := cmd.Start(); err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	return c.NoContent(http.StatusOK)
 }
