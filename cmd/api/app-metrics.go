@@ -1,0 +1,156 @@
+package main
+
+import (
+	"sync"
+	"time"
+)
+
+// Mutex to prevent race conditions, in case two routines try to write to appMetrics at the same time
+type appMetrics struct {
+	lastCheckTime  time.Time
+	lastInsertTime time.Time
+	mu             sync.RWMutex
+	recordsToday   int
+	totalRecords   int
+}
+
+func (a *appMetrics) Snapshot() (time.Time, time.Time, int, int) {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+
+	return a.lastCheckTime, a.lastInsertTime, a.recordsToday, a.totalRecords
+}
+
+func (a *appMetrics) SetLastCheckTime() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.lastCheckTime = time.Now()
+}
+
+func (a *appMetrics) SetLastInsertTime() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.lastInsertTime = time.Now()
+}
+
+func (a *appMetrics) SetRecords(today, total int) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.recordsToday = today
+	a.totalRecords = total
+}
+
+func (a *appMetrics) IncreaseRecordCount(count int) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.recordsToday += count
+	a.totalRecords += count
+}
+
+func (app *application) UpdateRecordCountsFromDB() error {
+	today, total := 0, 0
+
+	tod, tot, err := app.models.Assessments.GetAssessmentCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting assessment count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Attendance.GetAttendanceCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting attendance count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Pastoral.GetPastoralCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting pastoral count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Results.GetResultsCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting results count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Staff.GetStaffCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting staff count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Students.GetStudentsCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting students count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Subjects.GetSubjectsCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting students count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = app.models.Timetables.GetTimetablesCount()
+	if err != nil {
+		app.logger.PrintError(err, map[string]any{
+			"message": "error getting students count",
+		})
+		return err
+	}
+	today += tod
+	total += tot
+
+	app.appMetrics.SetRecords(today, total)
+
+	return nil
+}
+
+func (app *application) initiateRecordCountUpdateCycle() {
+	app.background(func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				err := app.UpdateRecordCountsFromDB()
+				if err != nil {
+					app.logger.PrintError(err, nil)
+				}
+			case <-app.isShuttingDown:
+				app.logger.PrintInfo("record count update cycle ending - shut down signal received", nil)
+				return
+			}
+		}
+	})
+}

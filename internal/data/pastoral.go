@@ -72,3 +72,9 @@ func (m *PastoralModel) InsertManyPastoral(pastoral []Pastoral) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *PastoralModel) GetPastoralCount() (int, int, error) {
+	today, total, err := QueryForRecordCounts("pastoral", m.DB)
+
+	return today, total, err
+}

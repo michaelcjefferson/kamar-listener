@@ -94,3 +94,23 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *StaffModel) GetStaffCount() (int, int, error) {
+	today, total := 0, 0
+
+	tod, tot, err := QueryForRecordCounts("staff", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("staff_groups", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	return today, total, err
+}

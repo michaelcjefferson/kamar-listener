@@ -1,10 +1,14 @@
 package data
 
 import (
+	"context"
+	"database/sql"
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -56,6 +60,23 @@ func (p *Password) Hash() []byte {
 // func BatchInsert(statement string, ) error {
 
 // }
+
+func QueryForRecordCounts(tableName string, db *sql.DB) (int, int, error) {
+	var today, total int
+	query := fmt.Sprintf(`
+		SELECT
+		COUNT(*) AS total_count,
+		COUNT(CASE WHEN written_to_listener_db_at >= datetime('now', '-1 day') THEN 1 END) AS todays_count
+		FROM %s;
+	`, tableName)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := db.QueryRowContext(ctx, query).Scan(&today, &total)
+
+	return today, total, err
+}
 
 // Tries to read and convert an interface{} value (eg. the ones in log.Properties) to an int value - returns an int (or 0 on failure) and a bool (ok)
 func ToInt(value any) (int, bool) {

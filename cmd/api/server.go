@@ -75,6 +75,7 @@ func (app *application) serve() error {
 	}()
 
 	app.initiateTokenDeletionCycle()
+	app.initiateRecordCountUpdateCycle()
 
 	app.logger.PrintInfo("starting server", map[string]any{
 		"addr":     srv.Addr,

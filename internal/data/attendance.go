@@ -73,3 +73,23 @@ func (m *AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *AttendanceModel) GetAttendanceCount() (int, int, error) {
+	today, total := 0, 0
+
+	tod, tot, err := QueryForRecordCounts("attendance", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("attendance_values", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	return today, total, err
+}

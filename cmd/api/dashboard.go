@@ -20,10 +20,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	w := data.WidgetData{}
 
-	w.LastCheckTime = app.appMetrics.lastCheckTime
-	w.LastInsertTime = app.appMetrics.lastInsertTime
-	w.RecordsToday = 258
-	w.TotalRecords = 30247
+	w.LastCheckTime, w.LastInsertTime, w.RecordsToday, w.TotalRecords = app.appMetrics.Snapshot()
 
 	aDBStat, err := os.Stat(app.config.app_db_path)
 	if err != nil {
@@ -51,7 +48,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
-	w.TotalLogs = int64(logMeta.TotalRecords)
+	w.TotalLogs = logMeta.TotalRecords
 	w.RecentLogs = logs
 
 	errLogFilters := data.Filters{
@@ -68,7 +65,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
-	w.TotalErrors = int64(errLogMeta.TotalRecords)
+	w.TotalErrors = errLogMeta.TotalRecords
 	w.RecentErrorLogs = errLogs
 
 	return app.Render(c, http.StatusOK, views.DashboardPage(u, true, w))

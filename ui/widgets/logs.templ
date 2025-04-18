@@ -7,7 +7,7 @@ import (
   "github.com/mjefferson-whs/listener/ui/components"
 )
 
-templ Logs(totalCount int64, logs []*data.Log) {
+templ Logs(totalCount int, logs []*data.Log) {
   <div class="widget">
     <p>
       <strong>Total Logs:</strong> { fmt.Sprintf("%d", totalCount) }

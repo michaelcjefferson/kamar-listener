@@ -120,3 +120,9 @@ func (m *AssessmentModel) GetByAssessmntNumber(num string) (*Assessment, error) 
 
 	return &assessment, nil
 }
+
+func (m *AssessmentModel) GetAssessmentCount() (int, int, error) {
+	today, total, err := QueryForRecordCounts("assessments", m.DB)
+
+	return today, total, err
+}

@@ -53,3 +53,9 @@ func (m *TimetableModel) InsertManyTimetables(timetables []Timetable) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *TimetableModel) GetTimetablesCount() (int, int, error) {
+	today, total, err := QueryForRecordCounts("timetables", m.DB)
+
+	return today, total, err
+}

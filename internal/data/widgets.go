@@ -11,10 +11,10 @@ type WidgetData struct {
 	LastInsertTime  time.Time
 	RecentErrorLogs []*Log
 	RecentLogs      []*Log
-	RecordsToday    int64
-	TotalErrors     int64
-	TotalLogs       int64
-	TotalRecords    int64
+	RecordsToday    int
+	TotalErrors     int
+	TotalLogs       int
+	TotalRecords    int
 }
 
 type WidgetModel struct {

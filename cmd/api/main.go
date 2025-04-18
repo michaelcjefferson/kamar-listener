@@ -19,12 +19,13 @@ import (
 )
 
 type config struct {
-	port               int
-	env                string
-	dblogs_on          bool
-	app_db_path        string
-	kamar_data_db_path string
-	https_on           bool
+	port                 int
+	env                  string
+	dblogs_on            bool
+	app_db_path          string
+	kamar_data_db_path   string
+	kamar_db_table_names []string
+	https_on             bool
 	// rps (requests per second) must be float, burst must be int for limiter. enabled allows turning off the rate limiter for, for example load testing.
 	limiter struct {
 		rps     float64
@@ -44,11 +45,6 @@ type config struct {
 		expiry  time.Duration
 		refresh time.Duration
 	}
-}
-
-type appMetrics struct {
-	lastInsertTime time.Time
-	lastCheckTime  time.Time
 }
 
 type application struct {
@@ -134,6 +130,11 @@ func main() {
 	}
 	app.logger = logger
 	app.logger.PrintInfo("database connection established", nil)
+
+	err = app.UpdateRecordCountsFromDB()
+	if err != nil {
+		app.logger.PrintFatal(err, nil)
+	}
 
 	if cfg.env == "production" {
 		err = sslcerts.GenerateSSLCert(app.logger)

@@ -56,3 +56,9 @@ func (m *SubjectModel) InsertManySubjects(subjects []Subject) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *SubjectModel) GetSubjectsCount() (int, int, error) {
+	today, total, err := QueryForRecordCounts("subjects", m.DB)
+
+	return today, total, err
+}

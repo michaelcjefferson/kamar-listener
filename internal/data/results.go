@@ -81,3 +81,9 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *ResultModel) GetResultsCount() (int, int, error) {
+	today, total, err := QueryForRecordCounts("results", m.DB)
+
+	return today, total, err
+}

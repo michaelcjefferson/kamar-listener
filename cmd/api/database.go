@@ -258,6 +258,7 @@ func createSMSTables(db *sql.DB) error {
 		tnv 			TEXT,
 		type            TEXT,
 		version         INTEGER,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		year            INTEGER,
 		yearlevel       INTEGER
 	);`
@@ -297,7 +298,8 @@ func createSMSTables(db *sql.DB) error {
 		tnv TEXT,
 		type TEXT,
 		version INTEGER,
-		weighting TEXT
+		weighting TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(assessmentTableStmt)
@@ -305,7 +307,8 @@ func createSMSTables(db *sql.DB) error {
 	attendanceTableStmt := `CREATE TABLE IF NOT EXISTS attendance (
 		row_id INTEGER PRIMARY KEY AUTOINCREMENT,
 		student_id INTEGER NOT NULL,
-		nsn TEXT
+		nsn TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(attendanceTableStmt)
@@ -319,6 +322,7 @@ func createSMSTables(db *sql.DB) error {
 		hdu INTEGER,
 		hdj INTEGER,
 		hdp INTEGER,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (attendance_id) REFERENCES attendance(row_id) ON DELETE CASCADE
 	);`
 
@@ -348,7 +352,8 @@ func createSMSTables(db *sql.DB) error {
 		dateevent TEXT,
 		timeevent TEXT,
 		datedue TEXT,
-		duestatus TEXT
+		duestatus TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(pastoralTableStmt)
@@ -381,7 +386,8 @@ func createSMSTables(db *sql.DB) error {
 		moenumber TEXT,
 		photocopierid TEXT,
 		registrationnumber TEXT,
-		custom TEXT
+		custom TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);
 	
 	CREATE TABLE IF NOT EXISTS staff_groups (
@@ -389,6 +395,7 @@ func createSMSTables(db *sql.DB) error {
 		type TEXT,
 		subject TEXT,
 		coreoption TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (staff_uniqueid) REFERENCES staff(uniqueid) ON DELETE CASCADE
 	);`
 
@@ -455,7 +462,8 @@ func createSMSTables(db *sql.DB) error {
 		networkaccess TEXT,
 		altdescription TEXT,
 		althomedrive TEXT,
-		custom  TEXT
+		custom  TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);
 
 	CREATE TABLE IF NOT EXISTS student_awards (
@@ -464,6 +472,7 @@ func createSMSTables(db *sql.DB) error {
 		name TEXT,
 		year INTEGER,
 		date TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 	
@@ -476,6 +485,7 @@ func createSMSTables(db *sql.DB) error {
 		mobile TEXT,
 		relationship TEXT,
 		status TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 	
@@ -484,6 +494,7 @@ func createSMSTables(db *sql.DB) error {
 		details INTEGER,
 		photo INTEGER,
 		other INTEGER,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 	
@@ -492,6 +503,7 @@ func createSMSTables(db *sql.DB) error {
 		name TEXT,
 		relationship TEXT,
 		mobile TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 
@@ -511,6 +523,7 @@ func createSMSTables(db *sql.DB) error {
 		vaccinations TEXT,
 		eotcconsent TEXT,
 		eotcform TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 
@@ -519,6 +532,7 @@ func createSMSTables(db *sql.DB) error {
 		type TEXT,
 		subject TEXT,
 		coreoption TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);
 
@@ -533,6 +547,7 @@ func createSMSTables(db *sql.DB) error {
 		suburb TEXT,
 		town TEXT,
 		postcode TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 	);`
 
@@ -545,7 +560,8 @@ func createSMSTables(db *sql.DB) error {
 		department TEXT,
 		subdepartment TEXT,
 		qualification TEXT,
-		level INTEGER
+		level INTEGER,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(subjectTableStmt)
@@ -554,7 +570,8 @@ func createSMSTables(db *sql.DB) error {
 		student INTEGER,
 		uuid TEXT,
 		grid TEXT,
-		timetable TEXT
+		timetable TEXT,
+		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(timetablesTableStmt)

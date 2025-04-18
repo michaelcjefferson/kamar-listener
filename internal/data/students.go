@@ -287,3 +287,65 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	// Database insert succeeded
 	return nil
 }
+
+func (m *StudentModel) GetStudentsCount() (int, int, error) {
+	today, total := 0, 0
+
+	tod, tot, err := QueryForRecordCounts("students", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_awards", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_caregivers", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_datasharing", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_emergency", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_flags", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_groups", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	tod, tot, err = QueryForRecordCounts("student_residences", m.DB)
+	if err != nil {
+		return 0, 0, err
+	}
+	today += tod
+	total += tot
+
+	return today, total, err
+}

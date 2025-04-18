@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -96,6 +95,8 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		return app.kamarUnprocessableEntityResponse(c)
 	}
 
+	count := 0
+
 	// Check sync type, and respond accordingly
 	switch syncType {
 	// "check" requests are sent when service is first set up/reestablished, and once a day between 4am and 5am, to verify that the service is up and what fields it is listening for
@@ -105,19 +106,23 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		})
 		return app.kamarCheckResponse(c)
 	case "assessments":
+		count = kamarData.Data.Assessments.Count
 		app.logger.PrintInfo("listener: attempting to write assessments to database...", map[string]any{
-			"count": kamarData.Data.Assessments.Count,
+			"count": count,
 			"sync":  syncType,
 		})
 		err = app.models.Assessments.InsertManyAssessments(kamarData.Data.Assessments.Data)
 	case "attendance":
+		count = kamarData.Data.Attendance.Count
 		app.logger.PrintInfo("listener: attempting to write attendance to database...", map[string]any{
-			"count": kamarData.Data.Attendance.Count,
+			"count": count,
 			"sync":  syncType,
 		})
 		err = app.models.Attendance.InsertManyAttendance(kamarData.Data.Attendance.Data)
 	case "full", "part":
+		// TODO: Issue here where there may be multiple errors but only the last one will be returned/recorded
 		if kamarData.Data.Staff != nil {
+			count += kamarData.Data.Staff.Count
 			app.logger.PrintInfo("listener: attempting to write staff to database...", map[string]any{
 				"count": kamarData.Data.Staff.Count,
 				"sync":  syncType,
@@ -125,6 +130,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			err = app.models.Staff.InsertManyStaff(kamarData.Data.Staff.Data)
 		}
 		if kamarData.Data.Students != nil {
+			count += kamarData.Data.Students.Count
 			app.logger.PrintInfo("listener: attempting to write students to database...", map[string]any{
 				"count": kamarData.Data.Students.Count,
 				"sync":  syncType,
@@ -132,6 +138,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			err = app.models.Students.InsertManyStudents(kamarData.Data.Students.Data)
 		}
 		if kamarData.Data.Subjects != nil {
+			count += kamarData.Data.Subjects.Count
 			app.logger.PrintInfo("listener: attempting to write subjects to database...", map[string]any{
 				"count": kamarData.Data.Subjects.Count,
 				"sync":  syncType,
@@ -139,22 +146,25 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			err = app.models.Subjects.InsertManySubjects(kamarData.Data.Subjects.Data)
 		}
 	case "pastoral":
+		count = kamarData.Data.Pastoral.Count
 		app.logger.PrintInfo("listener: attempting to write pastoral records to database...", map[string]any{
-			"count": kamarData.Data.Pastoral.Count,
+			"count": count,
 			"sync":  syncType,
 		})
 		err = app.models.Pastoral.InsertManyPastoral(kamarData.Data.Pastoral.Data)
 	case "results":
+		count = kamarData.Data.Results.Count
 		app.logger.PrintInfo("listener: attempting to write results to database...", map[string]any{
-			"count": kamarData.Data.Results.Count,
+			"count": count,
 			// "data":  kamarData.Data.Results.Data,
 			"sync": syncType,
 			// "schools": kamarData.Data.Schools,
 		})
 		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
 	case "studenttimetables":
+		count = kamarData.Data.Timetables.Count
 		app.logger.PrintInfo("listener: attempting to write student timetables to database...", map[string]any{
-			"count": kamarData.Data.Timetables.Count,
+			"count": count,
 			// "data":  kamarData.Data.Results.Data,
 			"sync": syncType,
 			// "schools": kamarData.Data.Schools,
@@ -191,7 +201,9 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	}
 
 	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)
-	app.appMetrics.lastInsertTime = time.Now()
+	app.appMetrics.SetLastInsertTime()
+	app.appMetrics.IncreaseRecordCount(count)
+
 	return app.kamarSuccessResponse(c)
 
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?
