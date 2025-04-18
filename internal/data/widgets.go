@@ -7,7 +7,8 @@ import (
 
 type WidgetData struct {
 	DBSize          float64
-	LastUpdated     time.Time
+	LastCheckTime   time.Time
+	LastInsertTime  time.Time
 	RecentErrorLogs []*Log
 	RecentLogs      []*Log
 	RecordsToday    int64

@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -21,7 +20,8 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	w := data.WidgetData{}
 
-	w.LastUpdated = time.Now()
+	w.LastCheckTime = app.appMetrics.lastCheckTime
+	w.LastInsertTime = app.appMetrics.lastInsertTime
 	w.RecordsToday = 258
 	w.TotalRecords = 30247
 
@@ -74,6 +74,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 	return app.Render(c, http.StatusOK, views.DashboardPage(u, true, w))
 }
 
+// Open the directory that holds the application databases on the client's computer, if it exists
 func (app *application) openDataFolderHandler(c echo.Context) error {
 	appDBpath := app.config.app_db_path
 	folderPath := filepath.Dir(appDBpath)

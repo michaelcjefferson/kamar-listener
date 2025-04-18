@@ -1,0 +1,14 @@
+package widgets
+
+import "fmt"
+
+templ RecordCount(today, total int64) {
+  <div class="widget">
+    <p>
+      <strong>Records Received Today:</strong> { fmt.Sprintf("%d", today) }
+      <br>
+      <br>
+      <strong>Total Records:</strong> { fmt.Sprintf("%d", total) }
+    </p>
+  </div>
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -190,6 +191,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	}
 
 	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)
+	app.appMetrics.lastInsertTime = time.Now()
 	return app.kamarSuccessResponse(c)
 
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?

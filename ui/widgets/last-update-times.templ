@@ -1,0 +1,22 @@
+package widgets
+
+import "time"
+
+templ LastUpdateTimes(check, insert time.Time) {
+  <div class="widget">
+    <p>
+      if check.IsZero() {
+        <strong>Last Check:</strong> None
+      } else {
+        <strong>Last Check:</strong> { time.Since(check).String() } ago.
+      }
+      <br>
+      <br>
+      if insert.IsZero() {
+        <strong>Last Refresh:</strong> None
+      } else {
+        <strong>Last Refresh:</strong> { time.Since(check).String() } ago.
+      }
+    </p>
+  </div>
+}

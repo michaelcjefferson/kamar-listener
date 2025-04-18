@@ -4,12 +4,10 @@ import "github.com/mjefferson-whs/listener/internal/data"
 
 templ WidgetContainer(w data.WidgetData) {
   <div id="widget-container">
-    @LastUpdateTime(w.LastUpdated)
-    @TotalRecords(w.TotalRecords)
-    @RecordsToday(w.RecordsToday)
+    @LastUpdateTimes(w.LastCheckTime, w.LastInsertTime)
+    @RecordCount(w.RecordsToday, w.TotalRecords)
     @DBSize(w.DBSize)
     @Logs(w.TotalLogs, w.RecentLogs)
     @ErrorLogs(w.TotalErrors, w.RecentErrorLogs)
-    @OpenDataFolderButton()
   </div>
 }

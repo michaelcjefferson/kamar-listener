@@ -35,19 +35,19 @@ func WidgetContainer(w data.WidgetData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = LastUpdateTime(w.LastUpdated).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = LastUpdateTimes(w.LastCheckTime, w.LastInsertTime).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TotalRecords(w.TotalRecords).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = RecordsToday(w.RecordsToday).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = RecordCount(w.RecordsToday, w.TotalRecords).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = DBSize(w.DBSize).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = OpenDataFolderButton().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -56,10 +56,6 @@ func WidgetContainer(w data.WidgetData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = ErrorLogs(w.TotalErrors, w.RecentErrorLogs).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = OpenDataFolderButton().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

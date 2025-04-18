@@ -29,7 +29,7 @@ func OpenDataFolderButton() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<button id=\"open-db-folder-button\">Open Database Folder</button><script>\n    document.getElementById(\"open-db-folder-button\").addEventListener(\"click\", async () => {\n      try {\n        const res = await fetch(\"/opendatafolder\", {method: \"GET\"});\n        console.log(res);\n        if (!res.ok) {\n          alert(\"Something went wrong.\")\n        }\n      } catch (err) {\n        console.error(err);\n        alert(\"Network error\");\n      }\n    }\n  );\n  </script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<button id=\"open-db-folder-button\">Open Database Folder</button><script>\n    document.getElementById(\"open-db-folder-button\").addEventListener(\"click\", async () => {\n      try {\n        const res = await fetch(\"/opendatafolder\", {method: \"GET\"});\n        if (!res.ok) {\n          alert(\"Something went wrong.\")\n        }\n      } catch (err) {\n        console.error(err);\n        alert(\"Network error\");\n      }\n    }\n  );\n  </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

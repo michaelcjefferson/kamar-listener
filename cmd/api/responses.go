@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -88,7 +89,10 @@ func (app *application) kamarUnprocessableEntityResponse(c echo.Context) error {
 	return app.kamarResponse(c, http.StatusUnprocessableEntity, j)
 }
 
+// TODO: Get check options etc. from DB
 func (app *application) kamarCheckResponse(c echo.Context) error {
+	app.appMetrics.lastCheckTime = time.Now()
+
 	j := map[string]any{
 		"error":             0,
 		"result":            "OK",

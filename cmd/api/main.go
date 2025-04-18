@@ -46,7 +46,13 @@ type config struct {
 	}
 }
 
+type appMetrics struct {
+	lastInsertTime time.Time
+	lastCheckTime  time.Time
+}
+
 type application struct {
+	appMetrics   appMetrics
 	assetHandler http.Handler
 	config       config
 	// Allows processes, eg. token deletion cycle, to respond to this channel closing (and eg. perform tidy up operations)
