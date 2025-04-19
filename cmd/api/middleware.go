@@ -143,6 +143,10 @@ func (app *application) requireAuthenticatedUser(next echo.HandlerFunc) echo.Han
 	return func(c echo.Context) error {
 		user := app.contextGetUser(c)
 
+		if !app.userExists {
+			return app.redirectResponse(c, "/register", http.StatusOK, "Register at least one user to access application routes")
+		}
+
 		if user.IsAnonymous() {
 			return app.authenticationRequiredResponse(c)
 		}

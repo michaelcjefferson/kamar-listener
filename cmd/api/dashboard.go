@@ -81,11 +81,11 @@ func (app *application) openDataFolderHandler(c echo.Context) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("explorer", app.config.basePath)
+		cmd = exec.Command("explorer", app.config.dbPaths.dbDir)
 	case "darwin":
-		cmd = exec.Command("open", app.config.basePath)
+		cmd = exec.Command("open", app.config.dbPaths.dbDir)
 	case "linux":
-		cmd = exec.Command("xdg-open", app.config.basePath)
+		cmd = exec.Command("xdg-open", app.config.dbPaths.dbDir)
 	default:
 		return app.badRequestResponse(c, errors.New("Unsupported operating system"))
 	}

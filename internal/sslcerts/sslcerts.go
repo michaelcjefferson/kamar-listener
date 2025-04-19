@@ -46,6 +46,7 @@ func installMkcert(logger *jsonlog.Logger) error {
 }
 
 // isRootCAInstalled checks if the root CA is already installed
+// TODO: Not working
 func isRootCAInstalled() bool {
 	cmd := exec.Command("mkcert", "-CAROOT")
 	output, err := cmd.Output()
