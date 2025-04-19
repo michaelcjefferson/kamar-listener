@@ -3,15 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/mjefferson-whs/listener/internal/checkrundir"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
+	"github.com/mjefferson-whs/listener/internal/setfiledirs"
 	"github.com/mjefferson-whs/listener/internal/sslcerts"
 
 	// _ "modernc.org/sqlite"
@@ -22,10 +24,14 @@ type config struct {
 	port                 int
 	env                  string
 	dblogs_on            bool
-	app_db_path          string
-	kamar_data_db_path   string
 	kamar_db_table_names []string
 	https_on             bool
+	basePath             string
+	dbPaths              struct {
+		appDB      string
+		dbDir      string
+		listenerDB string
+	}
 	// rps (requests per second) must be float, burst must be int for limiter. enabled allows turning off the rate limiter for, for example load testing.
 	limiter struct {
 		rps     float64
@@ -37,9 +43,10 @@ type config struct {
 		password string
 		full     string
 	}
-	tls struct {
-		certPath string
-		keyPath  string
+	tlsPaths struct {
+		cert   string
+		key    string
+		tlsDir string
 	}
 	tokens struct {
 		expiry  time.Duration
@@ -65,8 +72,15 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 8085, "API server port.")
 	flag.StringVar(&cfg.env, "env", "production", "Environment (development|staging|production).")
 
-	flag.StringVar(&cfg.app_db_path, "app-db-path", "./db/app.db", "Path to SQLite .db file holding user data, config, logs etc.")
-	flag.StringVar(&cfg.kamar_data_db_path, "kamar-data-db-path", "./db/listener.db", "Path to SQLite .db file holding data from KAMAR directory service.")
+	flag.StringVar(&cfg.dbPaths.dbDir, "db-dir-path", "./db", "Path to directory holding sqlite db files")
+
+	flag.StringVar(&cfg.dbPaths.appDB, "app-db-path", "./db/app.db", "Path to SQLite .db file holding user data, config, logs etc.")
+	flag.StringVar(&cfg.dbPaths.listenerDB, "listener-db-path", "./db/listener.db", "Path to SQLite .db file holding data received from KAMAR directory service.")
+
+	flag.StringVar(&cfg.tlsPaths.tlsDir, "tls-dir-path", "./tls", "Path to directory holding tls files")
+
+	flag.StringVar(&cfg.tlsPaths.cert, "cert-path", "./tls/cert.pem", "Path to cert.pem TLS file.")
+	flag.StringVar(&cfg.tlsPaths.key, "key-path", "./tls/key.pem", "Path to key.pem TLS file.")
 
 	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 4, "Rate limiter maximum requests per second.")
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 8, "Rate limiter maximum burst.")
@@ -81,14 +95,28 @@ func main() {
 
 	flag.Parse()
 
-	if cfg.env == "production" {
-		checkrundir.EnforceRunLocation()
+	// TODO: Likely unnecessary, as TLS and DB paths are already set in writable static folders
+	// if cfg.env == "production" {
+	// 	checkrundir.EnforceRunLocation()
+	// }
+
+	dirs, err := setfiledirs.SetFileDirs("kamar-listener", []string{"db", "tls"})
+	if err != nil {
+		log.Fatalf("couldn't set up app data directories: %v", err)
 	}
 
-	cfg.credentials.full = strings.Join([]string{cfg.credentials.username, cfg.credentials.password}, ":")
+	// TODO: Move to helper function
+	cfg.basePath = dirs.ApplicationDir
 
-	cfg.tls.certPath = "./tls/cert.pem"
-	cfg.tls.keyPath = "./tls/key.pem"
+	cfg.dbPaths.dbDir = dirs.FileDirs["db"]
+	cfg.dbPaths.appDB = filepath.Join(cfg.dbPaths.dbDir, "app.db")
+	cfg.dbPaths.listenerDB = filepath.Join(cfg.dbPaths.dbDir, "listener.db")
+
+	cfg.tlsPaths.tlsDir = dirs.FileDirs["tls"]
+	cfg.tlsPaths.cert = filepath.Join(cfg.tlsPaths.tlsDir, "cert.pem")
+	cfg.tlsPaths.key = filepath.Join(cfg.tlsPaths.tlsDir, "key.pem")
+
+	cfg.credentials.full = strings.Join([]string{cfg.credentials.username, cfg.credentials.password}, ":")
 
 	cfg.tokens.expiry = 24 * time.Hour
 	cfg.tokens.refresh = 6 * time.Hour
@@ -100,24 +128,24 @@ func main() {
 
 	fmt.Println("attempting to set up SQLite db")
 
-	appdb, userExists, err := openAppDB(cfg.app_db_path)
+	appDB, userExists, err := openAppDB(cfg.dbPaths.appDB)
 	if err != nil {
 		fmt.Printf("error setting up app database: %v\n", err)
 		time.Sleep(20 * time.Second)
 	}
 
-	defer appdb.Close()
+	defer appDB.Close()
 	app.userExists = userExists
 
-	kamardb, err := openKamarDB(cfg.kamar_data_db_path)
+	listenerDB, err := openKamarDB(cfg.dbPaths.listenerDB)
 	if err != nil {
-		fmt.Printf("error setting up app database: %v\n", err)
+		fmt.Printf("error setting up listener database: %v\n", err)
 		time.Sleep(20 * time.Second)
 	}
 
-	defer appdb.Close()
+	defer listenerDB.Close()
 
-	models := data.NewModels(appdb, kamardb, app.background)
+	models := data.NewModels(appDB, listenerDB, app.background)
 	app.models = models
 
 	// Instantiate logger that will log anything at or above info level. To write from a different level, change this parameter.
@@ -136,11 +164,16 @@ func main() {
 		app.logger.PrintFatal(err, nil)
 	}
 
-	if cfg.env == "production" {
-		err = sslcerts.GenerateSSLCert(app.logger)
-		if err != nil {
-			app.logger.PrintFatal(err, nil)
-		}
+	// if cfg.env == "production" {
+	// 	err = sslcerts.GenerateSSLCert(app.logger)
+	// 	if err != nil {
+	// 		app.logger.PrintFatal(err, nil)
+	// 	}
+	// }
+
+	err = sslcerts.GenerateSSLCert(app.config.tlsPaths.tlsDir, app.logger)
+	if err != nil {
+		app.logger.PrintFatal(err, nil)
 	}
 
 	err = app.serve()

@@ -59,8 +59,8 @@ func isRootCAInstalled() bool {
 	return err == nil
 }
 
-// generateSSLCert runs mkcert to create a trusted certificate
-func GenerateSSLCert(logger *jsonlog.Logger) error {
+// generateSSLCert runs mkcert to create a trusted certificate pair in the provided TLS directory path
+func GenerateSSLCert(tlsDirPath string, logger *jsonlog.Logger) error {
 	// Check if mkcert is installed
 	if _, err := exec.LookPath("mkcert"); err != nil {
 		if err := installMkcert(logger); err != nil {
@@ -77,16 +77,14 @@ func GenerateSSLCert(logger *jsonlog.Logger) error {
 		}
 	}
 
-	// Define the TLS directory
-	// TODO: Make this an absolute path if possible
-	tlsDir := "./tls"
-	if err := os.MkdirAll(tlsDir, 0755); err != nil {
+	// Ensure the TLS directory exists
+	if err := os.MkdirAll(tlsDirPath, 0755); err != nil {
 		return fmt.Errorf("failed to create TLS directory: %w", err)
 	}
 
 	// Define certificate paths
-	certPath := filepath.Join(tlsDir, "cert.pem")
-	keyPath := filepath.Join(tlsDir, "key.pem")
+	certPath := filepath.Join(tlsDirPath, "cert.pem")
+	keyPath := filepath.Join(tlsDirPath, "key.pem")
 
 	// Check if cert already exists
 	if _, err := os.Stat(certPath); err == nil {

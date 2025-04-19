@@ -86,7 +86,7 @@ func (app *application) serve() error {
 	// Shutdown causes an ErrServerClosed to be thrown, which is the desired outcome - only return an error that is not of this type.
 	var err error
 	if app.config.https_on {
-		err = srv.ListenAndServeTLS(app.config.tls.certPath, app.config.tls.keyPath)
+		err = srv.ListenAndServeTLS(app.config.tlsPaths.cert, app.config.tlsPaths.key)
 	} else {
 		err = srv.ListenAndServe()
 	}

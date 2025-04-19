@@ -7,6 +7,7 @@ import (
 	"runtime"
 )
 
+// Ensure that binary is being run from the required directory - \User\Documents\listener on Windows, /user/Applications\listener on iOS, ~/.local/share/listener on Linux
 func EnforceRunLocation() {
 	// Get the directory the binary is currently running in
 	execPath, err := os.Executable()
@@ -24,11 +25,11 @@ func EnforceRunLocation() {
 	var requiredDir string
 	switch runtime.GOOS {
 	case "windows":
-		requiredDir = filepath.Join(userHome, "Documents", "listener")
+		requiredDir = filepath.Join(userHome, "Documents", "kamar-listener")
 	case "darwin":
-		requiredDir = filepath.Join(userHome, "Applications", "listener")
+		requiredDir = filepath.Join(userHome, "Applications", "kamar-listener")
 	case "linux":
-		requiredDir = filepath.Join(userHome, ".local", "share", "listener")
+		requiredDir = filepath.Join(userHome, ".local", "share", "kamar-listener")
 	default:
 		log.Fatalf("Unsupported OS: %s", runtime.GOOS)
 	}

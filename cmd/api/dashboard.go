@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 
 	"github.com/labstack/echo/v4"
@@ -22,12 +21,12 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	w.LastCheckTime, w.LastInsertTime, w.RecordsToday, w.TotalRecords = app.appMetrics.Snapshot()
 
-	aDBStat, err := os.Stat(app.config.app_db_path)
+	aDBStat, err := os.Stat(app.config.dbPaths.appDB)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		panic(err)
 	}
-	lDBStat, err := os.Stat(app.config.kamar_data_db_path)
+	lDBStat, err := os.Stat(app.config.dbPaths.listenerDB)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		panic(err)
@@ -73,11 +72,8 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 // Open the directory that holds the application databases on the client's computer, if it exists
 func (app *application) openDataFolderHandler(c echo.Context) error {
-	appDBpath := app.config.app_db_path
-	folderPath := filepath.Dir(appDBpath)
-
-	// Check whether app DB exists - if not, return an error
-	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+	// Check whether app database directory exists - if not, return an error
+	if _, err := os.Stat(app.config.dbPaths.dbDir); os.IsNotExist(err) {
 		return app.badRequestResponse(c, errors.New("Can't find database folder on your device - make sure that you are using the device that the application is running on."))
 	}
 
@@ -85,11 +81,11 @@ func (app *application) openDataFolderHandler(c echo.Context) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("explorer", folderPath)
+		cmd = exec.Command("explorer", app.config.basePath)
 	case "darwin":
-		cmd = exec.Command("open", folderPath)
+		cmd = exec.Command("open", app.config.basePath)
 	case "linux":
-		cmd = exec.Command("xdg-open", folderPath)
+		cmd = exec.Command("xdg-open", app.config.basePath)
 	default:
 		return app.badRequestResponse(c, errors.New("Unsupported operating system"))
 	}
