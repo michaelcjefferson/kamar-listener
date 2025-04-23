@@ -21,6 +21,7 @@ import (
 )
 
 type config struct {
+	ip                   string
 	port                 int
 	env                  string
 	dblogs_on            bool
@@ -164,6 +165,14 @@ func main() {
 		app.logger.PrintFatal(err, nil)
 	}
 
+	ip, err := GetLocalIP()
+	if err != nil {
+		app.logger.PrintError(err, nil)
+	}
+	// TODO: Add local IP field in config db. Check if previous local IP exists, and if it does and it's different to the one returned by GetLocalIP, generate new SSL certs
+
+	cfg.ip = ip
+
 	// if cfg.env == "production" {
 	// 	err = sslcerts.GenerateSSLCert(app.logger)
 	// 	if err != nil {
@@ -171,9 +180,10 @@ func main() {
 	// 	}
 	// }
 
-	err = sslcerts.GenerateSSLCert(app.config.tlsPaths.tlsDir, app.logger)
+	err = sslcerts.GenerateSSLCert(app.config.tlsPaths.tlsDir, ip, app.logger)
+	// If SSL certs couldn't be found or generated, serve over HTTP; otherwise, serve over HTTPS
 	if err != nil {
-		app.logger.PrintFatal(err, nil)
+		app.logger.PrintError(err, nil)
 	}
 
 	err = app.serve()

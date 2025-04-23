@@ -7,6 +7,7 @@ import (
 
 type WidgetData struct {
 	DBSize          float64
+	IP              string
 	LastCheckTime   time.Time
 	LastInsertTime  time.Time
 	RecentErrorLogs []*Log

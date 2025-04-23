@@ -26,7 +26,7 @@ func SetFileDirs(dirName string, fileDirNames []string) (*ApplicationDataDirPath
 	var requiredDir string
 	switch runtime.GOOS {
 	case "windows":
-		requiredDir = filepath.Join(userHome, "Documents", dirName)
+		requiredDir = filepath.Join(os.Getenv("LocalAppData"), "Programs", dirName)
 	case "darwin":
 		requiredDir = filepath.Join(userHome, "Applications", dirName)
 	case "linux":

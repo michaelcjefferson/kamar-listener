@@ -21,6 +21,8 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	w.LastCheckTime, w.LastInsertTime, w.RecordsToday, w.TotalRecords = app.appMetrics.Snapshot()
 
+	w.IP = app.config.ip
+
 	aDBStat, err := os.Stat(app.config.dbPaths.appDB)
 	if err != nil {
 		app.serverErrorResponse(c, err)

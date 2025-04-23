@@ -2,6 +2,8 @@ package sslcerts
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,34 +12,34 @@ import (
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 )
 
-// TODO: Modify to just check for the existence of both mkcert -CAROOT and key.pem/cert.pem in the correct directory. If this fails, prompt the user to install and run mkcert to generate certificates
-// TODO UPDATE: ensure the user is running the app from their Documents folder (or Applications for Mac, /usr/bin for Linux?), and if they are, generate SSL certs OR generate SSL certs and DBs in another standard location so that the app can be run from anywhere
 // installMkcert downloads and installs mkcert if not found
-func installMkcert(logger *jsonlog.Logger) error {
+func installMkcert(downloadURL, installPath string, logger *jsonlog.Logger) error {
 	logger.PrintInfo("mkcert not found, installing...", nil)
 
-	var downloadURL, installPath string
-	switch runtime.GOOS {
-	case "windows":
-		downloadURL = "https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-windows-amd64.exe"
-		installPath = "C:\\Program Files\\mkcert.exe"
-	case "linux":
-		downloadURL = "https://github.com/FiloSottile/mkcert/releases/latest/download/mkcert-linux-amd64"
-		installPath = "/usr/local/bin/mkcert"
-	default:
-		return fmt.Errorf("unsupported OS: %s", runtime.GOOS)
-	}
-
-	// Download mkcert
-	cmd := exec.Command("curl", "-Lo", installPath, downloadURL)
-	if err := cmd.Run(); err != nil {
+	resp, err := http.Get(downloadURL)
+	if err != nil {
 		return fmt.Errorf("failed to download mkcert: %w", err)
 	}
+	defer resp.Body.Close()
 
-	// Make it executable (Linux only)
-	if runtime.GOOS == "linux" {
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad response downloading mkcert: %s", resp.Status)
+	}
+
+	out, err := os.Create(installPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+
+	if _, err := io.Copy(out, resp.Body); err != nil {
+		return fmt.Errorf("failed to save mkcert: %w", err)
+	}
+
+	// Make executable on Linux/macOS
+	if runtime.GOOS != "windows" {
 		if err := os.Chmod(installPath, 0755); err != nil {
-			return fmt.Errorf("failed to set mkcert executable: %w", err)
+			return fmt.Errorf("failed to make mkcert executable: %w", err)
 		}
 	}
 
@@ -61,18 +63,36 @@ func isRootCAInstalled() bool {
 }
 
 // generateSSLCert runs mkcert to create a trusted certificate pair in the provided TLS directory path
-func GenerateSSLCert(tlsDirPath string, logger *jsonlog.Logger) error {
+func GenerateSSLCert(tlsDirPath, ip string, logger *jsonlog.Logger) error {
+	var downloadURL, mkcertPath string
+	// TODO: Add architecture checks
+	switch runtime.GOOS {
+	case "windows":
+		downloadURL = "https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-windows-amd64.exe"
+		mkcertPath = filepath.Join(os.Getenv("LocalAppData"), "Programs", "kamar-listener", "mkcert.exe")
+	case "linux":
+		downloadURL = "https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64"
+		mkcertPath = "/usr/local/bin/mkcert"
+	case "darwin":
+		downloadURL = "https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-darwin-arm64"
+		mkcertPath = "/usr/local/bin/mkcert"
+	default:
+		return fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+
 	// Check if mkcert is installed
 	if _, err := exec.LookPath("mkcert"); err != nil {
-		if err := installMkcert(logger); err != nil {
+		if err := installMkcert(downloadURL, mkcertPath, logger); err != nil {
 			return err
 		}
+	} else {
+		mkcertPath = "mkcert"
 	}
 
 	// Install mkcert root CA
 	if !isRootCAInstalled() {
 		logger.PrintInfo("Running mkcert -install...", nil)
-		cmd := exec.Command("mkcert", "-install")
+		cmd := exec.Command(mkcertPath, "-install")
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("failed to run mkcert -install: %w", err)
 		}
@@ -95,7 +115,7 @@ func GenerateSSLCert(tlsDirPath string, logger *jsonlog.Logger) error {
 
 	// Generate SSL certificate
 	logger.PrintInfo("Generating localhost SSL certificate...", nil)
-	cmd := exec.Command("mkcert", "-key-file", keyPath, "-cert-file", certPath, "localhost")
+	cmd := exec.Command(mkcertPath, "-key-file", keyPath, "-cert-file", certPath, "localhost", ip)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to generate certificate: %w", err)
 	}
