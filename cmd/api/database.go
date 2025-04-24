@@ -255,10 +255,10 @@ func createSMSTables(db *sql.DB) error {
 		resultData TEXT,
 		results TEXT,
 		subject         TEXT,
-		tnv 			TEXT,
+		tnv 			TEXT UNIQUE,
 		type            TEXT,
 		version         INTEGER,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 		year            INTEGER,
 		yearlevel       INTEGER
 	);`
@@ -293,27 +293,29 @@ func createSMSTables(db *sql.DB) error {
 		number TEXT,
 		points TEXT,
 		purpose TEXT,
+		schoolref TEXT,
 		subfield TEXT,
 		title TEXT,
 		tnv TEXT,
 		type TEXT,
 		version INTEGER,
 		weighting TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(assessmentTableStmt)
 
+	// TODO: Consider combining student_id and date into single identifier
 	attendanceTableStmt := `CREATE TABLE IF NOT EXISTS attendance (
 		row_id INTEGER PRIMARY KEY AUTOINCREMENT,
 		student_id INTEGER NOT NULL,
 		nsn TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(attendanceTableStmt)
 
-	// Secondary table for attendance values joined on attendance ID - necessary as values is an array
+	// Secondary table for attendance values joined on attendance table's row ID - necessary as values is an array
 	attendanceValuesTableStmt := `CREATE TABLE IF NOT EXISTS attendance_values (
 		attendance_id INTEGER NOT NULL,
 		date TEXT,
@@ -322,14 +324,15 @@ func createSMSTables(db *sql.DB) error {
 		hdu INTEGER,
 		hdj INTEGER,
 		hdp INTEGER,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (attendance_id) REFERENCES attendance(row_id) ON DELETE CASCADE
 	);`
 
 	_, err = db.Exec(attendanceValuesTableStmt)
 
+	// TODO: Consider combining student_id, dateevent, and timeevent into single identifier
 	pastoralTableStmt := `CREATE TABLE IF NOT EXISTS pastoral (
-		id			INTEGER,
+		student_id			INTEGER NOT NULL,
 		nsn TEXT,
 		type TEXT,
 		ref INTEGER,
@@ -353,7 +356,7 @@ func createSMSTables(db *sql.DB) error {
 		timeevent TEXT,
 		datedue TEXT,
 		duestatus TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(pastoralTableStmt)
@@ -362,7 +365,7 @@ func createSMSTables(db *sql.DB) error {
 	// TODO: Consider joining on id rather than uniqueid - though id is text rather than numerical (it's the teacher code, eg. MJE), each teacher is guaranteed to have one? Or perhaps students should be joined to other tables on uniqueid?
 	staffTableStmt := `CREATE TABLE IF NOT EXISTS staff (
 		id TEXT,
-		uuid TEXT,
+		uuid TEXT PRIMARY KEY,
 		role TEXT,
 		created INTEGER,
 		uniqueid INTEGER NOT NULL,
@@ -387,23 +390,24 @@ func createSMSTables(db *sql.DB) error {
 		photocopierid TEXT,
 		registrationnumber TEXT,
 		custom TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);
 	
 	CREATE TABLE IF NOT EXISTS staff_groups (
-		staff_uniqueid INTEGER NOT NULL,
+		staff_uuid TEXT NOT NULL,
+		staff_id TEXT NOT NULL,
 		type TEXT,
 		subject TEXT,
 		coreoption TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (staff_uniqueid) REFERENCES staff(uniqueid) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (staff_uuid) REFERENCES staff(uuid) ON DELETE CASCADE
 	);`
 
 	_, err = db.Exec(staffTableStmt)
 
 	studentTableStmt := `CREATE TABLE IF NOT EXISTS students (
 		id INTEGER NOT NULL,
-		uuid TEXT,
+		uuid TEXT PRIMARY KEY,
 		role TEXT,
 		created INTEGER,
 		uniqueid INTEGER,
@@ -463,20 +467,22 @@ func createSMSTables(db *sql.DB) error {
 		altdescription TEXT,
 		althomedrive TEXT,
 		custom  TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);
 
 	CREATE TABLE IF NOT EXISTS student_awards (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		type TEXT,
 		name TEXT,
 		year INTEGER,
 		date TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 	
 	CREATE TABLE IF NOT EXISTS student_caregivers (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		ref INTEGER,
 		role TEXT,
@@ -485,29 +491,32 @@ func createSMSTables(db *sql.DB) error {
 		mobile TEXT,
 		relationship TEXT,
 		status TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 	
 	CREATE TABLE IF NOT EXISTS student_datasharing (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		details INTEGER,
 		photo INTEGER,
 		other INTEGER,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 	
 	CREATE TABLE IF NOT EXISTS student_emergency (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		name TEXT,
 		relationship TEXT,
 		mobile TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS student_flags (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		general TEXT,
 		notes TEXT,
@@ -523,20 +532,22 @@ func createSMSTables(db *sql.DB) error {
 		vaccinations TEXT,
 		eotcconsent TEXT,
 		eotcform TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS student_groups (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		type TEXT,
 		subject TEXT,
 		coreoption TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS student_residences (
+		student_uuid TEXT NOT NULL,
 		student_id INTEGER NOT NULL,
 		title TEXT,
 		salutation TEXT,
@@ -547,31 +558,32 @@ func createSMSTables(db *sql.DB) error {
 		suburb TEXT,
 		town TEXT,
 		postcode TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);`
 
 	_, err = db.Exec(studentTableStmt)
 
 	subjectTableStmt := `CREATE TABLE IF NOT EXISTS subjects (
-		id TEXT NOT NULL,
+		id TEXT PRIMARY KEY,
 		created INTEGER,
 		name TEXT,
 		department TEXT,
 		subdepartment TEXT,
 		qualification TEXT,
 		level INTEGER,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(subjectTableStmt)
 
+	// TODO: Consider changing "uuid" to "student_uuid" for clarity
 	timetablesTableStmt := `CREATE TABLE IF NOT EXISTS timetables (
 		student INTEGER,
-		uuid TEXT,
+		uuid TEXT PRIMARY KEY,
 		grid TEXT,
 		timetable TEXT,
-		written_to_listener_db_at TEXT NOT NULL DEFAULT (datetime('now'))
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
 	_, err = db.Exec(timetablesTableStmt)

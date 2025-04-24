@@ -66,7 +66,7 @@ func QueryForRecordCounts(tableName string, db *sql.DB) (int, int, error) {
 	query := fmt.Sprintf(`
 		SELECT
 		COUNT(*) AS total_count,
-		COUNT(CASE WHEN written_to_listener_db_at >= datetime('now', '-1 day') THEN 1 END) AS todays_count
+		COUNT(CASE WHEN listener_updated_at >= datetime('now', '-1 day') THEN 1 END) AS todays_count
 		FROM %s;
 	`, tableName)
 

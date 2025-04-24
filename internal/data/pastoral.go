@@ -42,7 +42,7 @@ func (m *PastoralModel) InsertManyPastoral(pastoral []Pastoral) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO pastoral (id, nsn, type, ref, reason, reason_pb, motivation, motivation_pb, location, location_pb, others_involved, action1, action2, action3, action_pb1, action_pb2, action_pb3, teacher, points, demerits, dateevent, timeevent, datedue, duestatus) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`)
+	INSERT INTO pastoral (student_id, nsn, type, ref, reason, reason_pb, motivation, motivation_pb, location, location_pb, others_involved, action1, action2, action3, action_pb1, action_pb2, action_pb3, teacher, points, demerits, dateevent, timeevent, datedue, duestatus) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`)
 	if err != nil {
 		return err
 	}

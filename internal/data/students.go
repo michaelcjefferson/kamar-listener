@@ -163,7 +163,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentStmt.Close()
 
 	studentAwardStmt, err := tx.Prepare(`
-	INSERT INTO student_awards (student_id, type, name, year, date) VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO student_awards (student_uuid, student_id, type, name, year, date) VALUES ($1, $2, $3, $4, $5, $6)
 	`)
 	if err != nil {
 		return err
@@ -171,7 +171,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentAwardStmt.Close()
 
 	studentCareStmt, err := tx.Prepare(`
-	INSERT INTO student_caregivers (student_id, ref, role, name, email, mobile, relationship, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	INSERT INTO student_caregivers (student_uuid, student_id, ref, role, name, email, mobile, relationship, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	`)
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentCareStmt.Close()
 
 	studentDataStmt, err := tx.Prepare(`
-	INSERT INTO student_datasharing (student_id, details, photo, other) VALUES ($1, $2, $3, $4)
+	INSERT INTO student_datasharing (student_uuid, student_id, details, photo, other) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
 		return err
@@ -187,7 +187,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentDataStmt.Close()
 
 	studentEmgyStmt, err := tx.Prepare(`
-	INSERT INTO student_emergency (student_id, name, relationship, mobile) VALUES ($1, $2, $3, $4)
+	INSERT INTO student_emergency (student_uuid, student_id, name, relationship, mobile) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
 		return err
@@ -195,7 +195,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentEmgyStmt.Close()
 
 	studentFlagStmt, err := tx.Prepare(`
-	INSERT INTO student_flags (student_id, general, notes, alert, conditions, dietary, ibuprofen, medical, paracetamol, pastoral, reactions, specialneeds, vaccinations, eotcconsent, eotcform) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+	INSERT INTO student_flags (student_uuid, student_id, general, notes, alert, conditions, dietary, ibuprofen, medical, paracetamol, pastoral, reactions, specialneeds, vaccinations, eotcconsent, eotcform) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 	`)
 	if err != nil {
 		return err
@@ -203,7 +203,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentFlagStmt.Close()
 
 	studentGrpStmt, err := tx.Prepare(`
-	INSERT INTO student_groups (student_id, type, subject, coreoption) VALUES ($1, $2, $3, $4)
+	INSERT INTO student_groups (student_uuid, student_id, type, subject, coreoption) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
 		return err
@@ -211,7 +211,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentGrpStmt.Close()
 
 	studentResStmt, err := tx.Prepare(`
-	INSERT INTO student_residences (student_id, title, salutation, email, numFlatUnit, numStreet, ruralDelivery, suburb, town, postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	INSERT INTO student_residences (student_uuid, student_id, title, salutation, email, numFlatUnit, numStreet, ruralDelivery, suburb, town, postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	`)
 	if err != nil {
 		return err
@@ -232,45 +232,45 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 			}
 
 			for _, a := range s.Awards {
-				_, err = studentAwardStmt.Exec(s.ID, a.Type, a.Name, a.Year, a.Date)
+				_, err = studentAwardStmt.Exec(s.UUID, s.ID, a.Type, a.Name, a.Year, a.Date)
 				if err != nil {
 					return err
 				}
 			}
 
 			for _, c := range s.Caregivers {
-				_, err = studentCareStmt.Exec(s.ID, c.Ref, c.Role, c.Name, c.Email, c.Mobile, c.Relationship, c.Status)
+				_, err = studentCareStmt.Exec(s.UUID, s.ID, c.Ref, c.Role, c.Name, c.Email, c.Mobile, c.Relationship, c.Status)
 				if err != nil {
 					return err
 				}
 			}
 
-			_, err = studentDataStmt.Exec(s.ID, s.Datasharing.Details, s.Datasharing.Photo, s.Datasharing.Other)
+			_, err = studentDataStmt.Exec(s.UUID, s.ID, s.Datasharing.Details, s.Datasharing.Photo, s.Datasharing.Other)
 			if err != nil {
 				return err
 			}
 
 			for _, e := range s.Emergency {
-				_, err = studentEmgyStmt.Exec(s.ID, e.Name, e.Relationship, e.Mobile)
+				_, err = studentEmgyStmt.Exec(s.UUID, s.ID, e.Name, e.Relationship, e.Mobile)
 				if err != nil {
 					return err
 				}
 			}
 
-			_, err = studentFlagStmt.Exec(s.ID, s.Flags.General, s.Flags.Notes, s.Flags.Alert, s.Flags.Conditions, s.Flags.Dietary, s.Flags.Ibuprofen, s.Flags.Medical, s.Flags.Paracetamol, s.Flags.Pastoral, s.Flags.Reactions, s.Flags.SpecialNeeds, s.Flags.Vaccinations, s.Flags.EOTCConsent, s.Flags.EOTCForm)
+			_, err = studentFlagStmt.Exec(s.UUID, s.ID, s.Flags.General, s.Flags.Notes, s.Flags.Alert, s.Flags.Conditions, s.Flags.Dietary, s.Flags.Ibuprofen, s.Flags.Medical, s.Flags.Paracetamol, s.Flags.Pastoral, s.Flags.Reactions, s.Flags.SpecialNeeds, s.Flags.Vaccinations, s.Flags.EOTCConsent, s.Flags.EOTCForm)
 			if err != nil {
 				return err
 			}
 
 			for _, g := range s.Groups {
-				_, err = studentGrpStmt.Exec(s.ID, g.Type, g.Subject, g.Coreoption)
+				_, err = studentGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption)
 				if err != nil {
 					return err
 				}
 			}
 
 			for _, r := range s.Res {
-				_, err = studentResStmt.Exec(s.ID, r.Title, r.Salutation, r.Email, r.NumFlatUnit, r.NumStreet, r.RuralDelivery, r.Suburb, r.Town, r.Postcode)
+				_, err = studentResStmt.Exec(s.UUID, s.ID, r.Title, r.Salutation, r.Email, r.NumFlatUnit, r.NumStreet, r.RuralDelivery, r.Suburb, r.Town, r.Postcode)
 				if err != nil {
 					return err
 				}

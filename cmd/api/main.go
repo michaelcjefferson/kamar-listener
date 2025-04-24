@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/mjefferson-whs/listener/internal/data"
+	"github.com/mjefferson-whs/listener/internal/getip"
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 	"github.com/mjefferson-whs/listener/internal/setfiledirs"
 	"github.com/mjefferson-whs/listener/internal/sslcerts"
@@ -165,13 +166,16 @@ func main() {
 		app.logger.PrintFatal(err, nil)
 	}
 
-	ip, err := GetLocalIP()
+	ip, err := getip.GetLocalIP()
 	if err != nil {
 		app.logger.PrintError(err, nil)
 	}
 	// TODO: Add local IP field in config db. Check if previous local IP exists, and if it does and it's different to the one returned by GetLocalIP, generate new SSL certs
 
-	cfg.ip = ip
+	app.config.ip = ip
+	app.logger.PrintInfo("ip address set", map[string]any{
+		"ip_address": app.config.ip,
+	})
 
 	// if cfg.env == "production" {
 	// 	err = sslcerts.GenerateSSLCert(app.logger)

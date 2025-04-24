@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -236,7 +235,7 @@ func TestRefreshHandler(t *testing.T) {
 					t.Errorf("unexpected number of assessments inserted into database: want %d got %d", expectedCount, actualCount)
 				}
 
-				ass, err := app.models.Assessments.GetByAssessmntNumber("91402")
+				ass, err := app.models.Assessments.GetByAssessmentNumber("91402")
 				if err != nil {
 					t.Fatalf("error getting assessment from db: %v", err)
 				}
@@ -506,9 +505,9 @@ func TestRefreshHandler(t *testing.T) {
 			app.config.credentials.username = "username"
 			app.config.credentials.password = "password"
 			app.config.credentials.full = "username:password"
-			// logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
+			logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
 			// io.Discard means logs won't be written to terminal when tests are run - replace with the line above to see logs during testing
-			logger := jsonlog.New(io.Discard, jsonlog.LevelInfo, nil)
+			// logger := jsonlog.New(io.Discard, jsonlog.LevelInfo, nil)
 			app.logger = logger
 
 			jsonPath := filepath.Join("../../test", tt.jsonFile)

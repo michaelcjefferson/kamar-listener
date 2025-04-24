@@ -14,6 +14,7 @@ type appMetrics struct {
 	totalRecords   int
 }
 
+// With mutex active read and return the values for the listener service's last check time, last insert time, records inserted today, and total number of records
 func (a *appMetrics) Snapshot() (time.Time, time.Time, int, int) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -47,6 +48,7 @@ func (a *appMetrics) IncreaseRecordCount(count int) {
 	a.totalRecords += count
 }
 
+// Get the total number of KAMAR records that exist in the KAMAR database, as well as the total number that have been added/updated in the last 24 hours, and update the app metrics numbers to reflect these
 func (app *application) UpdateRecordCountsFromDB() error {
 	today, total := 0, 0
 
@@ -135,6 +137,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	return nil
 }
 
+// Once per hour, call UpdateRecordCountsFromDB, to ensure app metrics are close to accurate
 func (app *application) initiateRecordCountUpdateCycle() {
 	app.background(func() {
 		ticker := time.NewTicker(time.Hour)

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -47,32 +46,6 @@ func NormaliseJSONMapTypes(data map[string]any) (map[string]any, error) {
 	}
 
 	return newMap, nil
-}
-
-// Get the IP address of the host device - used in mkcert generation (so that the service is accessible by other devices on the same network) and on dashboard display (so that KAMAR can be correctly configured)
-func GetLocalIP() (string, error) {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		return "", err
-	}
-
-	for _, i := range interfaces {
-		addrs, err := i.Addrs()
-		if err != nil {
-			continue
-		}
-
-		for _, addr := range addrs {
-			if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-				ipv4 := ipNet.IP.To4()
-				if ipv4 != nil {
-					return ipv4.String(), nil
-				}
-			}
-		}
-	}
-
-	return "", fmt.Errorf("no non-loopback IP found")
 }
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
