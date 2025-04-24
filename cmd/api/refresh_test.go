@@ -307,7 +307,8 @@ func TestRefreshHandler(t *testing.T) {
 					"version": "1.0",
 				},
 			},
-			expectedCount: 3982,
+			// TODO: This only represents the total number of unique student IDs added from this attendance request, and doesn't match the "count" value from the request - "count" is 3982 (total number of attendance records), and attendance_values will have a total count much higher than this, as each record contains up to 5 values
+			expectedCount: 1471,
 			checkDB: func(t *testing.T, expectedCount int, db *sql.DB, app *application) {
 				var actualCount int
 

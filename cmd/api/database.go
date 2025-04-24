@@ -315,7 +315,7 @@ func createSMSTables(db *sql.DB) error {
 
 	// Secondary table for attendance values joined on attendance table's row ID - necessary as values is an array
 	attendanceValuesTableStmt := `CREATE TABLE IF NOT EXISTS attendance_values (
-		student_id INTEGER NOT NULL,
+		att_student_id INTEGER NOT NULL,
 		date TEXT,
 		codes TEXT,
 		alt TEXT,
@@ -323,8 +323,8 @@ func createSMSTables(db *sql.DB) error {
 		hdj INTEGER,
 		hdp INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_id) REFERENCES attendance(student_id) ON DELETE CASCADE,
-		UNIQUE (student_id, date)
+		FOREIGN KEY (att_student_id) REFERENCES attendance(student_id) ON DELETE CASCADE,
+		UNIQUE(att_student_id, date)
 	);`
 
 	_, err = db.Exec(attendanceValuesTableStmt)

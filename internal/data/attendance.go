@@ -36,9 +36,9 @@ func (m *AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
 	defer attStmt.Close()
 
 	attValStmt, err := tx.Prepare(`
-	INSERT INTO attendance_values (student_id, date, codes, alt, hdu, hdj, hdp)
+	INSERT INTO attendance_values (att_student_id, date, codes, alt, hdu, hdj, hdp)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)
-	ON CONFLICT(student_id, date) DO UPDATE SET
+	ON CONFLICT(att_student_id, date) DO UPDATE SET
 		codes = excluded.codes,
 		alt = excluded.alt,
 		hdu = excluded.hdu,
