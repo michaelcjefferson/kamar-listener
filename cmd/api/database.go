@@ -305,10 +305,8 @@ func createSMSTables(db *sql.DB) error {
 
 	_, err = db.Exec(assessmentTableStmt)
 
-	// TODO: Consider combining student_id and date into single identifier
 	attendanceTableStmt := `CREATE TABLE IF NOT EXISTS attendance (
-		row_id INTEGER PRIMARY KEY AUTOINCREMENT,
-		student_id INTEGER NOT NULL,
+		student_id INTEGER PRIMARY KEY,
 		nsn TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
@@ -317,7 +315,7 @@ func createSMSTables(db *sql.DB) error {
 
 	// Secondary table for attendance values joined on attendance table's row ID - necessary as values is an array
 	attendanceValuesTableStmt := `CREATE TABLE IF NOT EXISTS attendance_values (
-		attendance_id INTEGER NOT NULL,
+		student_id INTEGER NOT NULL,
 		date TEXT,
 		codes TEXT,
 		alt TEXT,
@@ -325,7 +323,8 @@ func createSMSTables(db *sql.DB) error {
 		hdj INTEGER,
 		hdp INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (attendance_id) REFERENCES attendance(row_id) ON DELETE CASCADE
+		FOREIGN KEY (student_id) REFERENCES attendance(student_id) ON DELETE CASCADE,
+		UNIQUE (student_id, date)
 	);`
 
 	_, err = db.Exec(attendanceValuesTableStmt)

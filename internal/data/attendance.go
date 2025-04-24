@@ -27,16 +27,24 @@ func (m *AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
 	}
 	defer tx.Rollback() // Rollback transaction if there's an error
 
+	// INSERT OR IGNORE prevents conflict errors from being thrown if the provided student_id already exists in the database
 	attStmt, err := tx.Prepare(`
-	INSERT INTO attendance (student_id, nsn) VALUES ($1, $2)`)
+	INSERT OR IGNORE INTO attendance (student_id, nsn) VALUES ($1, $2);`)
 	if err != nil {
 		return err
 	}
 	defer attStmt.Close()
 
 	attValStmt, err := tx.Prepare(`
-	INSERT INTO attendance_values (attendance_id, date, codes, alt, hdu, hdj, hdp) VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`)
+	INSERT INTO attendance_values (student_id, date, codes, alt, hdu, hdj, hdp)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
+	ON CONFLICT(student_id, date) DO UPDATE SET
+		codes = excluded.codes,
+		alt = excluded.alt,
+		hdu = excluded.hdu,
+		hdj = excluded.hdj,
+		hdp = excluded.hdp
+	;`)
 	if err != nil {
 		return err
 	}
