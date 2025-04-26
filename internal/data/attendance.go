@@ -3,15 +3,17 @@ package data
 import "database/sql"
 
 type Attendance struct {
-	ID     int    `json:"id,omitempty"`
-	Nsn    string `json:"nsn,omitempty"`
-	Values []struct {
-		Date  string `json:"date,omitempty"`
-		Codes string `json:"codes,omitempty"`
-		Alt   string `json:"alt,omitempty"`
-		Hdu   int    `json:"hdu,omitempty"`
-		Hdj   int    `json:"hdj,omitempty"`
-		Hdp   int    `json:"hdp,omitempty"`
+	ID                int    `json:"id,omitempty"`
+	Nsn               string `json:"nsn,omitempty"`
+	ListenerUpdatedAt string
+	Values            []struct {
+		Date              string `json:"date,omitempty"`
+		Codes             string `json:"codes,omitempty"`
+		Alt               string `json:"alt,omitempty"`
+		Hdu               int    `json:"hdu,omitempty"`
+		Hdj               int    `json:"hdj,omitempty"`
+		Hdp               int    `json:"hdp,omitempty"`
+		ListenerUpdatedAt string
 	} `json:"values,omitempty"`
 }
 
@@ -43,7 +45,8 @@ func (m *AttendanceModel) InsertManyAttendance(attendance []Attendance) error {
 		alt = excluded.alt,
 		hdu = excluded.hdu,
 		hdj = excluded.hdj,
-		hdp = excluded.hdp
+		hdp = excluded.hdp,
+		listener_updated_at = (datetime('now'))
 	;`)
 	if err != nil {
 		return err

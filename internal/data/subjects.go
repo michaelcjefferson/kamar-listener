@@ -3,13 +3,14 @@ package data
 import "database/sql"
 
 type Subject struct {
-	ID            string `json:"id,omitempty"`
-	Created       int64  `json:"created,omitempty"`
-	Name          string `json:"name,omitempty"`
-	Department    string `json:"department,omitempty"`
-	Subdepartment any    `json:"subdepartment,omitempty"`
-	Qualification string `json:"qualification,omitempty"`
-	Level         int    `json:"level,omitempty"`
+	ID                string `json:"id,omitempty"`
+	Created           int64  `json:"created,omitempty"`
+	Name              string `json:"name,omitempty"`
+	Department        string `json:"department,omitempty"`
+	Subdepartment     any    `json:"subdepartment,omitempty"`
+	Qualification     string `json:"qualification,omitempty"`
+	Level             int    `json:"level,omitempty"`
+	ListenerUpdatedAt string
 }
 
 type SubjectModel struct {

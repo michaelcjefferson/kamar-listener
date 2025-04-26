@@ -4,10 +4,11 @@ import "database/sql"
 
 // TODO: Find out whether or not teacher timetables might be sent with a similar format - if so, define StudentTimetable and TeacherTimetable structs
 type Timetable struct {
-	Student   int    `json:"student,omitempty"`
-	UUID      string `json:"uuid,omitempty"`
-	Grid      string `json:"grid,omitempty"`
-	Timetable string `json:"timetable,omitempty"`
+	Student           int    `json:"student,omitempty"`
+	UUID              string `json:"uuid,omitempty"`
+	Grid              string `json:"grid,omitempty"`
+	Timetable         string `json:"timetable,omitempty"`
+	ListenerUpdatedAt string
 }
 
 type TimetableModel struct {

@@ -4,26 +4,28 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"strconv"
 	"strings"
 	"time"
 )
 
 type Assessment struct {
-	Type             string `json:"type,omitempty"`
-	Number           string `json:"number,omitempty"`
-	Version          int    `json:"version,omitempty"`
-	TNV              string
-	Level            int    `json:"level,omitempty"`
-	Credits          int    `json:"credits,omitempty"`
-	Weighting        any    `json:"weighting,omitempty"`
-	Points           any    `json:"points,omitempty"`
-	Title            string `json:"title,omitempty"`
-	Description      any    `json:"description,omitempty"`
-	Purpose          any    `json:"purpose,omitempty"`
-	SchoolRef        any    `json:"schoolref,omitempty"`
-	Subfield         string `json:"subfield,omitempty"`
-	Internalexternal string `json:"internalexternal,omitempty"`
+	Type              string `json:"type,omitempty"`
+	Number            string `json:"number,omitempty"`
+	Version           int    `json:"version,omitempty"`
+	TNV               string
+	Level             int    `json:"level,omitempty"`
+	Credits           int    `json:"credits,omitempty"`
+	Weighting         any    `json:"weighting,omitempty"`
+	Points            any    `json:"points,omitempty"`
+	Title             string `json:"title,omitempty"`
+	Description       any    `json:"description,omitempty"`
+	Purpose           any    `json:"purpose,omitempty"`
+	SchoolRef         any    `json:"schoolref,omitempty"`
+	Subfield          string `json:"subfield,omitempty"`
+	Internalexternal  string `json:"internalexternal,omitempty"`
+	ListenerUpdatedAt string
 }
 
 type AssessmentModel struct {
@@ -44,7 +46,21 @@ func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error 
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO assessments (credits, description, internalexternal, level, number, points, purpose, schoolref, subfield, title, tnv, type, version, weighting) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`)
+	INSERT INTO assessments (credits, description, internalexternal, level, number, points, purpose, schoolref, subfield, title, tnv, type, version, weighting)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+	ON CONFLICT(tnv) DO UPDATE SET
+		credits = excluded.credits,
+		description = excluded.description,
+		internalexternal = excluded.internalexternal,
+		level = excluded.level,
+		points = excluded.points,
+		purpose = excluded.purpose,
+		schoolref = excluded.schoolref,
+		subfield = excluded.subfield,
+		title = excluded.title,
+		weighting = excluded.weighting,
+		listener_updated_at = (datetime('now'));
+	`)
 	if err != nil {
 		return err
 	}
@@ -62,36 +78,36 @@ func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error 
 			_, err := stmt.Exec(assessment.Credits, assessment.Description, assessment.Internalexternal, assessment.Level, assessment.Number, assessment.Points, assessment.Purpose, assessment.SchoolRef, assessment.Subfield, assessment.Title, assessment.TNV, assessment.Type, assessment.Version, assessment.Weighting)
 			if err != nil {
 				if err.Error() == `UNIQUE constraint failed: assessments.tnv` {
-					// log.Printf("assessment being written: %v\n\n", assessment)
+					log.Printf("assessment being written: %v\n\n", assessment)
 
-					// var ass Assessment
+					var ass Assessment
 
-					// q := `
-					// 	SELECT credits, description, internalexternal, level, number, points, purpose, schoolref, subfield, title, tnv, type, version, weighting
-					// 	FROM assessments
-					// 	WHERE tnv = ?
-					// `
+					q := `
+						SELECT credits, description, internalexternal, level, number, points, purpose, schoolref, subfield, title, tnv, type, version, weighting
+						FROM assessments
+						WHERE tnv = ?
+					`
 
-					// ct, ca := context.WithTimeout(context.Background(), 3*time.Second)
-					// defer ca()
+					ct, ca := context.WithTimeout(context.Background(), 3*time.Second)
+					defer ca()
 
-					// err := m.DB.QueryRowContext(ct, q, assessment.TNV).Scan(
-					// 	&ass.Credits,
-					// 	&ass.Description,
-					// 	&ass.Internalexternal,
-					// 	&ass.Level,
-					// 	&ass.Number,
-					// 	&ass.Points,
-					// 	&ass.Purpose,
-					// 	&ass.SchoolRef,
-					// 	&ass.Subfield,
-					// 	&ass.Title,
-					// 	&ass.TNV,
-					// 	&ass.Type,
-					// 	&ass.Version,
-					// 	&ass.Weighting,
-					// )
-					// log.Printf("assessment that already exists: %v\n\n", ass)
+					err := m.DB.QueryRowContext(ct, q, assessment.TNV).Scan(
+						&ass.Credits,
+						&ass.Description,
+						&ass.Internalexternal,
+						&ass.Level,
+						&ass.Number,
+						&ass.Points,
+						&ass.Purpose,
+						&ass.SchoolRef,
+						&ass.Subfield,
+						&ass.Title,
+						&ass.TNV,
+						&ass.Type,
+						&ass.Version,
+						&ass.Weighting,
+					)
+					log.Printf("assessment that already exists: %v\n\n", ass)
 
 					return err
 				} else {

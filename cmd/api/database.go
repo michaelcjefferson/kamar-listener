@@ -239,6 +239,7 @@ func createConfigTable(db *sql.DB) error {
 }
 
 func createSMSTables(db *sql.DB) error {
+	// TODO: Find a unique identifier for results so that updates happen when appropriate. tnv_id? tnv_nsn? is it possible for a student to get two results for the same tnv?
 	// Includes resultData and results fields
 	resultTableStmt := `CREATE TABLE IF NOT EXISTS results (
 		code			TEXT,
@@ -255,7 +256,7 @@ func createSMSTables(db *sql.DB) error {
 		resultData TEXT,
 		results TEXT,
 		subject         TEXT,
-		tnv 			TEXT UNIQUE,
+		tnv 			TEXT,
 		type            TEXT,
 		version         INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -296,7 +297,7 @@ func createSMSTables(db *sql.DB) error {
 		schoolref TEXT,
 		subfield TEXT,
 		title TEXT,
-		tnv TEXT,
+		tnv TEXT PRIMARY KEY,
 		type TEXT,
 		version INTEGER,
 		weighting TEXT,

@@ -9,25 +9,26 @@ import (
 
 // Use json.RawMessage to allow the result and resultdata fields, which are arrays with varying values and datatypes within, to still be written to SQLite. JSON can be written to SQLite as TEXT
 type Result struct {
-	Code            any             `json:"code,omitempty"`
-	Comment         string          `json:"comment,omitempty"`
-	Course          string          `json:"course,omitempty"`
-	CurriculumLevel any             `json:"curriculumlevel,omitempty"`
-	Date            string          `json:"date,omitempty"`
-	Enrolled        bool            `json:"enrolled,omitempty"`
-	ID              int             `json:"id,omitempty"`
-	NSN             string          `json:"nsn,omitempty"`
-	Number          string          `json:"number,omitempty"`
-	Published       bool            `json:"published,omitempty"`
-	Result          string          `json:"result,omitempty"`
-	ResultData      json.RawMessage `json:"resultData,omitempty"`
-	Results         json.RawMessage `json:"results,omitempty"`
-	Subject         string          `json:"subject,omitempty"`
-	TNV             string
-	Type            string `json:"type,omitempty"`
-	Version         int    `json:"version,omitempty"`
-	Year            int    `json:"year,omitempty"`
-	YearLevel       int    `json:"yearlevel,omitempty"`
+	Code              any             `json:"code,omitempty"`
+	Comment           string          `json:"comment,omitempty"`
+	Course            string          `json:"course,omitempty"`
+	CurriculumLevel   any             `json:"curriculumlevel,omitempty"`
+	Date              string          `json:"date,omitempty"`
+	Enrolled          bool            `json:"enrolled,omitempty"`
+	ID                int             `json:"id,omitempty"`
+	NSN               string          `json:"nsn,omitempty"`
+	Number            string          `json:"number,omitempty"`
+	Published         bool            `json:"published,omitempty"`
+	Result            string          `json:"result,omitempty"`
+	ResultData        json.RawMessage `json:"resultData,omitempty"`
+	Results           json.RawMessage `json:"results,omitempty"`
+	Subject           string          `json:"subject,omitempty"`
+	TNV               string
+	Type              string `json:"type,omitempty"`
+	Version           int    `json:"version,omitempty"`
+	Year              int    `json:"year,omitempty"`
+	YearLevel         int    `json:"yearlevel,omitempty"`
+	ListenerUpdatedAt string
 }
 
 type ResultModel struct {

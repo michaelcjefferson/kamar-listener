@@ -33,6 +33,7 @@ type Staff struct {
 	PhotocopierID      any             `json:"photocopierid,omitempty"`
 	RegistrationNumber any             `json:"registrationnumber,omitempty"`
 	Custom             json.RawMessage `json:"custom,omitempty"`
+	ListenerUpdatedAt  string
 }
 
 type StaffModel struct {
