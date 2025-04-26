@@ -202,6 +202,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 
 	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)
 	app.appMetrics.SetLastInsertTime()
+	// TODO: Count represents written AND updated AND ignored - make this a more useful metric
 	app.appMetrics.IncreaseRecordCount(count)
 
 	return app.kamarSuccessResponse(c)

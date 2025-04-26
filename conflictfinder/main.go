@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type Assessment struct {
 	Type              string `json:"type,omitempty"`
 	Number            string `json:"number,omitempty"`
 	Version           int    `json:"version,omitempty"`
-	TNV               string
+	TNV               string `json:"tnv,omitempty"`
 	Level             int    `json:"level,omitempty"`
 	Credits           int    `json:"credits,omitempty"`
 	Weighting         any    `json:"weighting,omitempty"`
@@ -23,6 +25,12 @@ type Assessment struct {
 	Subfield          string `json:"subfield,omitempty"`
 	Internalexternal  string `json:"internalexternal,omitempty"`
 	ListenerUpdatedAt string
+}
+
+func (a *Assessment) CreateTNV() {
+	tnv := strings.Join([]string{a.Type, a.Number, strconv.Itoa(a.Version)}, "_")
+	// fmt.Println(tnv)
+	a.TNV = tnv
 }
 
 type Attendance struct {
@@ -79,7 +87,7 @@ func main() {
 	var assRecords struct {
 		Data []Assessment `json:"data"`
 	}
-	if err := json.Unmarshal(data, &records); err != nil {
+	if err := json.Unmarshal(data, &assRecords); err != nil {
 		log.Fatalf("failed to parse assessment JSON: %v", err)
 	}
 
@@ -88,6 +96,9 @@ func main() {
 	assConflicts := 0
 
 	for _, record := range assRecords.Data {
+		// fmt.Println(record.Title)
+		record.CreateTNV()
+		// fmt.Println(record.TNV)
 		if seenAss[record.TNV] {
 			fmt.Printf("Conflict in assessment JSON: ass_tnv=%s\n", record.TNV)
 			assConflicts++
