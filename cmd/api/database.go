@@ -399,6 +399,12 @@ func createSMSTables(db *sql.DB) error {
 		type TEXT,
 		subject TEXT,
 		coreoption TEXT,
+		ref INTEGER,
+		year INTEGER,
+		name TEXT,
+		description TEXT,
+		teacher TEXT,
+		showreport INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (staff_uuid) REFERENCES staff(uuid) ON DELETE CASCADE
 	);`
