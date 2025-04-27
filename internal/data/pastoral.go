@@ -43,7 +43,32 @@ func (m *PastoralModel) InsertManyPastoral(pastoral []Pastoral) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO pastoral (student_id, nsn, type, ref, reason, reason_pb, motivation, motivation_pb, location, location_pb, others_involved, action1, action2, action3, action_pb1, action_pb2, action_pb3, teacher, points, demerits, dateevent, timeevent, datedue, duestatus) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`)
+	INSERT INTO pastoral (student_id, nsn, type, ref, reason, reason_pb, motivation, motivation_pb, location, location_pb, others_involved, action1, action2, action3, action_pb1, action_pb2, action_pb3, teacher, points, demerits, dateevent, timeevent, datedue, duestatus)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+	ON CONFLICT(student_id, type, ref) DO UPDATE SET
+		nsn = excluded.nsn,
+		reason = excluded.reason,
+		reason_pb = excluded.reason_pb,
+		motivation = excluded.motivation,
+		motivation_pb = excluded.motivation_pb,
+		location = excluded.location,
+		location_pb = excluded.location_pb,
+		others_involved = excluded.others_involved,
+		action1 = excluded.action1,
+		action2 = excluded.action2,
+		action3 = excluded.action3,
+		action_pb1 = excluded.action_pb1,
+		action_pb2 = excluded.action_pb2,
+		action_pb3 = excluded.action_pb3,
+		teacher = excluded.teacher,
+		points = excluded.points,
+		demerits = excluded.demerits,
+		dateevent = excluded.dateevent,
+		timeevent = excluded.timeevent,
+		datedue = excluded.datedue,
+		duestatus = excluded.duestatus,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}

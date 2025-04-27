@@ -46,6 +46,34 @@ type Attendance struct {
 	} `json:"values,omitempty"`
 }
 
+type Pastoral struct {
+	ID                int    `json:"id,omitempty"`
+	Nsn               string `json:"nsn,omitempty"`
+	Type              string `json:"type,omitempty"`
+	Ref               int    `json:"ref,omitempty"`
+	Reason            string `json:"reason,omitempty"`
+	ReasonPB          any    `json:"reasonPB,omitempty"`
+	Motivation        any    `json:"motivation,omitempty"`
+	MotivationPB      any    `json:"motivationPB,omitempty"`
+	Location          any    `json:"location,omitempty"`
+	LocationPB        any    `json:"locationPB,omitempty"`
+	Othersinvolved    any    `json:"othersinvolved,omitempty"`
+	Action1           string `json:"action1,omitempty"`
+	Action2           any    `json:"action2,omitempty"`
+	Action3           any    `json:"action3,omitempty"`
+	ActionPB1         any    `json:"actionPB1,omitempty"`
+	ActionPB2         any    `json:"actionPB2,omitempty"`
+	ActionPB3         any    `json:"actionPB3,omitempty"`
+	Teacher           string `json:"teacher,omitempty"`
+	Points            int    `json:"points,omitempty"`
+	Demerits          int    `json:"demerits,omitempty"`
+	Dateevent         string `json:"dateevent,omitempty"`
+	Timeevent         string `json:"timeevent,omitempty"`
+	Datedue           string `json:"datedue,omitempty"`
+	Duestatus         string `json:"duestatus,omitempty"`
+	ListenerUpdatedAt string
+}
+
 func main() {
 	// Load JSON from file
 	data, err := os.ReadFile("../test/actual-requests/attend_test.json")
@@ -70,7 +98,7 @@ func main() {
 		}
 		for _, v := range record.Values {
 			if seen[record.ID][v.Date] {
-				fmt.Printf("Conflict in attendance JSON: att_id=%d date=%s\n", record.ID, v.Date)
+				fmt.Printf("conflict in attendance JSON: att_id=%d date=%s\n", record.ID, v.Date)
 				conflicts++
 			}
 			seen[record.ID][v.Date] = true
@@ -100,11 +128,38 @@ func main() {
 		record.CreateTNV()
 		// fmt.Println(record.TNV)
 		if seenAss[record.TNV] {
-			fmt.Printf("Conflict in assessment JSON: ass_tnv=%s\n", record.TNV)
+			fmt.Printf("conflict in assessment JSON: ass_tnv=%s\n", record.TNV)
 			assConflicts++
 		}
 		seenAss[record.TNV] = true
 	}
 
 	fmt.Printf("total assessment conflicts: %d\n", assConflicts)
+
+	data, err = os.ReadFile("../test/actual-requests/pastoral_test.json")
+	if err != nil {
+		log.Fatalf("failed to read pastoral JSON: %v", err)
+	}
+
+	var pasRecords struct {
+		Data []Pastoral `json:"data"`
+	}
+	if err := json.Unmarshal(data, &pasRecords); err != nil {
+		log.Fatalf("failed to parse pastoral JSON: %v", err)
+	}
+
+	// Track seen assessment TNVs
+	seenPas := make(map[string]bool)
+	pasConflicts := 0
+
+	for _, record := range pasRecords.Data {
+		identifier := strconv.Itoa(record.ID) + "_" + record.Type + "_" + strconv.Itoa(record.Ref)
+		if seenPas[identifier] {
+			fmt.Printf("conflict in pastoral JSON: id_type_ref=%s\n", identifier)
+			pasConflicts++
+		}
+		seenPas[identifier] = true
+	}
+
+	fmt.Printf("total pastoral conflicts: %d\n", pasConflicts)
 }

@@ -49,7 +49,25 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, resultData, results, subject, type, version, year, yearlevel) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`)
+	INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, resultData, results, subject, tnv, type, version, year, yearlevel)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+	ON CONFLICT(id, tnv, subject) DO UPDATE SET
+		code = excluded.code,
+		comment = excluded.comment,
+		course = excluded.course,
+		curriculumlevel = excluded.curriculumlevel,
+		date = excluded.date,
+		enrolled = excluded.enrolled,
+		id = excluded.id,
+		nsn = excluded.nsn,
+		published = excluded.published,
+		result = excluded.result,
+		resultData = excluded.resultData,
+		results = excluded.results,
+		year = excluded.year,
+		yearlevel = excluded.yearlevel,
+		listener_updated_at = (datetime('now'))
+	;`)
 	// INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, subject, tnv, type, version, year, yearlevel) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`)
 	if err != nil {
 		return err
@@ -65,7 +83,7 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 		// Insert each entry
 		for _, result := range batch {
 			result.CreateTNV()
-			_, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.Type, result.Version, result.Year, result.YearLevel)
+			_, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
 			// _, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
 			if err != nil {
 				return err

@@ -59,8 +59,8 @@ func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error 
 		subfield = excluded.subfield,
 		title = excluded.title,
 		weighting = excluded.weighting,
-		listener_updated_at = (datetime('now'));
-	`)
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
