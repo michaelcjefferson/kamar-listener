@@ -57,7 +57,7 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 	defer staffStmt.Close()
 
 	staffGrpStmt, err := tx.Prepare(`
-	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption) VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption, ref, year, name, description, teacher, showreport) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	`)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 			}
 
 			for _, g := range s.Groups {
-				_, err = staffGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption)
+				_, err = staffGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption, g.Ref, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport)
 				if err != nil {
 					return err
 				}

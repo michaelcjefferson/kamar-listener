@@ -134,6 +134,12 @@ type Group struct {
 	Type              string `json:"type,omitempty"`
 	Subject           string `json:"subject,omitempty"`
 	Coreoption        string `json:"coreoption,omitempty"`
+	Ref               int    `json:"ref,omitempty"`
+	Year              int    `json:"year,omitempty"`
+	Name              string `json:"name,omitempty"`
+	Description       string `json:"description,omitempty"`
+	Teacher           string `json:"teacher,omitempty"`
+	ShowReport        int    `json:"showreport,omitempty"`
 	ListenerUpdatedAt string
 }
 
@@ -211,7 +217,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentFlagStmt.Close()
 
 	studentGrpStmt, err := tx.Prepare(`
-	INSERT INTO student_groups (student_uuid, student_id, type, subject, coreoption) VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO student_groups (student_uuid, student_id, type, subject, coreoption, ref, year, name, description, teacher, showreport) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	`)
 	if err != nil {
 		return err
@@ -271,7 +277,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 			}
 
 			for _, g := range s.Groups {
-				_, err = studentGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption)
+				_, err = studentGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption, g.Ref, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport)
 				if err != nil {
 					return err
 				}
