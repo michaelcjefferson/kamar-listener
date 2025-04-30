@@ -247,16 +247,33 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentAwardStmt.Close()
 
 	studentCareStmt, err := tx.Prepare(`
-	INSERT INTO student_caregivers (student_uuid, student_id, ref, role, name, email, mobile, relationship, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-	`)
+	INSERT INTO student_caregivers (student_uuid, student_id, ref, role, name, email, mobile, relationship, status)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	ON CONFLICT(student_uuid, ref) DO UPDATE SET
+		student_id = excluded.student_id,
+		role = excluded.role,
+		name = excluded.name,
+		email = excluded.email,
+		mobile = excluded.mobile,
+		relationship = excluded.relationship,
+		status = excluded.status,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
 	defer studentCareStmt.Close()
 
 	studentDataStmt, err := tx.Prepare(`
-	INSERT INTO student_datasharing (student_uuid, student_id, details, photo, other) VALUES ($1, $2, $3, $4, $5)
-	`)
+	INSERT INTO student_datasharing (student_uuid, student_id, details, photo, other)
+	VALUES ($1, $2, $3, $4, $5)
+	ON CONFLICT(student_uuid) DO UPDATE SET
+		student_id = excluded.student_id,
+		details = excluded.details,
+		photo = excluded.photo,
+		other = excluded.other,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
@@ -271,8 +288,26 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	defer studentEmgyStmt.Close()
 
 	studentFlagStmt, err := tx.Prepare(`
-	INSERT INTO student_flags (student_uuid, student_id, general, notes, alert, conditions, dietary, ibuprofen, medical, paracetamol, pastoral, reactions, specialneeds, vaccinations, eotcconsent, eotcform) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-	`)
+	INSERT INTO student_flags (student_uuid, student_id, general, notes, alert, conditions, dietary, ibuprofen, medical, paracetamol, pastoral, reactions, specialneeds, vaccinations, eotcconsent, eotcform)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+	ON CONFLICT(student_uuid) DO UPDATE SET
+		student_id = excluded.student_id,
+		general = excluded.general,
+		notes = excluded.notes,
+		alert = excluded.alert,
+		conditions = excluded.conditions,
+		dietary = excluded.dietary,
+		ibuprofen = excluded.ibuprofen,
+		medical = excluded.medical,
+		paracetamol = excluded.paracetamol,
+		pastoral = excluded.pastoral,
+		reactions = excluded.reactions,
+		specialneeds = excluded.specialneeds,
+		vaccinations = excluded.vaccinations,
+		eotcconsent = excluded.eotcconsent,
+		eotcform = excluded.eotcform,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}

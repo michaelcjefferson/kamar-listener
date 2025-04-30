@@ -521,8 +521,7 @@ func createSMSTables(db *sql.DB) error {
 		relationship TEXT,
 		mobile TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
-		UNIQUE(student_uuid, name)
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS student_flags (
