@@ -368,7 +368,7 @@ func createSMSTables(db *sql.DB) error {
 		uuid TEXT PRIMARY KEY,
 		role TEXT,
 		created INTEGER,
-		uniqueid INTEGER NOT NULL,
+		uniqueid INTEGER,
 		username TEXT,
 		firstname TEXT,
 		lastname TEXT,
@@ -394,8 +394,8 @@ func createSMSTables(db *sql.DB) error {
 	);
 	
 	CREATE TABLE IF NOT EXISTS staff_groups (
-		uuid TEXT NOT NULL,
-		id TEXT NOT NULL,
+		staff_uuid TEXT NOT NULL,
+		staff_id TEXT NOT NULL,
 		type TEXT,
 		subject TEXT,
 		coreoption TEXT,

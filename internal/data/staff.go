@@ -40,7 +40,6 @@ type StaffModel struct {
 	DB *sql.DB
 }
 
-// TODO: Check if ID already exists, and update instead of insert in those cases - change query to ON CONFLICT? It shouldn't happen often
 func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 	// Start a transaction (tx)
 	tx, err := m.DB.Begin()
@@ -50,14 +49,43 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	staffStmt, err := tx.Prepare(`
-	INSERT INTO staff (id, uuid, role, created, uniqueid, username, firstname, lastname, gender, schoolindex, title, email, mobile, extension, classification, position, house, tutor, datebirth, leavingdate, startingdate, eslguid, moenumber, photocopierid, registrationnumber, custom) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`)
+	INSERT INTO staff (id, uuid, role, created, uniqueid, username, firstname, lastname, gender, schoolindex, title, email, mobile, extension, classification, position, house, tutor, datebirth, leavingdate, startingdate, eslguid, moenumber, photocopierid, registrationnumber, custom)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
+	ON CONFLICT(uuid) DO UPDATE SET
+		id = excluded.id,
+		role = excluded.role,
+		created = excluded.created,
+		uniqueid = excluded.uniqueid,
+		username = excluded.username,
+		firstname = excluded.firstname,
+		lastname = excluded.lastname,
+		gender = excluded.gender,
+		schoolindex = excluded.schoolindex,
+		title = excluded.title,
+		email = excluded.email,
+		mobile = excluded.mobile,
+		extension = excluded.extension,
+		classification = excluded.classification,
+		position = excluded.position,
+		house = excluded.house,
+		tutor = excluded.tutor,
+		datebirth = excluded.datebirth,
+		leavingdate = excluded.leavingdate,
+		startingdate = excluded.startingdate,
+		eslguid = excluded.eslguid,
+		moenumber = excluded.moenumber,
+		photocopierid = excluded.photocopierid,
+		registrationnumber = excluded.registrationnumber,
+		custom = excluded.custom,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
 	defer staffStmt.Close()
 
 	staffGrpStmt, err := tx.Prepare(`
-	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption, ref, year, name, description, teacher, showreport) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption, ref, year, name, description, teacher, showreport) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 	`)
 	if err != nil {
 		return err
