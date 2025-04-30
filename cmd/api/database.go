@@ -499,7 +499,8 @@ func createSMSTables(db *sql.DB) error {
 		relationship TEXT,
 		status TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
+		UNIQUE(student_uuid, ref)
 	);
 	
 	CREATE TABLE IF NOT EXISTS student_datasharing (
@@ -509,7 +510,8 @@ func createSMSTables(db *sql.DB) error {
 		photo INTEGER,
 		other INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
+		UNIQUE(student_uuid)
 	);
 	
 	CREATE TABLE IF NOT EXISTS student_emergency (
@@ -519,7 +521,8 @@ func createSMSTables(db *sql.DB) error {
 		relationship TEXT,
 		mobile TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
+		UNIQUE(student_uuid, name)
 	);
 
 	CREATE TABLE IF NOT EXISTS student_flags (
@@ -540,7 +543,8 @@ func createSMSTables(db *sql.DB) error {
 		eotcconsent TEXT,
 		eotcform TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
+		UNIQUE(student_uuid)
 	);
 
 	CREATE TABLE IF NOT EXISTS student_groups (
