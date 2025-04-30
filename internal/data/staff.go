@@ -85,8 +85,20 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 	defer staffStmt.Close()
 
 	staffGrpStmt, err := tx.Prepare(`
-	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption, ref, year, name, description, teacher, showreport) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
-	`)
+	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption, ref, year, name, description, teacher, showreport)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	ON CONFLICT(staff_uuid, ref) DO UPDATE SET
+		staff_id = excluded.staff_id,
+		type = excluded.type,
+		subject = excluded.subject,
+		coreoption = excluded.coreoption,
+		year = excluded.year,
+		name = excluded.name,
+		description = excluded.description,
+		teacher = excluded.teacher,
+		showreport = excluded.showreport,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
