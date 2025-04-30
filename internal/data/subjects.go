@@ -27,7 +27,17 @@ func (m *SubjectModel) InsertManySubjects(subjects []Subject) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO subjects (id, created, name, department, subdepartment, qualification, level) VALUES ($1, $2, $3, $4, $5, $6, $7)`)
+	INSERT INTO subjects (id, created, name, department, subdepartment, qualification, level)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
+	ON CONFLICT(id) DO UPDATE SET
+		created = excluded.created,
+		name = excluded.name,
+		department = excluded.department,
+		subdepartment = excluded.subdepartment,
+		qualification = excluded.qualification,
+		level = excluded.level,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}

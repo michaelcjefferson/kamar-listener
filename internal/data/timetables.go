@@ -24,7 +24,13 @@ func (m *TimetableModel) InsertManyTimetables(timetables []Timetable) error {
 	defer tx.Rollback() // Rollback transaction if there's an error
 
 	stmt, err := tx.Prepare(`
-	INSERT INTO timetables (student, uuid, grid, timetable) VALUES ($1, $2, $3, $4)`)
+	INSERT INTO timetables (student, uuid, grid, timetable) VALUES ($1, $2, $3, $4)
+	ON CONFLICT(uuid) DO UPDATE SET
+		student = excluded.student,
+		grid = excluded.grid,
+		timetable = excluded.timetable,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
