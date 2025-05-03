@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
@@ -18,19 +20,40 @@ import (
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 )
 
-func setupTestDB(t *testing.T) *sql.DB {
+func setupTestDB(t *testing.T) (*sql.DB, *sql.DB) {
 	// Create in-memory database for testing
-	db, err := sql.Open("sqlite3", ":memory:")
+	listenerDB, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		t.Fatalf("Failed to open in-memory database: %v", err)
 	}
 
-	err = createSMSTables(db)
+	err = createSMSTables(listenerDB)
 	if err != nil {
 		t.Fatalf("Failed to create SMS tables in database: %v", err)
 	}
 
-	return db
+	appDB, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("Failed to open in-memory database: %v", err)
+	}
+
+	err = createConfigTable(appDB)
+	if err != nil {
+		t.Fatalf("Failed to create SMS tables in database: %v", err)
+	}
+
+	p := data.Password{}
+	p.Set("password")
+	h := p.Hash()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	appDB.ExecContext(ctx, `UPDATE config
+	SET value = ?
+	WHERE key = "listener_password";`, h)
+
+	return listenerDB, appDB
 }
 
 // TODO: Remove *sql.DB from checkDB function and run everything from app.models - this requires creating a count() query for each model
@@ -38,7 +61,7 @@ func TestRefreshHandler(t *testing.T) {
 	tests := []struct {
 		name           string
 		jsonFile       string
-		setupFunc      func(*sql.DB) // Optional function to set up initial data
+		setupFunc      func(*sql.DB, *sql.DB) // Optional function to set up initial data
 		username       string
 		password       string
 		includeAuth    bool
@@ -490,17 +513,18 @@ func TestRefreshHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var db *sql.DB
+			var listenerDB, appDB *sql.DB
 
-			db = setupTestDB(t)
-			defer db.Close()
+			listenerDB, appDB = setupTestDB(t)
+			defer listenerDB.Close()
+			defer appDB.Close()
 
 			if tt.setupFunc != nil {
-				tt.setupFunc(db)
+				tt.setupFunc(listenerDB, appDB)
 			}
 
 			app := &application{}
-			app.models = data.NewModels(nil, db, app.background)
+			app.models = data.NewModels(appDB, listenerDB, app.background)
 
 			// Set credentials to check against for basic auth
 			// TODO: Middleware currently checks against username and password individually - for now set them here, but in future either make use of or remove credentials.full
@@ -580,7 +604,7 @@ func TestRefreshHandler(t *testing.T) {
 			// }
 
 			if tt.checkDB != nil {
-				tt.checkDB(t, tt.expectedCount, db, app)
+				tt.checkDB(t, tt.expectedCount, listenerDB, app)
 			}
 		})
 	}

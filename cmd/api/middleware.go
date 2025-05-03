@@ -39,36 +39,64 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 		if authHeader == "" {
 			app.logger.PrintInfo("listener: failed at authHeader", nil)
 			return app.kamarNoCredentialsResponse(c)
-			// return errors.New("failed at authHeader")
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Basic" {
 			app.logger.PrintInfo("listener: failed at headerParts", nil)
 			return app.kamarAuthFailedResponse(c)
-			// return errors.New("failed at headerParts")
 		}
 
 		decodedAuth, err := base64.StdEncoding.DecodeString(headerParts[1])
 		if err != nil {
 			app.logger.PrintInfo("listener: failed at decodedAuth", nil)
 			return app.kamarAuthFailedResponse(c)
-			// return errors.New("failed at decodedAuth")
 		}
 
-		// TODO: Compare authCredentials to config from DB, rather than app.config.credentials
+		cfg, err := app.models.Config.LoadConfig()
+		if err != nil {
+			app.logger.PrintFatal(err, map[string]any{
+				"message": "error loading KAMAR config from database",
+			})
+		}
+
+		kUsername, ok := cfg.GetString("listener_username")
+		if !ok {
+			return app.serverErrorResponse(c, errors.New("couldn't get username for kamar directory service from the database"))
+		}
+		kPassword, ok := cfg.GetPassword("listener_password")
+		if !ok {
+			return app.serverErrorResponse(c, errors.New("couldn't get password for kamar directory service from the database"))
+		}
+
 		authCredentials := strings.Split(string(decodedAuth), ":")
-		if len(authCredentials) != 2 || authCredentials[0] != app.config.credentials.username || authCredentials[1] != app.config.credentials.password {
-			logInfo := make(map[string]interface{})
-			logInfo["creds"] = authCredentials
-			logInfo["creds_length"] = len(authCredentials)
-			logInfo["app_user"] = app.config.credentials.username
-			logInfo["app_pass"] = app.config.credentials.password
-			logInfo["req_user"] = authCredentials[0]
-			logInfo["req_pass"] = authCredentials[1]
-			app.logger.PrintInfo("listener: failed at authCredentials", logInfo)
+		// Check that authorization header contains the right number of elements
+		if len(authCredentials) != 2 {
+			app.logger.PrintInfo("listener: incorrect number of elements in auth header", map[string]any{
+				"auth_credentials_from_header": authCredentials,
+				"number_of_auth_elements":      len(authCredentials),
+			})
 			return app.kamarAuthFailedResponse(c)
-			// return errors.New("failed at authCredentials")
+		}
+
+		// Check username
+		if authCredentials[0] != app.config.credentials.username {
+			app.logger.PrintInfo("listener: username doesn't match", map[string]any{
+				"expected_user": kUsername,
+				"got_user":      authCredentials[0],
+			})
+			return app.kamarAuthFailedResponse(c)
+		}
+
+		// Check password
+		matches, err := kPassword.Matches(authCredentials[1])
+		if err != nil {
+			app.logger.PrintError(err, nil)
+			return app.serverErrorResponse(c, err)
+		}
+		if !matches {
+			app.logger.PrintInfo("listener: passwords don't match", nil)
+			return app.kamarAuthFailedResponse(c)
 		}
 
 		app.logger.PrintInfo("listener: successfully authenticated request from KAMAR", nil)

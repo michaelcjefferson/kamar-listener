@@ -99,7 +99,7 @@ func NewConfig(entries []ConfigEntry) *ListenerConfig {
 }
 
 // Get returns a typed value from ListenerConfig with proper type assertion
-// TODO: These are likely unnecessary
+// TODO: These are likely unnecessary (actuall likely useful for getting app config)
 func (c *ListenerConfig) GetString(key string) (string, bool) {
 	if val, ok := (*c)[key]; ok {
 		if str, ok := val.(string); ok {
@@ -155,9 +155,9 @@ func (m *ConfigModel) GetAll() ([]ConfigEntry, error) {
 		if err != nil {
 			return nil, err
 		}
-		if entry.Key == "listener_password" {
-			entry.Value = ""
-		}
+		// if entry.Key == "listener_password" {
+		// 	entry.Value = ""
+		// }
 		entries = append(entries, entry)
 	}
 
@@ -193,8 +193,8 @@ func (m *ConfigModel) Set(entry ConfigEntry) error {
 	// 	ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, updated_at = CURRENT_TIMESTAMP
 	// `
 	query := `
-		INSERT INTO config (key, value, type, description) VALUES (?, ?, ?, ?)
-		ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
+		INSERT INTO  (key, value, type, description) VALUES (?, ?, ?, ?)
+		ON CONFLICT(key) DO UPDATE config SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
 	`
 
 	args := []interface{}{
