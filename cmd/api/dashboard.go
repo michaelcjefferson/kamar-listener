@@ -13,8 +13,6 @@ import (
 )
 
 func (app *application) getDashboardPageHandler(c echo.Context) error {
-	// TODO: If KAMAR auth hasn't been set, render DashboardPage with parameter false
-
 	u := app.contextGetUser(c)
 
 	w := data.WidgetData{}
@@ -69,7 +67,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 	w.TotalErrors = errLogMeta.TotalRecords
 	w.RecentErrorLogs = errLogs
 
-	return app.Render(c, http.StatusOK, views.DashboardPage(u, true, w))
+	return app.Render(c, http.StatusOK, views.DashboardPage(u, w))
 }
 
 // Open the directory that holds the application databases on the client's computer, if it exists

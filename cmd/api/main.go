@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -26,6 +25,7 @@ type config struct {
 	port                 int
 	env                  string
 	dblogs_on            bool
+	kamar_auth_set       bool
 	kamar_db_table_names []string
 	https_on             bool
 	basePath             string
@@ -39,11 +39,6 @@ type config struct {
 		rps     float64
 		burst   int
 		enabled bool
-	}
-	credentials struct {
-		username string
-		password string
-		full     string
 	}
 	tlsPaths struct {
 		cert   string
@@ -88,10 +83,6 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 8, "Rate limiter maximum burst.")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", false, "Enable rate limiter.")
 
-	// TODO: Remove once set up in database config OR process these into DB, and prompt client to update with their own
-	flag.StringVar(&cfg.credentials.username, "username", "username", "For authentication from KAMAR.")
-	flag.StringVar(&cfg.credentials.password, "password", "password", "For authentication from KAMAR.")
-
 	flag.BoolVar(&cfg.https_on, "https_on", true, "Turn server-side HTTPS on or off.")
 	flag.BoolVar(&cfg.dblogs_on, "dblogs_on", true, "Turn writing logs to database on or off.")
 
@@ -117,8 +108,6 @@ func main() {
 	cfg.tlsPaths.tlsDir = dirs.FileDirs["tls"]
 	cfg.tlsPaths.cert = filepath.Join(cfg.tlsPaths.tlsDir, "cert.pem")
 	cfg.tlsPaths.key = filepath.Join(cfg.tlsPaths.tlsDir, "key.pem")
-
-	cfg.credentials.full = strings.Join([]string{cfg.credentials.username, cfg.credentials.password}, ":")
 
 	cfg.tokens.expiry = 24 * time.Hour
 	cfg.tokens.refresh = 6 * time.Hour
@@ -160,6 +149,11 @@ func main() {
 	}
 	app.logger = logger
 	app.logger.PrintInfo("database connection established", nil)
+
+	app.config.kamar_auth_set, err = app.kamarAuthIsSet()
+	if err != nil {
+		app.logger.PrintFatal(err, nil)
+	}
 
 	err = app.UpdateRecordCountsFromDB()
 	if err != nil {

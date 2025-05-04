@@ -1,0 +1,94 @@
+package views
+
+import "github.com/mjefferson-whs/listener/internal/data"
+
+templ KamarAuthSetupPage(u *data.User) {
+  @Authenticated(u) {
+    <h2>Before continuing, please set a username and password that you will use to authenticate with KAMAR.</h2>
+    <h3>This should be different to the username and password you used to log in to this service.</h3>
+    <h3>You will need to input this username and password into KAMAR itself when you set up the directory service. You can update it later if necessary.</h3>
+
+    <form id="kamar-auth-form">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <label for="confirm-password">Confirm Password:</label>
+      <input type="password" id="confirm-password" name="confirm-password" required>
+      <br>
+      <button type="submit">Set KAMAR Auth</button>
+    </form>
+
+    <div id="error-container">
+      <p id="message"></p>
+    </div>
+
+    <script>
+      document.getElementById("kamar-auth-form").addEventListener("submit", async function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+        if (password !== confirmPassword) {
+          document.getElementById("message").textContent = "Passwords don't match - try again.";
+          return;
+        }
+
+        const res = await fetch("/config/set/auth", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (res.redirected) {
+          // Get the redirect URL from the Location header
+          let redirectUrl = res.url;
+          // Redirect the user manually
+          window.location.href = redirectUrl;
+          return;
+        }
+
+        let j = await res.json();
+
+        // Check if response is OK (status 200-299)
+        if (res.ok) {
+          console.log('Successfully set KAMAR auth.');
+        } else {
+          // If it's not a redirect or successful response, check for JSON error
+          console.error('Error:', j.error);
+          // TODO: Convert to templ component which is retrieved via HTMX
+          if (typeof j.error === "string") {
+            document.getElementById("message").textContent = j.error;
+          }
+          if (typeof j.error === "object") {
+            const errorContainer = document.getElementById("error-container");
+            errorContainer.innerHTML = "<ul class='error-list'></ul>";
+            const ul = errorContainer.querySelector("ul");
+
+            Object.entries(j.error).forEach(([key, value]) => {
+                const li = document.createElement("li");
+                li.innerHTML = `<span class="error-text">${key}</span>: ${value}`;
+                ul.appendChild(li);
+            });
+          }
+          // alert('Login failed: ' + j.error);
+        }
+        if (j.redirect) {
+          window.location.href = j.redirect;
+        }
+
+        // if (response.ok) {
+        //   window.location.href = redirectString; // Redirect to appropriate page
+        // } else {
+        //   const errorMessage = await response.text();
+        //   document.getElementById("message").textContent = errorMessage;
+        // }
+      });
+    </script>
+  }
+}

@@ -185,7 +185,10 @@ func (app *application) updateConfigPasswordHandler(c echo.Context) error {
 
 // For setting KAMAR authentication - only available if auth hasn't already been set
 func (app *application) setKamarAuthHandler(c echo.Context) error {
-	// TODO: Check to see whether KAMAR auth has already been set, and if so, refuse this request
+	// TODO: Make a more appropriate error response
+	if app.config.kamar_auth_set {
+		return app.badRequestResponse(c, nil)
+	}
 
 	user := app.contextGetUser(c)
 	input := userInput{}
@@ -219,12 +222,13 @@ func (app *application) setKamarAuthHandler(c echo.Context) error {
 	}
 
 	configEntry := data.ConfigEntry{
-		Key:         "listener_password",
+		Key:         "listener_username",
 		Value:       kamarAuth.Username,
 		Type:        "string",
 		Description: currUserConf.Description,
 	}
 
+	// TODO: Add rollback in case password fails
 	err = app.models.Config.Set(configEntry)
 	if err != nil {
 		app.logger.PrintError(err, map[string]any{
@@ -257,6 +261,8 @@ func (app *application) setKamarAuthHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
+	app.config.kamar_auth_set = true
+
 	app.logger.PrintInfo("config updated", map[string]any{
 		"message": "successfully set listener auth",
 		"key":     "listener_username, listener_password",
@@ -268,4 +274,22 @@ func (app *application) setKamarAuthHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusAccepted, env)
+}
+
+func (app *application) kamarAuthIsSet() (bool, error) {
+	kamarUser, err := app.models.Config.GetAuth()
+	if err != nil {
+		switch err {
+		case data.ErrRecordNotFound:
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	if kamarUser.Username == "" || len(kamarUser.Password.Hash()) != 60 {
+		return false, nil
+	}
+
+	return true, nil
 }

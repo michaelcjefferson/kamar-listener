@@ -6,14 +6,10 @@ import (
   "github.com/mjefferson-whs/listener/internal/data"
 )
 
-templ DashboardPage(u *data.User, kamarAuthSet bool, w data.WidgetData) {
+templ DashboardPage(u *data.User, w data.WidgetData) {
   @Authenticated(u) {
     @components.Hero("center")
 
-    if !kamarAuthSet {
-      @components.KamarAuthForm()
-    } else {
-      @widgets.WidgetContainer(w)
-    }
+    @widgets.WidgetContainer(w)
   }
 }

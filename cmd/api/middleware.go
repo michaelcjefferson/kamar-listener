@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
 	"github.com/mjefferson-whs/listener/internal/validator"
+	"github.com/mjefferson-whs/listener/ui/views"
 )
 
 func (app *application) recoverPanicMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -27,6 +28,19 @@ func (app *application) recoverPanicMiddleware(next echo.HandlerFunc) echo.Handl
 				c.Error(fmt.Errorf("%v", err))
 			}
 		}()
+
+		return next(c)
+	}
+}
+
+// If KAMAR username and password haven't been set in the SQLite database, force user to kamar auth setup page
+func (app *application) requireKAMARAuthSetUp(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		u := app.contextGetUser(c)
+
+		if !app.config.kamar_auth_set {
+			return app.Render(c, http.StatusOK, views.KamarAuthSetupPage(u))
+		}
 
 		return next(c)
 	}
@@ -60,6 +74,18 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 			})
 		}
 
+		// TODO: Consider using this rather than loading full config for middleware checking. Even better, store values in cfg (memory) to reduce db calls?
+		kamarUser, err := app.models.Config.GetAuth()
+		if err != nil {
+			app.logger.PrintFatal(err, map[string]any{
+				"message": "error loading KAMAR auth from database",
+			})
+		}
+		app.logger.PrintInfo("kamar auth loaded from database", map[string]any{
+			"username":      kamarUser.Username,
+			"password_hash": kamarUser.Password.Hash(),
+		})
+
 		kUsername, ok := cfg.GetString("listener_username")
 		if !ok {
 			return app.serverErrorResponse(c, errors.New("couldn't get username for kamar directory service from the database"))
@@ -80,7 +106,7 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 		}
 
 		// Check username
-		if authCredentials[0] != app.config.credentials.username {
+		if authCredentials[0] != kUsername {
 			app.logger.PrintInfo("listener: username doesn't match", map[string]any{
 				"expected_user": kUsername,
 				"got_user":      authCredentials[0],

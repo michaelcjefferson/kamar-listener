@@ -36,7 +36,7 @@ func (app *application) routes() http.Handler {
 
 	router.GET("/healthcheck", app.healthcheckHandler)
 
-	// Routes that require authentication
+	// Routes that require authentication - clients accessing these routes will pass through authentication, being set as either the user associated with their cookie or an anonymous user
 	// To set middleware on any route branching off of "/", including the "/" route itself, echo requires the route group to be set on "" rather than "/" as it appends a trailing slash.
 	authGroup := router.Group("", app.authenticateUser)
 	authGroup.GET("/register", app.registerPageHandler)
@@ -56,10 +56,13 @@ func (app *application) routes() http.Handler {
 	isAuthenticatedGroup.POST("/log-out", app.logoutUserHandler)
 
 	isAuthenticatedGroup.POST("/config/set/auth", app.setKamarAuthHandler)
-	isAuthenticatedGroup.GET("/config/update/password", app.updateConfigPasswordPageHandler)
-	isAuthenticatedGroup.POST("/config/update/password", app.updateConfigPasswordHandler)
-	isAuthenticatedGroup.POST("/config/update", app.updateConfigHandler)
-	isAuthenticatedGroup.GET("/config", app.configPageHandler)
+
+	// Routes in this group will be redirected to a KAMAR auth set up page if a username and password for KAMAR directory service haven't been set in the database
+	kamarAuthSetGroup := isAuthenticatedGroup.Group("", app.requireKAMARAuthSetUp)
+	kamarAuthSetGroup.GET("/config/update/password", app.updateConfigPasswordPageHandler)
+	kamarAuthSetGroup.POST("/config/update/password", app.updateConfigPasswordHandler)
+	kamarAuthSetGroup.POST("/config/update", app.updateConfigHandler)
+	kamarAuthSetGroup.GET("/config", app.configPageHandler)
 
 	isAuthenticatedGroup.GET("/logs/partial", app.getFilteredLogsHandler)
 	isAuthenticatedGroup.GET("/logs/:id", app.getIndividualLogPageHandler)

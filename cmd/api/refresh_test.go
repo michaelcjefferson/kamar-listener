@@ -50,6 +50,10 @@ func setupTestDB(t *testing.T) (*sql.DB, *sql.DB) {
 	defer cancel()
 
 	appDB.ExecContext(ctx, `UPDATE config
+	SET value = "username"
+	WHERE key = "listener_username";`)
+
+	appDB.ExecContext(ctx, `UPDATE config
 	SET value = ?
 	WHERE key = "listener_password";`, h)
 
@@ -526,11 +530,6 @@ func TestRefreshHandler(t *testing.T) {
 			app := &application{}
 			app.models = data.NewModels(appDB, listenerDB, app.background)
 
-			// Set credentials to check against for basic auth
-			// TODO: Middleware currently checks against username and password individually - for now set them here, but in future either make use of or remove credentials.full
-			app.config.credentials.username = "username"
-			app.config.credentials.password = "password"
-			app.config.credentials.full = "username:password"
 			logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
 			// io.Discard means logs won't be written to terminal when tests are run - replace with the line above to see logs during testing
 			// logger := jsonlog.New(io.Discard, jsonlog.LevelInfo, nil)

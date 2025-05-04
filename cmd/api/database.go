@@ -206,7 +206,7 @@ func createConfigTable(db *sql.DB) error {
 		('service_name', 'KAMAR Listener Service', 'string', 'Use the acronym/name of your school, eg. "WHS KAMAR Listener Service"'),
 		('info_url', 'https://www.educationcounts.govt.nz/directories/list-of-nz-schools', 'string', 'Website where people can contact you/read about how you use this service, eg. https://schoolname.school.nz'),
 		('privacy_statement', 'This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.', 'string', 'Minimum 100 characters: a description of how you use the data from this listener service'),
-		('listener_username', 'username', 'string', 'Username entered into KAMAR when setting up listener service'),
+		('listener_username', '', 'string', 'Username entered into KAMAR when setting up listener service'),
 		('listener_password', '', 'password', 'Password entered into KAMAR when setting up listener service'),
 		('details', 'true', 'bool', 'Enable/disable details'),
 		('passwords', 'true', 'bool', 'Enable/disable passwords'),

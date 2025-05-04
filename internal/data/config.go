@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"strconv"
 	"time"
 
@@ -99,7 +100,7 @@ func NewConfig(entries []ConfigEntry) *ListenerConfig {
 }
 
 // Get returns a typed value from ListenerConfig with proper type assertion
-// TODO: These are likely unnecessary (actuall likely useful for getting app config)
+// TODO: These are likely unnecessary (actually likely useful for getting app config)
 func (c *ListenerConfig) GetString(key string) (string, bool) {
 	if val, ok := (*c)[key]; ok {
 		if str, ok := val.(string); ok {
@@ -164,6 +165,36 @@ func (m *ConfigModel) GetAll() ([]ConfigEntry, error) {
 	return entries, nil
 }
 
+// GetAuth returns the username and (hashed) password stored for KAMAR directory service
+func (m *ConfigModel) GetAuth() (*User, error) {
+	var KAMARUser User
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, "SELECT value FROM config WHERE key = 'listener_username';").Scan(&KAMARUser.Username)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	err = m.DB.QueryRowContext(ctx, "SELECT value FROM config WHERE key = 'listener_password';").Scan(&KAMARUser.Password.hash)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &KAMARUser, nil
+}
+
 // GetByKey retrieves a single configuration item
 func (m *ConfigModel) GetByKey(key string) (ConfigEntry, error) {
 	var entry ConfigEntry
@@ -193,8 +224,8 @@ func (m *ConfigModel) Set(entry ConfigEntry) error {
 	// 	ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, updated_at = CURRENT_TIMESTAMP
 	// `
 	query := `
-		INSERT INTO  (key, value, type, description) VALUES (?, ?, ?, ?)
-		ON CONFLICT(key) DO UPDATE config SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
+		INSERT INTO config (key, value, type, description) VALUES (?, ?, ?, ?)
+		ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
 	`
 
 	args := []interface{}{
