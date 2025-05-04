@@ -77,7 +77,7 @@ func (app *application) routes() http.Handler {
 
 	isAuthenticatedGroup.GET("/opendatafolder", app.openDataFolderHandler)
 
-	isAuthenticatedGroup.GET("/", app.getDashboardPageHandler)
+	kamarAuthSetGroup.GET("/", app.getDashboardPageHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	kamarAuthGroup := router.Group("/kamar-refresh", app.authenticateKAMAR)

@@ -15,7 +15,7 @@ templ LastUpdateTimes(check, insert time.Time) {
       if insert.IsZero() {
         <strong>Last Refresh:</strong> None
       } else {
-        <strong>Last Refresh:</strong> { time.Since(check).String() } ago.
+        <strong>Last Refresh:</strong> { time.Since(insert).String() } ago.
       }
     </p>
   </div>

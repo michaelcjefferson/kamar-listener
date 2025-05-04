@@ -228,7 +228,7 @@ func (app *application) setKamarAuthHandler(c echo.Context) error {
 		Description: currUserConf.Description,
 	}
 
-	// TODO: Add rollback in case password fails
+	// TODO: Add rollback in case password fails - use tx.Begin (transactions) and tx.Rollback
 	err = app.models.Config.Set(configEntry)
 	if err != nil {
 		app.logger.PrintError(err, map[string]any{
