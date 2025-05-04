@@ -16,6 +16,7 @@ type Level int8
 // iota works similar to auto-increment - starting at 0, each successive const is assigned a sequential int. In other words, LevelInfo is a Level set as 0, LevelOff is a Level set to 3 etc.
 const (
 	LevelInfo Level = iota
+	LevelDebug
 	LevelError
 	LevelFatal
 	LevelOff
@@ -25,6 +26,8 @@ func (l Level) String() string {
 	switch l {
 	case LevelInfo:
 		return "INFO"
+	case LevelDebug:
+		return "DEBUG"
 	case LevelError:
 		return "ERROR"
 	case LevelFatal:
@@ -54,6 +57,10 @@ func (l *Logger) PrintInfo(message string, properties map[string]any) {
 	l.print(LevelInfo, message, properties)
 }
 
+func (l *Logger) PrintDebug(message string, properties map[string]any) {
+	l.print(LevelDebug, message, properties)
+}
+
 func (l *Logger) PrintError(err error, properties map[string]any) {
 	l.print(LevelError, err.Error(), properties)
 }
@@ -64,7 +71,7 @@ func (l *Logger) PrintFatal(err error, properties map[string]any) {
 	os.Exit(1)
 }
 
-// As print is an internal function only (PrintInfo/Error/Fatal are the only ones that will be called from outside this package), it is not capitalised.
+// As print is an internal function only (PrintInfo/Debug/Error/Fatal are the only ones that will be called from outside this package), it is not capitalised.
 func (l *Logger) print(level Level, message string, properties map[string]any) (int, error) {
 	if level < l.minLevel {
 		return 0, nil
@@ -90,8 +97,8 @@ func (l *Logger) print(level Level, message string, properties map[string]any) (
 	// 	Properties: properties,
 	// }
 
-	// If log is at least error level, include a stacktrace in the log
-	if level >= LevelError {
+	// If log is at least debug level, include a stacktrace in the log
+	if level >= LevelDebug {
 		aux.Trace = string(debug.Stack())
 	}
 
@@ -124,6 +131,7 @@ func (l *Logger) print(level Level, message string, properties map[string]any) (
 	return l.out.Write(append(line, '\n'))
 }
 
+// TODO: What is the reason for LevelError specifically here? Check Let's Go
 func (l *Logger) Write(message []byte) (n int, err error) {
 	return l.print(LevelError, string(message), nil)
 }
