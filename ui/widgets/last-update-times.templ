@@ -8,14 +8,14 @@ templ LastUpdateTimes(check, insert time.Time) {
       if check.IsZero() {
         <strong>Last Check:</strong> None
       } else {
-        <strong>Last Check:</strong> { time.Since(check).String() } ago.
+        <strong>Last Check:</strong> { time.Since(check).Round(time.Second).String() } ago.
       }
       <br>
       <br>
       if insert.IsZero() {
         <strong>Last Refresh:</strong> None
       } else {
-        <strong>Last Refresh:</strong> { time.Since(insert).String() } ago.
+        <strong>Last Refresh:</strong> { time.Since(insert).Round(time.Second).String() } ago.
       }
     </p>
   </div>

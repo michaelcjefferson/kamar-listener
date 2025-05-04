@@ -271,9 +271,10 @@ func (app *application) setKamarAuthHandler(c echo.Context) error {
 
 	env := envelope{
 		"success": true,
+		"message": "KAMAR directory service authentication successfully set",
 	}
 
-	return c.JSON(http.StatusAccepted, env)
+	return app.redirectResponse(c, "/", http.StatusOK, env)
 }
 
 func (app *application) kamarAuthIsSet() (bool, error) {
