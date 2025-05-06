@@ -56,6 +56,13 @@ func openAppDB(dbpath string) (*sql.DB, bool, error) {
 		return nil, false, err
 	}
 
+	// Set up listener_events table
+	err = createListenerEventsTable(db)
+	if err != nil {
+		db.Close()
+		return nil, false, err
+	}
+
 	// Check to see whether a user already exists in the database - if not, a user must be created before the admin dashboard can be used
 	exists, err := userExists(db)
 	if err != nil {
@@ -234,6 +241,19 @@ func createConfigTable(db *sql.DB) error {
 	// );`
 
 	// _, err = db.Exec(configMetaTableStmt)
+
+	return err
+}
+
+func createListenerEventsTable(db *sql.DB) error {
+	listenerEventsTableStmt := `CREATE TABLE IF NOT EXISTS listener_events (
+		id INTEGER PRIMARY KEY AUTOINCREMENT, 
+		req_type TEXT NOT NULL,
+		was_successful INTEGER NOT NULL,
+		time TEXT NOT NULL DEFAULT (datetime('now'))
+	);`
+
+	_, err := db.Exec(listenerEventsTableStmt)
 
 	return err
 }
