@@ -13,6 +13,7 @@ type ListenerEvent struct {
 	ID            int    `json:"id,omitempty"`
 	ReqType       string `json:"req_type"`
 	WasSuccessful bool   `json:"was_successful"`
+	Message       string `json:"message"`
 	Time          string `json:"time"`
 }
 
@@ -26,12 +27,12 @@ func (m *ListenerEventsModel) Insert(event *ListenerEvent) error {
 	}
 
 	query := `
-		INSERT INTO listener_events (req_type, was_successful)
-		VALUES ($1, $2)
+		INSERT INTO listener_events (req_type, was_successful, message)
+		VALUES ($1, $2, $3)
 		RETURNING id
 	`
 
-	args := []any{event.ReqType, event.WasSuccessful}
+	args := []any{event.ReqType, event.WasSuccessful, event.Message}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -46,7 +47,7 @@ func (m *ListenerEventsModel) Insert(event *ListenerEvent) error {
 
 func (m *ListenerEventsModel) GetAll() ([]ListenerEvent, error) {
 	query := `
-		SELECT id, req_type, was_successful, time FROM listener_events
+		SELECT id, req_type, was_successful, message, time FROM listener_events
 		ORDER BY time DESC;
 	`
 
@@ -71,6 +72,7 @@ func (m *ListenerEventsModel) GetAll() ([]ListenerEvent, error) {
 			&event.ID,
 			&event.ReqType,
 			&wasSuccessful,
+			&event.Message,
 			&event.Time,
 		)
 		if err != nil {

@@ -250,6 +250,7 @@ func createListenerEventsTable(db *sql.DB) error {
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		req_type TEXT NOT NULL,
 		was_successful INTEGER NOT NULL,
+		message TEXT,
 		time TEXT NOT NULL DEFAULT (datetime('now'))
 	);`
 
@@ -350,6 +351,37 @@ func createSMSTables(db *sql.DB) error {
 
 	_, err = db.Exec(attendanceValuesTableStmt)
 
+	// While there are performance benefits to creating a secondary effortsIndices table as below, updates will be safer and more consistent if they are held in an array in the base classEfforts table
+	// TODO: efforts - how does SQLite best store arrays (of integers?)
+	classEffortsTableStmt := `CREATE TABLE IF NOT EXISTS class_efforts (
+		count INTEGER,
+		student_id INTEGER NOT NULL,
+		nsn TEXT,
+		date TEXT NOT NULL,
+		slot INTEGER NOT NULL,
+		term INTEGER,
+		week INTEGER,
+		subject TEXT,
+		user TEXT,
+		efforts TEXT,
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		UNIQUE(student_id, date, slot)
+	);`
+
+	_, err = db.Exec(classEffortsTableStmt)
+
+	// effortIndicesTableStmt := `CREATE TABLE IF NOT EXISTS effort_indices (
+	// 	eff_student_id INTEGER NOT NULL,
+	// 	date TEXT,
+	// 	slot INTEGER,
+	// 	value INTEGER,
+	// 	listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+	// 	FOREIGN KEY (eff_student_id) REFERENCES class_efforts(student_id) ON DELETE CASCADE,
+	// 	UNIQUE(att_student_id, date, slot)
+	// );`
+
+	// _, err = db.Exec(effortIndicesTableStmt)
+
 	pastoralTableStmt := `CREATE TABLE IF NOT EXISTS pastoral (
 		student_id			INTEGER NOT NULL,
 		nsn TEXT,
@@ -380,6 +412,27 @@ func createSMSTables(db *sql.DB) error {
 	);`
 
 	_, err = db.Exec(pastoralTableStmt)
+
+	// TODO: values - how does SQLite best store arrays (of integers?)
+	recognitionsTableStmt := `CREATE TABLE IF NOT EXISTS class_efforts (
+		count INTEGER,
+		student_id INTEGER NOT NULL,
+		nsn TEXT,
+		uuid TEXT
+		date TEXT NOT NULL,
+		slot INTEGER NOT NULL,
+		term INTEGER,
+		week INTEGER,
+		subject TEXT,
+		user TEXT,
+		points INTEGER,
+		comment TEXT,
+		values TEXT,
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		UNIQUE(student_id, date, slot)
+	);`
+
+	_, err = db.Exec(recognitionsTableStmt)
 
 	// TODO: Consider creating a singular "groups" table with a polymorphic foreign key - as it is, groups don't have an ID anyway, so would it be useful?
 	// TODO: Consider joining on id rather than uniqueid - though id is text rather than numerical (it's the teacher code, eg. MJE), each teacher is guaranteed to have one? Or perhaps students should be joined to other tables on uniqueid?

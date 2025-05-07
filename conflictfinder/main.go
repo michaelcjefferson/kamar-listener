@@ -74,6 +74,7 @@ type Pastoral struct {
 	ListenerUpdatedAt string
 }
 
+// Check for the number of records in a JSON file that have multiple entries containing a field that should be unique, i.e. updates rather than inserts, to ensure that the number of rows in a database table after insert matches the number of unique entries in the JSON file
 func main() {
 	// Load JSON from file
 	data, err := os.ReadFile("../test/actual-requests/attend_test.json")

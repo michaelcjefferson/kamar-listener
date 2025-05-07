@@ -21,19 +21,21 @@ type KAMARData struct {
 }
 
 type SMSDirectoryData struct {
-	DateTime         int              `json:"datetime,omitempty"`
-	FullSync         int              `json:"fullsync,omitempty"`
-	InfoURL          string           `json:"infourl,omitempty"`
-	PrivacyStatement string           `json:"privacystatement,omitempty"`
-	Schools          []School         `json:"schools,omitempty"`
-	SMS              string           `json:"sms,omitempty"`
-	Sync             string           `json:"sync,omitempty"`
-	Version          int              `json:"version,omitempty"`
-	Assessments      AssessmentsField `json:"assessments,omitempty"`
-	Attendance       AttendanceField  `json:"attendance,omitempty"`
-	Pastoral         PastoralField    `json:"pastoral,omitempty"`
-	Results          ResultsField     `json:"results,omitempty"`
-	// Use pointers to the three fields below, to allow easy checking for nil values (rather than 0 values)
+	DateTime         int               `json:"datetime,omitempty"`
+	FullSync         int               `json:"fullsync,omitempty"`
+	InfoURL          string            `json:"infourl,omitempty"`
+	PrivacyStatement string            `json:"privacystatement,omitempty"`
+	Schools          []School          `json:"schools,omitempty"`
+	SMS              string            `json:"sms,omitempty"`
+	Sync             string            `json:"sync,omitempty"`
+	Version          int               `json:"version,omitempty"`
+	Assessments      AssessmentsField  `json:"assessments,omitempty"`
+	Attendance       AttendanceField   `json:"attendance,omitempty"`
+	ClassEfforts     ClassEffortsField `json:"classefforts,omitempty"`
+	Pastoral         PastoralField     `json:"pastoral,omitempty"`
+	Recognitions     RecognitionsField `json:"recognitions,omitempty"`
+	Results          ResultsField      `json:"results,omitempty"`
+	// Use pointers to the three fields below, to allow easy checking for nil values (rather than 0 values), seeing as they come under a "full" or "part" key rather than their name
 	Staff      *StaffField     `json:"staff,omitempty"`
 	Students   *StudentsField  `json:"students,omitempty"`
 	Subjects   *SubjectsField  `json:"subjects,omitempty"`
@@ -48,9 +50,17 @@ type AttendanceField struct {
 	Count int               `json:"count,omitempty"`
 	Data  []data.Attendance `json:"data,omitempty"`
 }
+type ClassEffortsField struct {
+	Count int                `json:"count,omitempty"`
+	Data  []data.ClassEffort `json:"data,omitempty"`
+}
 type PastoralField struct {
 	Count int             `json:"count,omitempty"`
 	Data  []data.Pastoral `json:"data,omitempty"`
+}
+type RecognitionsField struct {
+	Count int                `json:"count,omitempty"`
+	Data  []data.Recognition `json:"data,omitempty"`
 }
 type ResultsField struct {
 	Count int           `json:"count,omitempty"`
@@ -119,6 +129,13 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			"sync":  syncType,
 		})
 		err = app.models.Attendance.InsertManyAttendance(kamarData.Data.Attendance.Data)
+	case "classefforts":
+		count = kamarData.Data.ClassEfforts.Count
+		app.logger.PrintInfo("listener: attempting to write classefforts to database...", map[string]any{
+			"count": count,
+			"sync":  syncType,
+		})
+		err = app.models.ClassEfforts.InsertManyClassEfforts(kamarData.Data.ClassEfforts.Data)
 	case "full", "part":
 		// TODO: Issue here where there may be multiple errors but only the last one will be returned/recorded
 		if kamarData.Data.Staff != nil {
@@ -152,6 +169,13 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			"sync":  syncType,
 		})
 		err = app.models.Pastoral.InsertManyPastoral(kamarData.Data.Pastoral.Data)
+	case "recognitions":
+		count = kamarData.Data.Recognitions.Count
+		app.logger.PrintInfo("listener: attempting to write recognitions to database...", map[string]any{
+			"count": count,
+			"sync":  syncType,
+		})
+		err = app.models.Recognitions.InsertManyRecognitions(kamarData.Data.Recognitions.Data)
 	case "results":
 		count = kamarData.Data.Results.Count
 		app.logger.PrintInfo("listener: attempting to write results to database...", map[string]any{
