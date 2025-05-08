@@ -69,7 +69,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	// Use MaxBytesReader to limit the size of the request body to 50mb (the largest csv Mark has is 30mb, though this is from just one table (comments)). It closes the reader once it reaches maxBytes read and returns an error, attempting also to close the connection to the client
 	maxBytes := 52_428_800
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))

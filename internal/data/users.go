@@ -210,7 +210,7 @@ func (m *UserModel) GetForToken(tokenPlaintext string) (*User, string, error) {
 		AND tokens.expiry > datetime('now')`
 
 	// Use [:] to convert the tokenHash [32]byte to a []byte. This is to match with SQLite's blob type, which tokens are stored as.
-	args := []interface{}{tokenHash[:]}
+	args := []any{tokenHash[:]}
 
 	var user User
 	var tokenExpiry string

@@ -90,7 +90,7 @@ func (app *application) registerUserHandler(c echo.Context) error {
 
 	app.userExists = true
 
-	app.logger.PrintInfo("new user registered", map[string]interface{}{
+	app.logger.PrintInfo("new user registered", map[string]any{
 		"user_id":    user.ID,
 		"created at": user.CreatedAt,
 		"username":   user.Username,
@@ -160,7 +160,7 @@ func (app *application) signInUserHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
-	app.logger.PrintInfo("user logged in", map[string]interface{}{
+	app.logger.PrintInfo("user logged in", map[string]any{
 		"user_id": user.ID,
 	})
 
@@ -185,7 +185,7 @@ func (app *application) logoutUserHandler(c echo.Context) error {
 		}
 	}
 
-	app.logger.PrintInfo("user logged out", map[string]interface{}{
+	app.logger.PrintInfo("user logged out", map[string]any{
 		"user_id":        user.ID,
 		"tokens deleted": deleted,
 	})

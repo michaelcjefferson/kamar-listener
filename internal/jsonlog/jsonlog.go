@@ -88,7 +88,7 @@ func (l *Logger) print(level Level, message string, properties map[string]any) (
 	// 	Level      string                 `json:"level"`
 	// 	Time       string                 `json:"time"`
 	// 	Message    string                 `json:"message"`
-	// 	Properties map[string]interface{} `json:"properties,omitempty"`
+	// 	Properties map[string]any `json:"properties,omitempty"`
 	// 	Trace      string                 `json:"trace,omitempty"`
 	// }{
 	// 	Level:      level.String(),

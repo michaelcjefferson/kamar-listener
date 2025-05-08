@@ -78,7 +78,7 @@ func (app *application) kamarNoCredentialsResponse(c echo.Context) error {
 
 // TODO: Receive specific error message indicating which aspect of the data was malformed (auth or body), and reflect in "result" message
 func (app *application) kamarUnprocessableEntityResponse(c echo.Context) error {
-	j := map[string]interface{}{
+	j := map[string]any{
 		"error":   422,
 		"result":  "Request From KAMAR Was Malformed",
 		"service": "WHS KAMAR Refresh",

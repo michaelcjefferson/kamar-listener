@@ -228,7 +228,7 @@ func (m *ConfigModel) Set(entry ConfigEntry) error {
 		ON CONFLICT(key) DO UPDATE SET value = ?, type = ?, description = ?, updated_at = CURRENT_TIMESTAMP
 	`
 
-	args := []interface{}{
+	args := []any{
 		entry.Key,
 		entry.Value,
 		entry.Type,

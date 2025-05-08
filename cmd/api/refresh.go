@@ -234,7 +234,7 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	// IMPORTANT: Instead of the results being written to SQLite as above, the following will write to a JSON file in the same directory as the binary - useful for testing?
 
 	// This is a drawn out and unnecessary attempt to get a slice of results to send to the InsertMany function - hopefully solved by defining better data structs at the top of this file
-	// resultsInterface, ok := kamarData.Data["results"].(map[string]interface{})
+	// resultsInterface, ok := kamarData.Data["results"].(map[string]any)
 	// if !ok {
 	// 	app.logger.PrintError(errors.New("no 'results' field found in JSON"), nil)
 	// 	app.authFailedResponse(w, r)

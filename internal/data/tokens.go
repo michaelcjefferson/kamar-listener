@@ -73,7 +73,7 @@ func (m *TokenModel) Insert(token *Token) error {
 		
 		UPDATE users SET last_authenticated_at = datetime('now') WHERE id = $4;`
 
-	args := []interface{}{token.Hash, token.UserID, token.Expiry, token.UserID}
+	args := []any{token.Hash, token.UserID, token.Expiry, token.UserID}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

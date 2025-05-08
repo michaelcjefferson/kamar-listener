@@ -78,7 +78,7 @@ func QueryForRecordCounts(tableName string, db *sql.DB) (int, int, error) {
 	return today, total, err
 }
 
-// Tries to read and convert an interface{} value (eg. the ones in log.Properties) to an int value - returns an int (or 0 on failure) and a bool (ok)
+// Tries to read and convert an any value (eg. the ones in log.Properties) to an int value - returns an int (or 0 on failure) and a bool (ok)
 func ToInt(value any) (int, bool) {
 	switch v := value.(type) {
 	case int:

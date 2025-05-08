@@ -11,13 +11,13 @@ import (
 )
 
 type Log struct {
-	ID         int                    `json:"id,omitempty"`
-	Level      string                 `json:"level"`
-	Time       string                 `json:"time"`
-	Message    string                 `json:"message"`
+	ID         int            `json:"id,omitempty"`
+	Level      string         `json:"level"`
+	Time       string         `json:"time"`
+	Message    string         `json:"message"`
 	Properties map[string]any `json:"properties,omitempty"`
-	Trace      string                 `json:"trace,omitempty"`
-	UserID     int                    `json:"user_id,omitempty"`
+	Trace      string         `json:"trace,omitempty"`
+	UserID     int            `json:"user_id,omitempty"`
 }
 
 type LogModel struct {
@@ -52,7 +52,7 @@ func (m *LogModel) Insert(log *Log) {
 			fmt.Println("error marshalling json when attempting to write a log to database:", err)
 		}
 
-		args := []interface{}{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level}
+		args := []any{log.Level, log.Time, log.Message, jsonProps, log.Trace, log.Message, log.Level}
 
 		if userID > 0 {
 			query += `

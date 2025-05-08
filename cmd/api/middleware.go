@@ -22,7 +22,7 @@ func (app *application) recoverPanicMiddleware(next echo.HandlerFunc) echo.Handl
 			if err := recover(); err != nil {
 				// Set header which tells the server to close the connection after this has been sent.
 				c.Response().Header().Set(echo.HeaderConnection, "close")
-				app.logger.PrintError(err.(error), map[string]interface{}{
+				app.logger.PrintError(err.(error), map[string]any{
 					"OHNO": "couldn't recover from this error",
 				})
 				c.Error(fmt.Errorf("%v", err))
@@ -174,7 +174,7 @@ func (app *application) authenticateUser(next echo.HandlerFunc) echo.HandlerFunc
 
 		// Check if the token expiry is within the timeframe, and if so, generate a new token and return it
 		if expiryTime.Before(expiryTimeFrame) {
-			app.logger.PrintInfo("token near expiry - creating new token and sending to user", map[string]interface{}{
+			app.logger.PrintInfo("token near expiry - creating new token and sending to user", map[string]any{
 				"user id":           user.ID,
 				"expiry time":       tokenExpiry,
 				"expiry time frame": expiryTimeFrame,

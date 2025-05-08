@@ -85,7 +85,7 @@ func (app *application) initiateTokenDeletionCycle() {
 				if err != nil {
 					app.logger.PrintError(err, nil)
 				}
-				app.logger.PrintInfo("purged expired tokens", map[string]interface{}{
+				app.logger.PrintInfo("purged expired tokens", map[string]any{
 					"tokensDeleted": deleted,
 				})
 			case <-app.isShuttingDown:

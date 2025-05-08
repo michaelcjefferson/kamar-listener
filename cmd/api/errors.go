@@ -9,7 +9,7 @@ import (
 )
 
 func (app *application) logError(c echo.Context, err error) {
-	app.logger.PrintError(err, map[string]interface{}{
+	app.logger.PrintError(err, map[string]any{
 		"request_ip":     c.RealIP(),
 		"request_method": c.Request().Method,
 		"request_url":    c.Request().URL,
@@ -17,7 +17,7 @@ func (app *application) logError(c echo.Context, err error) {
 }
 
 func (app *application) logRequest(c echo.Context, message string) {
-	app.logger.PrintInfo(message, map[string]interface{}{
+	app.logger.PrintInfo(message, map[string]any{
 		"request_ip":     c.RealIP(),
 		"request_method": c.Request().Method,
 		"request_url":    c.Request().URL,
@@ -40,7 +40,7 @@ func (app *application) errorResponse(c echo.Context, status int, message any) e
 }
 
 // If the client accepts JSON (which will be the case when using fetch() in the browser for API calls, CURL etc.), provide a JSON response including a status code, redirect path to follow if desired by the client, and error message - otherwise respond with an http.Redirect. http.Redirect will occur if a client tries to access a page via its URL - it is a GET request and doesn't include the Accepts JSON header
-func (app *application) redirectErrorResponse(c echo.Context, path string, jsonStatus int, message interface{}) error {
+func (app *application) redirectErrorResponse(c echo.Context, path string, jsonStatus int, message any) error {
 	var err error
 	if strings.Contains(c.Request().Header.Get("Accept"), "application/json") {
 		env := envelope{"error": message, "redirect": path}
