@@ -73,7 +73,7 @@ func QueryForRecordCounts(tableName string, db *sql.DB) (int, int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := db.QueryRowContext(ctx, query).Scan(&today, &total)
+	err := db.QueryRowContext(ctx, query).Scan(&total, &today)
 
 	return today, total, err
 }

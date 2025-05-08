@@ -28,6 +28,8 @@ func (app *application) routes() http.Handler {
 	}
 	// TODO: Set up CORS
 
+	router.Pre(middleware.RemoveTrailingSlash())
+
 	// TO SET UP EMBEDDED ASSETS OR FILES WITH ECHO,
 	// 1) the assets must be in the same directory as main.go, so the go:embed can find them (as far as I can tell)
 	// 2) use echo.MustSubFS() to clean route-file matching, eg. the html is searching for url.com/style.css - seeing as that file is in the /assets folder, MustSubFS navigates the file system inside of /assets
@@ -81,7 +83,7 @@ func (app *application) routes() http.Handler {
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
 	kamarAuthGroup := router.Group("/kamar-refresh", app.authenticateKAMAR)
-	kamarAuthGroup.POST("/", app.kamarRefreshHandler)
+	kamarAuthGroup.POST("", app.kamarRefreshHandler)
 
 	// router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
 

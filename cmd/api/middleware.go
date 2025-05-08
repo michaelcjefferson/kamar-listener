@@ -49,6 +49,8 @@ func (app *application) requireKAMARAuthSetUp(next echo.HandlerFunc) echo.Handle
 // Authenticate requests received from KAMAR itself, using the required Basic authentication
 func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		app.logRequest(c, "hit authenticateKAMAR middleware")
+
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
 			app.logger.PrintInfo("listener: failed at authHeader", nil)

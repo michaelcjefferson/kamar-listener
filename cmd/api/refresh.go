@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -95,6 +96,8 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 		})
 		return app.kamarUnprocessableEntityResponse(c)
 	}
+
+	app.logRequest(c, fmt.Sprintf("hit kamarRefreshHandler, with syncType: %v", kamarData.Data.Sync))
 
 	// Establish the type of request from KAMAR
 	syncType := kamarData.Data.Sync
