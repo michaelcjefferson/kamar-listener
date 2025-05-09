@@ -558,7 +558,8 @@ func createSMSTables(db *sql.DB) error {
 		year INTEGER,
 		date TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
+		UNIQUE(student_uuid, name, year, date)
 	);
 	
 	CREATE TABLE IF NOT EXISTS student_caregivers (

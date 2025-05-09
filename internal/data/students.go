@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 )
 
 // Without clear examples or documentation from KAMAR, a number of fields' data types are unclear. These data types are Unmarshalled as "any" type to the struct, and then written as TEXT values to the database, to ensure they still come through
@@ -36,16 +37,16 @@ type Student struct {
 	LanguageSpoken    string          `json:"languagespoken,omitempty"`
 	Datebirth         int             `json:"datebirth,omitempty"`
 	Startingdate      int             `json:"startingdate,omitempty"`
-	StartSchoolDate   any             `json:"startschooldate,omitempty"`
+	StartSchoolDate   int             `json:"startschooldate,omitempty"`
 	Leavingdate       int             `json:"leavingdate,omitempty"`
 	LeavingReason     string          `json:"leavingreason,omitempty"`
-	LeavingSchool     string          `json:"leavingschool,omitempty"`
+	LeavingSchool     []string        `json:"leavingschool,omitempty"`
 	LeavingActivity   any             `json:"leavingactivity,omitempty"`
 	MOEType           string          `json:"moetype,omitempty"`
 	EthnicityL1       any             `json:"ethnicityL1,omitempty"`
 	EthnicityL2       any             `json:"ethnicityL2,omitempty"`
-	Ethnicity         any             `json:"ethnicity,omitempty"`
-	Iwi               string          `json:"iwi,omitempty"`
+	Ethnicity         []EthnicityCode `json:"ethnicity,omitempty"`
+	Iwi               []IwiCode       `json:"iwi,omitempty"`
 	YearLevel         any             `json:"yearlevel,omitempty"`
 	FundingLevel      any             `json:"fundinglevel,omitempty"`
 	Tutor             string          `json:"tutor,omitempty"`
@@ -68,15 +69,21 @@ type Student struct {
 	AltDescription    string          `json:"altdescription,omitempty"`
 	AltHomeDrive      string          `json:"althomedrive,omitempty"`
 	Flags             Flags           `json:"flags,omitempty"`
-	Res               []Residence     `json:"res,omitempty"`
+	Residences        []Residence     `json:"residence,omitempty"`
 	Caregivers        []Caregiver     `json:"caregivers,omitempty"`
 	Emergency         []Emergency     `json:"emergency,omitempty"`
 	Groups            []Group         `json:"groups,omitempty"`
 	Awards            []Award         `json:"awards,omitempty"`
 	Datasharing       Datasharing     `json:"datasharing,omitempty"`
-	Custom            json.RawMessage `json:"custom,omitempty"`
+	Custom            []CustomField   `json:"custom,omitempty"`
 	ListenerUpdatedAt string
 }
+
+type EthnicityCode int
+
+type IwiCode int
+
+type CustomField string
 
 type Award struct {
 	Type              string `json:"type,omitempty"`
@@ -238,9 +245,15 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	}
 	defer studentStmt.Close()
 
+	// TODO: Look for a better unique identifier
 	studentAwardStmt, err := tx.Prepare(`
-	INSERT INTO student_awards (student_uuid, student_id, type, name, year, date) VALUES ($1, $2, $3, $4, $5, $6)
-	`)
+	INSERT INTO student_awards (student_uuid, student_id, type, name, year, date)
+	VALUES ($1, $2, $3, $4, $5, $6)
+	ON CONFLICT(student_uuid, name, year, date) DO UPDATE SET
+		student_id = excluded.student_id,
+		type = excluded.type,
+		listener_updated_at = (datetime('now'))
+	;`)
 	if err != nil {
 		return err
 	}
@@ -349,7 +362,38 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 
 		// Insert each entry
 		for _, s := range batch {
-			_, err := studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, s.LeavingSchool, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, s.Ethnicity, s.Iwi, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, s.Custom)
+			// Marshal ethnicity, iwi, and custom into JSON arrays for simple storage in SQLite
+			var customJSON, iwiJSON, ethnicityJSON []byte
+			var err error
+
+			if len(s.Custom) > 0 {
+				customJSON, err = json.Marshal(s.Custom)
+				if err != nil {
+					return fmt.Errorf("marshal custom: %w", err)
+				}
+			} else {
+				customJSON = nil // stored as NULL in DB
+			}
+
+			if len(s.Iwi) > 0 {
+				iwiJSON, err = json.Marshal(s.Iwi)
+				if err != nil {
+					return fmt.Errorf("marshal languages: %w", err)
+				}
+			} else {
+				iwiJSON = nil
+			}
+
+			if len(s.Ethnicity) > 0 {
+				ethnicityJSON, err = json.Marshal(s.Ethnicity)
+				if err != nil {
+					return fmt.Errorf("marshal ethnicity: %w", err)
+				}
+			} else {
+				ethnicityJSON = nil
+			}
+
+			_, err = studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, s.LeavingSchool, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, ethnicityJSON, iwiJSON, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, customJSON)
 			if err != nil {
 				return err
 			}
@@ -392,7 +436,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 				}
 			}
 
-			for _, r := range s.Res {
+			for _, r := range s.Residences {
 				_, err = studentResStmt.Exec(s.UUID, s.ID, r.Title, r.Salutation, r.Email, r.NumFlatUnit, r.NumStreet, r.RuralDelivery, r.Suburb, r.Town, r.Postcode)
 				if err != nil {
 					return err
