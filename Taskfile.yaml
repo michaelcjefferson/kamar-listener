@@ -1,0 +1,86 @@
+version: '3'
+
+silent: true
+
+tasks:
+  # BUILD TASKS #
+  build/templates:
+    desc: "Build templ files in /ui"
+    cmds:
+      - echo 'Generating templ templates...'
+      - rm -rf ./cmd/api/assets
+      - cp -r ./ui/assets ./cmd/api
+      - cd ./ui && templ generate
+      - echo 'Done'
+  build/linux:
+    desc: "Remove previously built binaries and build a linux binary"
+    deps:
+      - task: remove
+      - task: build/templates
+    cmds:
+      - echo Building listener service Linux binary...
+      - go build -tags "linux sqlite_fts5" -o=./bin/listenerService ./cmd/api
+      - echo Done
+  build/windows:
+    desc: "(From Linux) remove previously built binaries and build a windows binary"
+    deps:
+      - task: remove
+      - task: build/templates
+    cmds:
+      - echo Building listener service Windows binary...
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -tags "sqlite_fts5" -o ./bin/listenerService.exe ./cmd/api
+      - echo Done
+  windows/build/windows:
+    desc: "(From Windows) remove previously built binaries and build a windows binary"
+    deps:
+      - task: remove
+      - task: build/templates
+    cmds:
+      - echo Building listener service Windows binary...
+      - set CGO_ENABLED=1&& set goos=windows&& go build -tags "sqlite_fts5" -o ./bin/listenerService.exe ./cmd/api
+      - echo Done
+
+  # RUN TASKS #
+  run/api:
+    desc: "Run the Listener API service in dev mode"
+    deps:
+      - task: remove
+      - task: build/templates
+    cmds:
+      - echo Running KAMAR Refresh API...
+      - go run -tags "sqlite_fts5" ./cmd/api -env "development"
+
+  # HELPER TASKS #
+  # Not useful, as this tasks interactivity isn't ported to tasks that call it - better to past the cmd into a calling task in order and force exit on fail
+  confirm:
+    desc: "Only proceed with the following tasks if the user enters 'y'"
+    # this task requires interactive: true in order for read to work - otherwise the task is run in a non-interactive subshell
+    interactive: true
+    cmds:
+      - echo -n 'Are you sure? [y/N] ' && read ans && [ "$${ans:-N}" = y ]
+    internal: true
+  clean:
+    desc: "Clear the cache"
+    cmds:
+      - echo 'Cleaning go cache...'
+      - go clean
+  remove:
+    desc: "Run 'go clean' and remove built binaries"
+    cmds:
+      - task: clean
+      - echo 'Removing built binaries...'
+      - |
+        if [ -d "./bin" ] && [ "$(ls -A ./bin)" ]; then \
+          rm -rf ./bin/*; \
+          echo "Binaries removed."; \
+        else \
+          echo "No binaries to remove."; \
+        fi
+  vendor:
+    desc: "Tidy and vendor dependencies"
+    cmds:
+      - echo 'Tidying and verifying module dependencies...'
+      - go mod tidy
+      - go mod verify
+      - echo 'Vendoring dependencies...'
+      - go mod vendor

@@ -30,19 +30,19 @@ build/linux: remove build/frontend
 
 ## build/windows: remove previously built binaries and build a windows binary
 .PHONY: build/windows
-build/windows: remove build/frontend
+build/windows: remove build/templates
 	@echo Building listener service Windows binary...
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -tags "sqlite_fts5" -o ./bin/listenerService.exe ./cmd/api
 	@echo Done
 
 ## windows/build/windows: FOR BUILDING ON WINDOWS MACHINES - remove previously built binaries and build a windows binary
 .PHONY: windows/build/windows
-windows/build/windows: remove build/frontend
+windows/build/windows: remove build/templates
 	@echo Building listener service Windows binary...
 	set CGO_ENABLED=1&& set goos=windows&& go build -tags "sqlite_fts5" -o ./bin/listenerService.exe ./cmd/api
 	@echo Done
 
-# TODO: the following two commands need to first check for the existance of the folder they're attempting to copy into, and then create it if necessary
+# TODO: the following two commands need to first check for the existence of the folder they're attempting to copy into, and then create it if necessary
 ## build/templates: build templ files in /ui
 .PHONY: build/templates
 build/templates:
