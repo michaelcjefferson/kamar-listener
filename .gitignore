@@ -10,3 +10,4 @@ cmd/api/assets/
 *.db-journal
 *.db-shm
 *.db-wal
+*_templ.go
