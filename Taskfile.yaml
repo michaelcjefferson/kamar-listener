@@ -42,13 +42,21 @@ tasks:
 
   # RUN TASKS #
   run/api:
-    desc: "Run the Listener API service in dev mode"
+    desc: "(On Linux) run the Listener API service in dev mode"
     deps:
       - task: remove
       - task: build/templates
     cmds:
       - echo Running KAMAR Refresh API...
       - go run -tags "sqlite_fts5" ./cmd/api -env "development"
+  windows/run/api:
+    desc: "(On Windows) run the Listener API service in dev mode"
+    deps:
+      - task: remove
+      - task: build/templates
+    cmds:
+      - echo Running KAMAR Refresh API...
+      - CGO_ENABLED=1 go run -tags "sqlite_fts5" ./cmd/api -env "development"
 
   # HELPER TASKS #
   # Not useful, as this tasks interactivity isn't ported to tasks that call it - better to past the cmd into a calling task in order and force exit on fail
