@@ -8,74 +8,74 @@ import (
 
 // Without clear examples or documentation from KAMAR, a number of fields' data types are unclear. These data types are Unmarshalled as "any" type to the struct, and then written as TEXT values to the database, to ensure they still come through
 type Student struct {
-	ID                int                 `json:"id,omitempty"`
-	UUID              string              `json:"uuid,omitempty"`
-	Role              string              `json:"role,omitempty"`
-	Created           int64               `json:"created,omitempty"`
-	Uniqueid          int                 `json:"uniqueid,omitempty"`
-	Nsn               string              `json:"nsn,omitempty"`
-	Username          string              `json:"username,omitempty"`
-	Firstname         string              `json:"firstname,omitempty"`
-	FirstnameLegal    string              `json:"firstnamelegal,omitempty"`
-	Lastname          string              `json:"lastname,omitempty"`
-	LastnameLegal     string              `json:"lastnamelegal,omitempty"`
-	Forenames         string              `json:"forenames,omitempty"`
-	ForenamesLegal    string              `json:"forenameslegal,omitempty"`
-	Gender            string              `json:"gender,omitempty"`
-	GenderPreferred   string              `json:"genderpreffered,omitempty"`
-	Gendercode        int                 `json:"gendercode,omitempty"`
-	SchoolIndex       int                 `json:"schoolindex,omitempty"`
-	Email             string              `json:"email,omitempty"`
-	Mobile            string              `json:"mobile,omitempty"`
-	House             string              `json:"house,omitempty"`
-	Whanau            string              `json:"whanau,omitempty"`
-	Boarder           string              `json:"boarder,omitempty"`
-	BYODInfo          string              `json:"byodinfo,omitempty"`
-	ECE               string              `json:"ece,omitempty"`
-	ESOL              int                 `json:"esol,omitempty"`
-	ORS               string              `json:"ors,omitempty"`
-	LanguageSpoken    string              `json:"languagespoken,omitempty"`
-	Datebirth         int                 `json:"datebirth,omitempty"`
-	Startingdate      int                 `json:"startingdate,omitempty"`
-	StartSchoolDate   int                 `json:"startschooldate,omitempty"`
-	Leavingdate       int                 `json:"leavingdate,omitempty"`
-	LeavingReason     string              `json:"leavingreason,omitempty"`
+	ID                *int                `json:"id,omitempty"`
+	UUID              *string             `json:"uuid,omitempty"`
+	Role              *string             `json:"role,omitempty"`
+	Created           *int64              `json:"created,omitempty"`
+	Uniqueid          *int                `json:"uniqueid,omitempty"`
+	Nsn               *string             `json:"nsn,omitempty"`
+	Username          *string             `json:"username,omitempty"`
+	Firstname         *string             `json:"firstname,omitempty"`
+	FirstnameLegal    *string             `json:"firstnamelegal,omitempty"`
+	Lastname          *string             `json:"lastname,omitempty"`
+	LastnameLegal     *string             `json:"lastnamelegal,omitempty"`
+	Forenames         *string             `json:"forenames,omitempty"`
+	ForenamesLegal    *string             `json:"forenameslegal,omitempty"`
+	Gender            *string             `json:"gender,omitempty"`
+	GenderPreferred   *string             `json:"genderpreffered,omitempty"`
+	Gendercode        *int                `json:"gendercode,omitempty"`
+	SchoolIndex       *int                `json:"schoolindex,omitempty"`
+	Email             *string             `json:"email,omitempty"`
+	Mobile            *string             `json:"mobile,omitempty"`
+	House             *string             `json:"house,omitempty"`
+	Whanau            *string             `json:"whanau,omitempty"`
+	Boarder           *string             `json:"boarder,omitempty"`
+	BYODInfo          *string             `json:"byodinfo,omitempty"`
+	ECE               *string             `json:"ece,omitempty"`
+	ESOL              *int                `json:"esol,omitempty"`
+	ORS               *string             `json:"ors,omitempty"`
+	LanguageSpoken    *string             `json:"languagespoken,omitempty"`
+	Datebirth         *int                `json:"datebirth,omitempty"`
+	Startingdate      *int                `json:"startingdate,omitempty"`
+	StartSchoolDate   *int                `json:"startschooldate,omitempty"`
+	Leavingdate       *int                `json:"leavingdate,omitempty"`
+	LeavingReason     *string             `json:"leavingreason,omitempty"`
 	LeavingSchool     []LeavingSchoolCode `json:"leavingschool,omitempty"`
-	LeavingActivity   string              `json:"leavingactivity,omitempty"`
-	MOEType           string              `json:"moetype,omitempty"`
-	EthnicityL1       string              `json:"ethnicityL1,omitempty"`
-	EthnicityL2       string              `json:"ethnicityL2,omitempty"`
+	LeavingActivity   *string             `json:"leavingactivity,omitempty"`
+	MOEType           *string             `json:"moetype,omitempty"`
+	EthnicityL1       *string             `json:"ethnicityL1,omitempty"`
+	EthnicityL2       *string             `json:"ethnicityL2,omitempty"`
 	Ethnicity         []EthnicityCode     `json:"ethnicity,omitempty"`
 	Iwi               []IwiCode           `json:"iwi,omitempty"`
-	YearLevel         int                 `json:"yearlevel,omitempty"`
-	FundingLevel      int                 `json:"fundinglevel,omitempty"`
-	Tutor             string              `json:"tutor,omitempty"`
-	TimetableBottom1  string              `json:"timetablebottom1,omitempty"`
-	TimetableBottom2  string              `json:"timetablebottom2,omitempty"`
-	TimetableBottom3  string              `json:"timetablebottom3,omitempty"`
-	TimetableBottom4  string              `json:"timetablebottom4,omitempty"`
-	TimetableTop1     string              `json:"timetabletop1,omitempty"`
-	TimetableTop2     string              `json:"timetabletop2,omitempty"`
-	TimetableTop3     string              `json:"timetabletop3,omitempty"`
-	TimetableTop4     string              `json:"timetabletop4,omitempty"`
-	MaoriLevel        any                 `json:"maorilevel,omitempty"`
-	PacificLanguage   string              `json:"pacificlanguage,omitempty"`
-	PacificLevel      any                 `json:"pacificlevel,omitempty"`
-	SiblingLink       int                 `json:"siblinglink,omitempty"`
-	PhotocopierID     int                 `json:"photocopierid,omitempty"`
-	SignedAgreement   int                 `json:"signedagreement,omitempty"`
-	AccountDisabled   int                 `json:"accountdisabled,omitempty"`
-	NetworkAccess     any                 `json:"networkaccess,omitempty"`
-	AltDescription    string              `json:"altdescription,omitempty"`
-	AltHomeDrive      string              `json:"althomedrive,omitempty"`
-	Flags             Flags               `json:"flags,omitempty"`
+	YearLevel         *int                `json:"yearlevel,omitempty"`
+	FundingLevel      *int                `json:"fundinglevel,omitempty"`
+	Tutor             *string             `json:"tutor,omitempty"`
+	TimetableBottom1  *string             `json:"timetablebottom1,omitempty"`
+	TimetableBottom2  *string             `json:"timetablebottom2,omitempty"`
+	TimetableBottom3  *string             `json:"timetablebottom3,omitempty"`
+	TimetableBottom4  *string             `json:"timetablebottom4,omitempty"`
+	TimetableTop1     *string             `json:"timetabletop1,omitempty"`
+	TimetableTop2     *string             `json:"timetabletop2,omitempty"`
+	TimetableTop3     *string             `json:"timetabletop3,omitempty"`
+	TimetableTop4     *string             `json:"timetabletop4,omitempty"`
+	MaoriLevel        *any                `json:"maorilevel,omitempty"`
+	PacificLanguage   *string             `json:"pacificlanguage,omitempty"`
+	PacificLevel      *any                `json:"pacificlevel,omitempty"`
+	SiblingLink       *int                `json:"siblinglink,omitempty"`
+	PhotocopierID     *int                `json:"photocopierid,omitempty"`
+	SignedAgreement   *int                `json:"signedagreement,omitempty"`
+	AccountDisabled   *int                `json:"accountdisabled,omitempty"`
+	NetworkAccess     *any                `json:"networkaccess,omitempty"`
+	AltDescription    *string             `json:"altdescription,omitempty"`
+	AltHomeDrive      *string             `json:"althomedrive,omitempty"`
+	Flags             *Flags              `json:"flags,omitempty"`
 	Residences        []Residence         `json:"residence,omitempty"`
 	Caregivers        []Caregiver         `json:"caregivers,omitempty"`
 	Emergency         []Emergency         `json:"emergency,omitempty"`
 	Groups            []Group             `json:"groups,omitempty"`
 	Awards            []Award             `json:"awards,omitempty"`
-	Datasharing       Datasharing         `json:"datasharing,omitempty"`
-	Custom            CustomField         `json:"custom,omitempty"`
+	Datasharing       *Datasharing        `json:"datasharing,omitempty"`
+	Custom            *CustomField        `json:"custom,omitempty"`
 	ListenerUpdatedAt string
 }
 
@@ -374,7 +374,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 			var customJSON, iwiJSON, ethnicityJSON, leavingSchoolJSON []byte
 			var err error
 
-			if s.Custom != (CustomField{}) {
+			if s.Custom != nil {
 				customJSON, err = json.Marshal(s.Custom)
 				if err != nil {
 					return fmt.Errorf("marshal custom: %w", err)
@@ -410,6 +410,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 				leavingSchoolJSON = nil
 			}
 
+			// _, err = studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, s.LeavingSchool, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, s.Ethnicity, s.Iwi, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, s.Custom)
 			_, err = studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, leavingSchoolJSON, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, ethnicityJSON, iwiJSON, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, customJSON)
 			if err != nil {
 				return err
