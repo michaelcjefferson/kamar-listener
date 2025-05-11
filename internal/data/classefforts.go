@@ -7,16 +7,16 @@ import (
 )
 
 type ClassEffort struct {
-	Count             int    `json:"count"`
-	ID                int    `json:"id"`
-	NSN               string `json:"nsn,omitempty"`
-	Date              string `json:"date"`
-	Slot              int    `json:"slot"`
-	Term              int    `json:"term,omitempty"`
-	Week              int    `json:"week,omitempty"`
-	Subject           string `json:"subject,omitempty"`
-	User              string `json:"user,omitempty"`
-	Efforts           []int  `json:"efforts,omitempty"`
+	Count             *int    `json:"count"`
+	ID                *int    `json:"id"`
+	NSN               *string `json:"nsn,omitempty"`
+	Date              *string `json:"date"`
+	Slot              *int    `json:"slot"`
+	Term              *int    `json:"term,omitempty"`
+	Week              *int    `json:"week,omitempty"`
+	Subject           *string `json:"subject,omitempty"`
+	User              *string `json:"user,omitempty"`
+	Efforts           []int   `json:"efforts,omitempty"`
 	ListenerUpdatedAt string
 }
 

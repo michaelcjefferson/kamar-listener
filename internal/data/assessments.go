@@ -11,20 +11,20 @@ import (
 )
 
 type Assessment struct {
-	Type              string `json:"type,omitempty"`
-	Number            string `json:"number,omitempty"`
-	Version           int    `json:"version,omitempty"`
-	TNV               string
-	Level             int    `json:"level,omitempty"`
-	Credits           int    `json:"credits,omitempty"`
-	Weighting         any    `json:"weighting,omitempty"`
-	Points            any    `json:"points,omitempty"`
-	Title             string `json:"title,omitempty"`
-	Description       any    `json:"description,omitempty"`
-	Purpose           any    `json:"purpose,omitempty"`
-	SchoolRef         any    `json:"schoolref,omitempty"`
-	Subfield          string `json:"subfield,omitempty"`
-	Internalexternal  string `json:"internalexternal,omitempty"`
+	Type              *string `json:"type,omitempty"`
+	Number            *string `json:"number,omitempty"`
+	Version           *int    `json:"version,omitempty"`
+	TNV               *string
+	Level             *int    `json:"level,omitempty"`
+	Credits           *int    `json:"credits,omitempty"`
+	Weighting         *any    `json:"weighting,omitempty"`
+	Points            *any    `json:"points,omitempty"`
+	Title             *string `json:"title,omitempty"`
+	Description       *any    `json:"description,omitempty"`
+	Purpose           *any    `json:"purpose,omitempty"`
+	SchoolRef         *any    `json:"schoolref,omitempty"`
+	Subfield          *string `json:"subfield,omitempty"`
+	Internalexternal  *string `json:"internalexternal,omitempty"`
 	ListenerUpdatedAt string
 }
 
@@ -33,8 +33,8 @@ type AssessmentModel struct {
 }
 
 func (a *Assessment) CreateTNV() {
-	tnv := strings.Join([]string{a.Type, a.Number, strconv.Itoa(a.Version)}, "_")
-	a.TNV = tnv
+	tnv := strings.Join([]string{*a.Type, *a.Number, strconv.Itoa(*a.Version)}, "_")
+	a.TNV = &tnv
 }
 
 func (m *AssessmentModel) InsertManyAssessments(assessments []Assessment) error {

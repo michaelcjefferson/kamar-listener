@@ -3,36 +3,37 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 )
 
 type Staff struct {
-	ID                 string          `json:"id,omitempty"`
-	UUID               string          `json:"uuid,omitempty"`
-	Role               string          `json:"role,omitempty"`
-	Created            int64           `json:"created,omitempty"`
-	Uniqueid           int             `json:"uniqueid,omitempty"`
-	Username           string          `json:"username,omitempty"`
-	Firstname          string          `json:"firstname,omitempty"`
-	Lastname           string          `json:"lastname,omitempty"`
-	Gender             string          `json:"gender,omitempty"`
-	Groups             []Group         `json:"groups,omitempty"`
-	SchoolIndex        int             `json:"schoolindex,omitempty"`
-	Title              string          `json:"title,omitempty"`
-	Email              string          `json:"email,omitempty"`
-	Mobile             string          `json:"mobile,omitempty"`
-	Extension          string          `json:"extension,omitempty"`
-	Classification     string          `json:"classification,omitempty"`
-	Position           string          `json:"position,omitempty"`
-	House              string          `json:"house,omitempty"`
-	Tutor              string          `json:"tutor,omitempty"`
-	DateBirth          any             `json:"datebirth,omitempty"`
-	LeavingDate        any             `json:"leavingdate,omitempty"`
-	StartingDate       any             `json:"startingdate,omitempty"`
-	ESLGUID            any             `json:"eslguid,omitempty"`
-	MOENumber          any             `json:"moenumber,omitempty"`
-	PhotocopierID      any             `json:"photocopierid,omitempty"`
-	RegistrationNumber any             `json:"registrationnumber,omitempty"`
-	Custom             json.RawMessage `json:"custom,omitempty"`
+	ID                 *string      `json:"id,omitempty"`
+	UUID               *string      `json:"uuid,omitempty"`
+	Role               *string      `json:"role,omitempty"`
+	Created            int64        `json:"created,omitempty"`
+	Uniqueid           *int         `json:"uniqueid,omitempty"`
+	Username           *string      `json:"username,omitempty"`
+	Firstname          *string      `json:"firstname,omitempty"`
+	Lastname           *string      `json:"lastname,omitempty"`
+	Gender             *string      `json:"gender,omitempty"`
+	Groups             []Group      `json:"groups,omitempty"`
+	SchoolIndex        *int         `json:"schoolindex,omitempty"`
+	Title              *string      `json:"title,omitempty"`
+	Email              *string      `json:"email,omitempty"`
+	Mobile             *string      `json:"mobile,omitempty"`
+	Extension          *string      `json:"extension,omitempty"`
+	Classification     *string      `json:"classification,omitempty"`
+	Position           *string      `json:"position,omitempty"`
+	House              *string      `json:"house,omitempty"`
+	Tutor              *string      `json:"tutor,omitempty"`
+	DateBirth          *any         `json:"datebirth,omitempty"`
+	LeavingDate        *any         `json:"leavingdate,omitempty"`
+	StartingDate       *any         `json:"startingdate,omitempty"`
+	ESLGUID            *any         `json:"eslguid,omitempty"`
+	MOENumber          *any         `json:"moenumber,omitempty"`
+	PhotocopierID      *any         `json:"photocopierid,omitempty"`
+	RegistrationNumber *any         `json:"registrationnumber,omitempty"`
+	Custom             *CustomField `json:"custom,omitempty"`
 	ListenerUpdatedAt  string
 }
 
@@ -112,7 +113,19 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 
 		// Insert each entry
 		for _, s := range batch {
-			_, err := staffStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Username, s.Firstname, s.Lastname, s.Gender, s.SchoolIndex, s.Title, s.Email, s.Mobile, s.Extension, s.Classification, s.Position, s.House, s.Tutor, s.DateBirth, s.LeavingDate, s.StartingDate, s.ESLGUID, s.MOENumber, s.PhotocopierID, s.RegistrationNumber, s.Custom)
+			var customJSON []byte
+			var err error
+
+			if s.Custom != nil {
+				customJSON, err = json.Marshal(s.Custom)
+				if err != nil {
+					return fmt.Errorf("marshal custom: %w", err)
+				}
+			} else {
+				customJSON = nil
+			}
+
+			_, err = staffStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Username, s.Firstname, s.Lastname, s.Gender, s.SchoolIndex, s.Title, s.Email, s.Mobile, s.Extension, s.Classification, s.Position, s.House, s.Tutor, s.DateBirth, s.LeavingDate, s.StartingDate, s.ESLGUID, s.MOENumber, s.PhotocopierID, s.RegistrationNumber, customJSON)
 			if err != nil {
 				return err
 			}

@@ -7,19 +7,19 @@ import (
 )
 
 type Recognition struct {
-	Count             int    `json:"count"`
-	ID                int    `json:"id"`
-	NSN               string `json:"nsn,omitempty"`
-	UUID              string `json:"uuid,omitempty"`
-	Date              string `json:"date"`
-	Slot              int    `json:"slot"`
-	Term              int    `json:"term,omitempty"`
-	Week              int    `json:"week,omitempty"`
-	Subject           string `json:"subject,omitempty"`
-	User              string `json:"user,omitempty"`
-	Points            int    `json:"points,omitempty"`
-	Comment           string `json:"comment,omitempty"`
-	Values            []int  `json:"values,omitempty"`
+	Count             *int    `json:"count"`
+	ID                *int    `json:"id"`
+	NSN               *string `json:"nsn,omitempty"`
+	UUID              *string `json:"uuid,omitempty"`
+	Date              *string `json:"date"`
+	Slot              *int    `json:"slot"`
+	Term              *int    `json:"term,omitempty"`
+	Week              *int    `json:"week,omitempty"`
+	Subject           *string `json:"subject,omitempty"`
+	User              *string `json:"user,omitempty"`
+	Points            *int    `json:"points,omitempty"`
+	Comment           *string `json:"comment,omitempty"`
+	Values            []int   `json:"values,omitempty"`
 	ListenerUpdatedAt string
 }
 

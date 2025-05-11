@@ -3,16 +3,16 @@ package data
 import "database/sql"
 
 type Attendance struct {
-	ID                int    `json:"id,omitempty"`
-	Nsn               string `json:"nsn,omitempty"`
-	ListenerUpdatedAt string
+	ID                *int    `json:"id,omitempty"`
+	Nsn               *string `json:"nsn,omitempty"`
+	ListenerUpdatedAt *string
 	Values            []struct {
-		Date              string `json:"date,omitempty"`
-		Codes             string `json:"codes,omitempty"`
-		Alt               string `json:"alt,omitempty"`
-		Hdu               int    `json:"hdu,omitempty"`
-		Hdj               int    `json:"hdj,omitempty"`
-		Hdp               int    `json:"hdp,omitempty"`
+		Date              *string `json:"date,omitempty"`
+		Codes             *string `json:"codes,omitempty"`
+		Alt               *string `json:"alt,omitempty"`
+		Hdu               *int    `json:"hdu,omitempty"`
+		Hdj               *int    `json:"hdj,omitempty"`
+		Hdp               *int    `json:"hdp,omitempty"`
 		ListenerUpdatedAt string
 	} `json:"values,omitempty"`
 }
