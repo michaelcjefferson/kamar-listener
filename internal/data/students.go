@@ -21,19 +21,19 @@ type Student struct {
 	LastnameLegal     string              `json:"lastnamelegal,omitempty"`
 	Forenames         string              `json:"forenames,omitempty"`
 	ForenamesLegal    string              `json:"forenameslegal,omitempty"`
-	Gender            any                 `json:"gender,omitempty"`
-	GenderPreferred   any                 `json:"genderpreffered,omitempty"`
+	Gender            string              `json:"gender,omitempty"`
+	GenderPreferred   string              `json:"genderpreffered,omitempty"`
 	Gendercode        int                 `json:"gendercode,omitempty"`
 	SchoolIndex       int                 `json:"schoolindex,omitempty"`
 	Email             string              `json:"email,omitempty"`
 	Mobile            string              `json:"mobile,omitempty"`
 	House             string              `json:"house,omitempty"`
 	Whanau            string              `json:"whanau,omitempty"`
-	Boarder           any                 `json:"boarder,omitempty"`
-	BYODInfo          any                 `json:"byodinfo,omitempty"`
-	ECE               any                 `json:"ece,omitempty"`
-	ESOL              any                 `json:"esol,omitempty"`
-	ORS               any                 `json:"ors,omitempty"`
+	Boarder           string              `json:"boarder,omitempty"`
+	BYODInfo          string              `json:"byodinfo,omitempty"`
+	ECE               string              `json:"ece,omitempty"`
+	ESOL              int                 `json:"esol,omitempty"`
+	ORS               string              `json:"ors,omitempty"`
 	LanguageSpoken    string              `json:"languagespoken,omitempty"`
 	Datebirth         int                 `json:"datebirth,omitempty"`
 	Startingdate      int                 `json:"startingdate,omitempty"`
@@ -41,30 +41,30 @@ type Student struct {
 	Leavingdate       int                 `json:"leavingdate,omitempty"`
 	LeavingReason     string              `json:"leavingreason,omitempty"`
 	LeavingSchool     []LeavingSchoolCode `json:"leavingschool,omitempty"`
-	LeavingActivity   any                 `json:"leavingactivity,omitempty"`
+	LeavingActivity   string              `json:"leavingactivity,omitempty"`
 	MOEType           string              `json:"moetype,omitempty"`
-	EthnicityL1       any                 `json:"ethnicityL1,omitempty"`
-	EthnicityL2       any                 `json:"ethnicityL2,omitempty"`
+	EthnicityL1       string              `json:"ethnicityL1,omitempty"`
+	EthnicityL2       string              `json:"ethnicityL2,omitempty"`
 	Ethnicity         []EthnicityCode     `json:"ethnicity,omitempty"`
 	Iwi               []IwiCode           `json:"iwi,omitempty"`
-	YearLevel         any                 `json:"yearlevel,omitempty"`
-	FundingLevel      any                 `json:"fundinglevel,omitempty"`
+	YearLevel         int                 `json:"yearlevel,omitempty"`
+	FundingLevel      int                 `json:"fundinglevel,omitempty"`
 	Tutor             string              `json:"tutor,omitempty"`
-	TimetableBottom1  any                 `json:"timetablebottom1,omitempty"`
-	TimetableBottom2  any                 `json:"timetablebottom2,omitempty"`
-	TimetableBottom3  any                 `json:"timetablebottom3,omitempty"`
-	TimetableBottom4  any                 `json:"timetablebottom4,omitempty"`
-	TimetableTop1     any                 `json:"timetabletop1,omitempty"`
-	TimetableTop2     any                 `json:"timetabletop2,omitempty"`
-	TimetableTop3     any                 `json:"timetabletop3,omitempty"`
-	TimetableTop4     any                 `json:"timetabletop4,omitempty"`
+	TimetableBottom1  string              `json:"timetablebottom1,omitempty"`
+	TimetableBottom2  string              `json:"timetablebottom2,omitempty"`
+	TimetableBottom3  string              `json:"timetablebottom3,omitempty"`
+	TimetableBottom4  string              `json:"timetablebottom4,omitempty"`
+	TimetableTop1     string              `json:"timetabletop1,omitempty"`
+	TimetableTop2     string              `json:"timetabletop2,omitempty"`
+	TimetableTop3     string              `json:"timetabletop3,omitempty"`
+	TimetableTop4     string              `json:"timetabletop4,omitempty"`
 	MaoriLevel        any                 `json:"maorilevel,omitempty"`
 	PacificLanguage   string              `json:"pacificlanguage,omitempty"`
 	PacificLevel      any                 `json:"pacificlevel,omitempty"`
-	SiblingLink       any                 `json:"siblinglink,omitempty"`
-	PhotocopierID     any                 `json:"photocopierid,omitempty"`
-	SignedAgreement   any                 `json:"signedagreement,omitempty"`
-	AccountDisabled   any                 `json:"accountdisabled,omitempty"`
+	SiblingLink       int                 `json:"siblinglink,omitempty"`
+	PhotocopierID     int                 `json:"photocopierid,omitempty"`
+	SignedAgreement   int                 `json:"signedagreement,omitempty"`
+	AccountDisabled   int                 `json:"accountdisabled,omitempty"`
 	NetworkAccess     any                 `json:"networkaccess,omitempty"`
 	AltDescription    string              `json:"altdescription,omitempty"`
 	AltHomeDrive      string              `json:"althomedrive,omitempty"`
@@ -75,7 +75,7 @@ type Student struct {
 	Groups            []Group             `json:"groups,omitempty"`
 	Awards            []Award             `json:"awards,omitempty"`
 	Datasharing       Datasharing         `json:"datasharing,omitempty"`
-	Custom            []CustomField       `json:"custom,omitempty"`
+	Custom            CustomField         `json:"custom,omitempty"`
 	ListenerUpdatedAt string
 }
 
@@ -85,7 +85,13 @@ type IwiCode int
 
 type LeavingSchoolCode int
 
-type CustomField string
+type CustomField struct {
+	Custom1 string `json:"custom1,omitempty"`
+	Custom2 string `json:"custom2,omitempty"`
+	Custom3 string `json:"custom3,omitempty"`
+	Custom4 string `json:"custom4,omitempty"`
+	Custom5 string `json:"custom5,omitempty"`
+}
 
 type Award struct {
 	Type              string `json:"type,omitempty"`
@@ -368,13 +374,13 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 			var customJSON, iwiJSON, ethnicityJSON, leavingSchoolJSON []byte
 			var err error
 
-			if len(s.Custom) > 0 {
+			if s.Custom != (CustomField{}) {
 				customJSON, err = json.Marshal(s.Custom)
 				if err != nil {
 					return fmt.Errorf("marshal custom: %w", err)
 				}
 			} else {
-				customJSON = nil // stored as NULL in DB
+				customJSON = nil
 			}
 
 			if len(s.Iwi) > 0 {
