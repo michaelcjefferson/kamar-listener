@@ -94,80 +94,80 @@ type CustomField struct {
 }
 
 type Award struct {
-	Type              string `json:"type,omitempty"`
-	Name              string `json:"name,omitempty"`
-	Year              int    `json:"year,omitempty"`
-	Date              string `json:"date,omitempty"`
+	Type              *string `json:"type,omitempty"`
+	Name              *string `json:"name,omitempty"`
+	Year              *int    `json:"year,omitempty"`
+	Date              *string `json:"date,omitempty"`
 	ListenerUpdatedAt string
 }
 
 type Caregiver struct {
-	Ref               int    `json:"ref,omitempty"`
-	Role              string `json:"role,omitempty"`
-	Name              string `json:"name,omitempty"`
-	Email             string `json:"email,omitempty"`
-	Mobile            string `json:"mobile,omitempty"`
-	Relationship      string `json:"relationship,omitempty"`
-	Status            any    `json:"status,omitempty"`
+	Ref               *int    `json:"ref,omitempty"`
+	Role              *string `json:"role,omitempty"`
+	Name              *string `json:"name,omitempty"`
+	Email             *string `json:"email,omitempty"`
+	Mobile            *string `json:"mobile,omitempty"`
+	Relationship      *string `json:"relationship,omitempty"`
+	Status            *any    `json:"status,omitempty"`
 	ListenerUpdatedAt string
 }
 
 type Datasharing struct {
-	Details           int `json:"details,omitempty"`
-	Photo             int `json:"photo,omitempty"`
-	Other             int `json:"other,omitempty"`
+	Details           *int `json:"details,omitempty"`
+	Photo             *int `json:"photo,omitempty"`
+	Other             *int `json:"other,omitempty"`
 	ListenerUpdatedAt string
 }
 
 type Emergency struct {
-	Name              string `json:"name,omitempty"`
-	Relationship      string `json:"relationship,omitempty"`
-	Mobile            string `json:"mobile,omitempty"`
+	Name              *string `json:"name,omitempty"`
+	Relationship      *string `json:"relationship,omitempty"`
+	Mobile            *string `json:"mobile,omitempty"`
 	ListenerUpdatedAt string
 }
 
 type Flags struct {
-	General string `json:"general,omitempty"`
+	General *string `json:"general,omitempty"`
 	// TODO: Notes is a string, but its value (if it exists) is either 0 or 1 - better translated as a bool
-	Notes             string `json:"notes,omitempty"`
-	Alert             any    `json:"alert,omitempty"`
-	Conditions        any    `json:"conditions,omitempty"`
-	Dietary           any    `json:"dietary,omitempty"`
-	Ibuprofen         any    `json:"ibuprofen,omitempty"`
-	Medical           any    `json:"medical,omitempty"`
-	Paracetamol       any    `json:"paracetamol,omitempty"`
-	Pastoral          any    `json:"pastoral,omitempty"`
-	Reactions         any    `json:"reactions,omitempty"`
-	SpecialNeeds      any    `json:"specialneeds,omitempty"`
-	Vaccinations      any    `json:"vaccinations,omitempty"`
-	EOTCConsent       any    `json:"eotcconsent,omitempty"`
-	EOTCForm          any    `json:"eotcform,omitempty"`
+	Notes             *string `json:"notes,omitempty"`
+	Alert             *any    `json:"alert,omitempty"`
+	Conditions        *string `json:"conditions,omitempty"`
+	Dietary           *any    `json:"dietary,omitempty"`
+	Ibuprofen         *int    `json:"ibuprofen,omitempty"`
+	Medical           *int    `json:"medical,omitempty"`
+	Paracetamol       *int    `json:"paracetamol,omitempty"`
+	Pastoral          *int    `json:"pastoral,omitempty"`
+	Reactions         *string `json:"reactions,omitempty"`
+	SpecialNeeds      *int    `json:"specialneeds,omitempty"`
+	Vaccinations      *string `json:"vaccinations,omitempty"`
+	EOTCConsent       *any    `json:"eotcconsent,omitempty"`
+	EOTCForm          *any    `json:"eotcform,omitempty"`
 	ListenerUpdatedAt string
 }
 
 type Group struct {
-	Type              string `json:"type,omitempty"`
-	Subject           string `json:"subject,omitempty"`
-	Coreoption        string `json:"coreoption,omitempty"`
-	Ref               int    `json:"ref,omitempty"`
-	Year              int    `json:"year,omitempty"`
-	Name              string `json:"name,omitempty"`
-	Description       string `json:"description,omitempty"`
-	Teacher           string `json:"teacher,omitempty"`
-	ShowReport        int    `json:"showreport,omitempty"`
+	Type              *string `json:"type,omitempty"`
+	Subject           *string `json:"subject,omitempty"`
+	Coreoption        *string `json:"coreoption,omitempty"`
+	Ref               *int    `json:"ref,omitempty"`
+	Year              *int    `json:"year,omitempty"`
+	Name              *string `json:"name,omitempty"`
+	Description       *string `json:"description,omitempty"`
+	Teacher           *string `json:"teacher,omitempty"`
+	ShowReport        *int    `json:"showreport,omitempty"`
 	ListenerUpdatedAt string
 }
 
 type Residence struct {
-	Title             string `json:"title,omitempty"`
-	Salutation        string `json:"salutation,omitempty"`
-	Email             string `json:"email,omitempty"`
-	NumFlatUnit       any    `json:"numFlatUnit,omitempty"`
-	NumStreet         any    `json:"numStreet,omitempty"`
-	RuralDelivery     any    `json:"ruralDelivery,omitempty"`
-	Suburb            string `json:"suburb,omitempty"`
-	Town              string `json:"town,omitempty"`
-	Postcode          any    `json:"postcode,omitempty"`
+	Title             *string `json:"title,omitempty"`
+	Salutation        *string `json:"salutation,omitempty"`
+	Email             *string `json:"email,omitempty"`
+	NumFlatUnit       *any    `json:"numFlatUnit,omitempty"`
+	NumStreet         *any    `json:"numStreet,omitempty"`
+	RuralDelivery     *any    `json:"ruralDelivery,omitempty"`
+	Suburb            *string `json:"suburb,omitempty"`
+	Town              *string `json:"town,omitempty"`
+	Postcode          *any    `json:"postcode,omitempty"`
 	ListenerUpdatedAt string
 }
 
