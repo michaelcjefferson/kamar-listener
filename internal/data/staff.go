@@ -17,25 +17,27 @@ type Staff struct {
 	Lastname           *string      `json:"lastname,omitempty"`
 	Gender             *string      `json:"gender,omitempty"`
 	Groups             []Group      `json:"groups,omitempty"`
-	SchoolIndex        *int         `json:"schoolindex,omitempty"`
+	SchoolsIndex       []int        `json:"schoolindex,omitempty"`
 	Title              *string      `json:"title,omitempty"`
 	Email              *string      `json:"email,omitempty"`
 	Mobile             *string      `json:"mobile,omitempty"`
-	Extension          *string      `json:"extension,omitempty"`
+	Extension          *int         `json:"extension,omitempty"`
 	Classification     *string      `json:"classification,omitempty"`
 	Position           *string      `json:"position,omitempty"`
 	House              *string      `json:"house,omitempty"`
 	Tutor              *string      `json:"tutor,omitempty"`
-	DateBirth          *any         `json:"datebirth,omitempty"`
-	LeavingDate        *any         `json:"leavingdate,omitempty"`
-	StartingDate       *any         `json:"startingdate,omitempty"`
-	ESLGUID            *any         `json:"eslguid,omitempty"`
-	MOENumber          *any         `json:"moenumber,omitempty"`
-	PhotocopierID      *any         `json:"photocopierid,omitempty"`
-	RegistrationNumber *any         `json:"registrationnumber,omitempty"`
+	DateBirth          *int         `json:"datebirth,omitempty"`
+	LeavingDate        *int         `json:"leavingdate,omitempty"`
+	StartingDate       *int         `json:"startingdate,omitempty"`
+	ESLGUID            *string      `json:"eslguid,omitempty"`
+	MOENumber          *string      `json:"moenumber,omitempty"`
+	PhotocopierID      *int         `json:"photocopierid,omitempty"`
+	RegistrationNumber *string      `json:"registrationnumber,omitempty"`
 	Custom             *CustomField `json:"custom,omitempty"`
 	ListenerUpdatedAt  string
 }
+
+type SchoolIndex int
 
 type StaffModel struct {
 	DB *sql.DB
@@ -113,8 +115,17 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 
 		// Insert each entry
 		for _, s := range batch {
-			var customJSON []byte
+			var schoolIndexJSON, customJSON []byte
 			var err error
+
+			if len(s.SchoolsIndex) > 0 {
+				schoolIndexJSON, err = json.Marshal(s.SchoolsIndex)
+				if err != nil {
+					return fmt.Errorf("marshal iwi: %w", err)
+				}
+			} else {
+				schoolIndexJSON = nil
+			}
 
 			if s.Custom != nil {
 				customJSON, err = json.Marshal(s.Custom)
@@ -125,7 +136,7 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 				customJSON = nil
 			}
 
-			_, err = staffStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Username, s.Firstname, s.Lastname, s.Gender, s.SchoolIndex, s.Title, s.Email, s.Mobile, s.Extension, s.Classification, s.Position, s.House, s.Tutor, s.DateBirth, s.LeavingDate, s.StartingDate, s.ESLGUID, s.MOENumber, s.PhotocopierID, s.RegistrationNumber, customJSON)
+			_, err = staffStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Username, s.Firstname, s.Lastname, s.Gender, schoolIndexJSON, s.Title, s.Email, s.Mobile, s.Extension, s.Classification, s.Position, s.House, s.Tutor, s.DateBirth, s.LeavingDate, s.StartingDate, s.ESLGUID, s.MOENumber, s.PhotocopierID, s.RegistrationNumber, customJSON)
 			if err != nil {
 				return err
 			}

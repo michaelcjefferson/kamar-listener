@@ -269,28 +269,28 @@ func TestRefreshHandler(t *testing.T) {
 				}
 
 				// TODO: Move to test table - optional data verification check, with two test table parameters - key (eg. assmnt number for select query) and expected returned struct values
-				if ass.Type != "A" {
+				if *ass.Type != "A" {
 					t.Errorf("unexpected value in db for assessment.type: want %v got %v", "A", ass.Type)
 				}
-				if ass.Number != "91402" {
+				if *ass.Number != "91402" {
 					t.Errorf("unexpected value in db for assessment.number: want %v got %v", "91402", ass.Number)
 				}
-				if ass.Version != 3 {
+				if *ass.Version != 3 {
 					t.Errorf("unexpected value in db for assessment.version: want %v got %v", 3, ass.Version)
 				}
-				if ass.Level != 3 {
+				if *ass.Level != 3 {
 					t.Errorf("unexpected value in db for assessment.level: want %v got %v", 3, ass.Level)
 				}
-				if ass.Credits != 5 {
+				if *ass.Credits != 5 {
 					t.Errorf("unexpected value in db for assessment.credits: want %v got %v", 5, ass.Credits)
 				}
-				if ass.Weighting != nil {
+				if *ass.Weighting != nil {
 					t.Errorf("unexpected value in db for assessment.weighting: want %v got %v", nil, ass.Weighting)
 				}
-				if ass.Points != nil {
+				if *ass.Points != nil {
 					t.Errorf("unexpected value in db for assessment.points: want %v got %v", nil, ass.Points)
 				}
-				if ass.Title != "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes" {
+				if *ass.Title != "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes" {
 					t.Errorf("unexpected value in db for assessment.title: want %v got %v", "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes", ass.Title)
 				}
 				if ass.Description != nil {
@@ -299,10 +299,10 @@ func TestRefreshHandler(t *testing.T) {
 				if ass.Purpose != nil {
 					t.Errorf("unexpected value in db for assessment.purpose: want %v got %v", "", ass.Purpose)
 				}
-				if ass.Subfield != "Economic Theory and Practice" {
+				if *ass.Subfield != "Economic Theory and Practice" {
 					t.Errorf("unexpected value in db for assessment.subfield: want %v got %v", "Economic Theory and Practice", ass.Subfield)
 				}
-				if ass.Internalexternal != "I" {
+				if *ass.Internalexternal != "I" {
 					t.Errorf("unexpected value in db for assessment.internalexternal: want %v got %v", "I", ass.Internalexternal)
 				}
 
