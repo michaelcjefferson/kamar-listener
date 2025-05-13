@@ -1,14 +1,22 @@
 package widgets
 
-import "fmt"
+import (
+  "fmt"
+)
 
-templ RecordCount(today, total int) {
+templ RecordCount(today, total int, countByType map[string]int) {
   <div class="widget">
     <p>
       <strong>Records Received Today:</strong> { fmt.Sprintf("%d", today) }
       <br>
       <br>
       <strong>Total Records:</strong> { fmt.Sprintf("%d", total) }
+    </p>
+    <p>
+      for recordType, count := range countByType {
+        <br>
+        <strong>{ recordType }:</strong> { fmt.Sprintf("%d", count) }
+      }
     </p>
   </div>
 }

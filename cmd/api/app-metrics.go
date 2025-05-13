@@ -12,14 +12,15 @@ type appMetrics struct {
 	mu             sync.RWMutex
 	recordsToday   int
 	totalRecords   int
+	countByType    map[string]int
 }
 
 // With mutex active read and return the values for the listener service's last check time, last insert time, records inserted today, and total number of records
-func (a *appMetrics) Snapshot() (time.Time, time.Time, int, int) {
+func (a *appMetrics) Snapshot() (time.Time, time.Time, int, int, map[string]int) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 
-	return a.lastCheckTime, a.lastInsertTime, a.recordsToday, a.totalRecords
+	return a.lastCheckTime, a.lastInsertTime, a.recordsToday, a.totalRecords, a.countByType
 }
 
 func (a *appMetrics) SetLastCheckTime() {
@@ -34,11 +35,12 @@ func (a *appMetrics) SetLastInsertTime() {
 	a.lastInsertTime = time.Now()
 }
 
-func (a *appMetrics) SetRecords(today, total int) {
+func (a *appMetrics) SetRecords(today, total int, countByType map[string]int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.recordsToday = today
 	a.totalRecords = total
+	a.countByType = countByType
 }
 
 func (a *appMetrics) IncreaseRecordCount(count int) {
@@ -51,6 +53,7 @@ func (a *appMetrics) IncreaseRecordCount(count int) {
 // Get the total number of KAMAR records that exist in the KAMAR database, as well as the total number that have been added/updated in the last 24 hours, and update the app metrics numbers to reflect these
 func (app *application) UpdateRecordCountsFromDB() error {
 	today, total := 0, 0
+	countByType := make(map[string]int)
 
 	tod, tot, err := app.models.Assessments.GetAssessmentCount()
 	if err != nil {
@@ -61,6 +64,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["assessments"] = tot
 
 	tod, tot, err = app.models.Attendance.GetAttendanceCount()
 	if err != nil {
@@ -71,6 +75,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["attendance"] = tot
 
 	tod, tot, err = app.models.Pastoral.GetPastoralCount()
 	if err != nil {
@@ -81,6 +86,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["pastoral"] = tot
 
 	tod, tot, err = app.models.Results.GetResultsCount()
 	if err != nil {
@@ -91,6 +97,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["results"] = tot
 
 	tod, tot, err = app.models.Staff.GetStaffCount()
 	if err != nil {
@@ -101,6 +108,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["staff"] = tot
 
 	tod, tot, err = app.models.Students.GetStudentsCount()
 	if err != nil {
@@ -111,6 +119,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["students"] = tot
 
 	tod, tot, err = app.models.Subjects.GetSubjectsCount()
 	if err != nil {
@@ -121,6 +130,7 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["subjects"] = tot
 
 	tod, tot, err = app.models.Timetables.GetTimetablesCount()
 	if err != nil {
@@ -131,8 +141,9 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	}
 	today += tod
 	total += tot
+	countByType["timetables"] = tot
 
-	app.appMetrics.SetRecords(today, total)
+	app.appMetrics.SetRecords(today, total, countByType)
 
 	return nil
 }

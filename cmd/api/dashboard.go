@@ -17,7 +17,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 
 	w := data.WidgetData{}
 
-	w.LastCheckTime, w.LastInsertTime, w.RecordsToday, w.TotalRecords = app.appMetrics.Snapshot()
+	w.LastCheckTime, w.LastInsertTime, w.RecordsToday, w.TotalRecords, w.CountByType = app.appMetrics.Snapshot()
 
 	w.IP = app.config.ip
 

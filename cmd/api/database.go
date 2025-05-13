@@ -669,6 +669,7 @@ func createSMSTables(db *sql.DB) error {
 	_, err = db.Exec(subjectTableStmt)
 
 	// TODO: Consider changing "uuid" to "student_uuid" for clarity
+	// TODO: Split into staff timetables and student timetables, seeing as they come as two separate sync types?
 	timetablesTableStmt := `CREATE TABLE IF NOT EXISTS timetables (
 		student INTEGER,
 		uuid TEXT PRIMARY KEY,

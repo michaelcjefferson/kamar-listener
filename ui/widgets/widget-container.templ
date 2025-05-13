@@ -5,7 +5,7 @@ import "github.com/mjefferson-whs/listener/internal/data"
 templ WidgetContainer(w data.WidgetData) {
   <div id="widget-container">
     @LastUpdateTimes(w.LastCheckTime, w.LastInsertTime)
-    @RecordCount(w.RecordsToday, w.TotalRecords)
+    @RecordCount(w.RecordsToday, w.TotalRecords, w.CountByType)
     @IPAddress(w.IP)
     @DBSize(w.DBSize)
     @Logs(w.TotalLogs, w.RecentLogs)

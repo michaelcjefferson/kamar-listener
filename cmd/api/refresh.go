@@ -202,9 +202,9 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 			// "schools": kamarData.Data.Schools,
 		})
 		err = app.models.Results.InsertManyResults(kamarData.Data.Results.Data)
-	case "studenttimetables":
+	case "studenttimetables", "stafftimetables":
 		count = kamarData.Data.Timetables.Count
-		app.logger.PrintInfo("listener: attempting to write student timetables to database...", map[string]any{
+		app.logger.PrintInfo("listener: attempting to write timetables to database...", map[string]any{
 			"count": count,
 			// "data":  kamarData.Data.Results.Data,
 			"sync": syncType,
