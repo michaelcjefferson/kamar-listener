@@ -49,7 +49,7 @@ func (app *application) requireKAMARAuthSetUp(next echo.HandlerFunc) echo.Handle
 // Authenticate requests received from KAMAR itself, using the required Basic authentication
 func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		app.logRequest(c, "hit authenticateKAMAR middleware")
+		// app.logRequest(c, "hit authenticateKAMAR middleware")
 
 		authHeader := c.Request().Header.Get("Authorization")
 		if authHeader == "" {
@@ -77,16 +77,16 @@ func (app *application) authenticateKAMAR(next echo.HandlerFunc) echo.HandlerFun
 		}
 
 		// TODO: Consider using this rather than loading full config for middleware checking. Even better, store values in cfg (memory) to reduce db calls?
-		kamarUser, err := app.models.Config.GetAuth()
+		_, err = app.models.Config.GetAuth()
 		if err != nil {
 			app.logger.PrintFatal(err, map[string]any{
 				"message": "error loading KAMAR auth from database",
 			})
 		}
-		app.logger.PrintInfo("kamar auth loaded from database", map[string]any{
-			"username":      kamarUser.Username,
-			"password_hash": kamarUser.Password.Hash(),
-		})
+		// app.logger.PrintInfo("kamar auth loaded from database", map[string]any{
+		// 	"username":      kamarUser.Username,
+		// 	"password_hash": kamarUser.Password.Hash(),
+		// })
 
 		kUsername, ok := cfg.GetString("listener_username")
 		if !ok {

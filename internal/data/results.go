@@ -18,7 +18,7 @@ type Result struct {
 	ID                *int            `json:"id,omitempty"`
 	NSN               *string         `json:"nsn,omitempty"`
 	Number            *string         `json:"number,omitempty"`
-	Published         *string         `json:"published,omitempty"`
+	Published         *bool           `json:"published,omitempty"`
 	Result            *string         `json:"result,omitempty"`
 	ResultData        json.RawMessage `json:"resultData,omitempty"`
 	Results           json.RawMessage `json:"results,omitempty"`
