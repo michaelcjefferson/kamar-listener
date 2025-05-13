@@ -337,11 +337,10 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	studentGrpStmt, err := tx.Prepare(`
 	INSERT INTO student_groups (student_uuid, student_id, type, subject, coreoption, ref, year, name, description, teacher, showreport)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-	ON CONFLICT(student_uuid, ref) DO UPDATE SET
+	ON CONFLICT(student_uuid, ref, coreoption) DO UPDATE SET
 		student_id = excluded.student_id,
 		type = excluded.type,
 		subject = excluded.subject,
-		coreoption = excluded.coreoption,
 		year = excluded.year,
 		name = excluded.name,
 		description = excluded.description,

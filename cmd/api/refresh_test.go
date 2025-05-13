@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -97,22 +98,33 @@ func TestRefreshHandler(t *testing.T) {
 						"ics": true,
 						"students": map[string]any{
 							"details":         true,
-							"passwords":       false,
+							"passwords":       true,
 							"photos":          false,
-							"groups":          false,
-							"awards":          false,
-							"timetables":      false,
-							"attendance":      false,
+							"groups":          true,
+							"awards":          true,
+							"timetables":      true,
+							"attendance":      true,
 							"assessments":     true,
-							"pastoral":        false,
-							"learningsupport": false,
-							"fields": map[string]any{
-								"required": "firstname;lastname;gender;nsn",
-								"optional": "username;caregivers;caregivers1;caregivers2;caregiver.name;caregiver.relationship;caregiver.mobile;caregiver.email",
+							"pastoral":        true,
+							"recognitions":    true,
+							"classefforts":    true,
+							"learningsupport": true,
+							"fields": map[string]string{
+								"required": "firstname;lastname;gender;gendercode;nsn;uniqueid",
+								"optional": "schoolindex;firstnamelegal;lastnamelegal;forenames;forenameslegal;genderpreferred;username;mobile;email;house;whanau;boarder;byodinfo;ece;esol;ors;languagespoken;datebirth;startingdate;startschooldate;created;leavingdate;leavingreason;leavingschool;leavingactivity;res;resa;resb;res.title;res.salutation;res.email;res.numFlatUnit;res.numStreet;res.ruralDelivery;res.suburb;res.town;res.postcode;caregivers;caregivers1;caregivers2;caregivers3;caregivers4;caregiver.name;caregiver.relationship;caregiver.status;caregiver.address,caregiver.mobile;caregiver.email;emergency;emergency1;emergency2;emergency.name;emergency.relationship;emergency.mobile;moetype;ethnicityL1;ethnicityL2;ethnicity;iwi;yearlevel;fundinglevel;tutor;timetablebottom1;timetablebottom2;timetablebottom3;timetablebottom4;timetabletop1;timetabletop2;timetabletop3;timetabletop4;maorilevel;pacificlanguage;pacificlevel;flags;flag.alert;flag.conditions;flag.dietary;flag.general;flag.ibuprofen;flag.medical;flag.notes;flag.paracetamol;flag.pastoral;flag.reactions;flag.specialneeds;flag.vaccinations;flag.eotcconsent;flag.eotcform;custom;custom.custom1;custom.custom2;custom.custom3;custom.custom4;custom.custom5;siblinglink;photocopierid;signedagreement;accountdisabled;networkaccess;altdescription;althomedrive",
 							},
 						},
-						"common": map[string]any{
-							"subjects": false,
+						"staff": map[string]any{
+							"details":    true,
+							"photos":     false,
+							"timetables": true,
+							"fields": map[string]string{
+								"required": "uniqueid;firstname;lastname;username;gender;email",
+								"optional": "schoolindex;title;mobile;extension;classification;position;house;tutor;groups;groups.departments;datebirth;created;leavingdate;startingdate;eslguid;moenumber;photocopierid;registrationnumber;custom;custom.custom1;custom.custom2;custom.custom3;custom.custom4;custom.custom5",
+							},
+						},
+						"common": map[string]bool{
+							"subjects": true,
 							"notices":  false,
 							"calendar": false,
 							"bookings": false,
@@ -284,10 +296,10 @@ func TestRefreshHandler(t *testing.T) {
 				if *ass.Credits != 5 {
 					t.Errorf("unexpected value in db for assessment.credits: want %v got %v", 5, ass.Credits)
 				}
-				if *ass.Weighting != nil {
+				if ass.Weighting != nil {
 					t.Errorf("unexpected value in db for assessment.weighting: want %v got %v", nil, ass.Weighting)
 				}
-				if *ass.Points != nil {
+				if ass.Points != nil {
 					t.Errorf("unexpected value in db for assessment.points: want %v got %v", nil, ass.Points)
 				}
 				if *ass.Title != "Economics 3.4 - Demonstrate understanding of government interventions where the market fails to deliver efficient or equitable outcomes" {
@@ -530,9 +542,9 @@ func TestRefreshHandler(t *testing.T) {
 			app := &application{}
 			app.models = data.NewModels(appDB, listenerDB, app.background)
 
-			logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
+			// logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, nil)
 			// io.Discard means logs won't be written to terminal when tests are run - replace with the line above to see logs during testing
-			// logger := jsonlog.New(io.Discard, jsonlog.LevelInfo, nil)
+			logger := jsonlog.New(io.Discard, jsonlog.LevelInfo, nil)
 			app.logger = logger
 
 			jsonPath := filepath.Join("../../test", tt.jsonFile)

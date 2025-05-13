@@ -480,7 +480,7 @@ func createSMSTables(db *sql.DB) error {
 		showreport INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (staff_uuid) REFERENCES staff(uuid) ON DELETE CASCADE,
-		UNIQUE(staff_uuid, ref)
+		UNIQUE(staff_uuid, ref, coreoption)
 	);`
 
 	_, err = db.Exec(staffTableStmt)
@@ -634,7 +634,7 @@ func createSMSTables(db *sql.DB) error {
 		showreport INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
-		UNIQUE(student_uuid, ref)
+		UNIQUE(student_uuid, ref, coreoption)
 	);
 
 	CREATE TABLE IF NOT EXISTS student_residences (
