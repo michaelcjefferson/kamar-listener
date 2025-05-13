@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

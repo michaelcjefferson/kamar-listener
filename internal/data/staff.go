@@ -27,12 +27,12 @@ type Staff struct {
 	House              *string      `json:"house,omitempty"`
 	Tutor              *string      `json:"tutor,omitempty"`
 	DateBirth          *int         `json:"datebirth,omitempty"`
-	LeavingDate        *int         `json:"leavingdate,omitempty"`
-	StartingDate       *int         `json:"startingdate,omitempty"`
+	LeavingDate        *any         `json:"leavingdate,omitempty"`
+	StartingDate       *any         `json:"startingdate,omitempty"`
 	ESLGUID            *string      `json:"eslguid,omitempty"`
-	MOENumber          *string      `json:"moenumber,omitempty"`
-	PhotocopierID      *int         `json:"photocopierid,omitempty"`
-	RegistrationNumber *string      `json:"registrationnumber,omitempty"`
+	MOENumber          *any         `json:"moenumber,omitempty"`
+	PhotocopierID      *any         `json:"photocopierid,omitempty"`
+	RegistrationNumber *any         `json:"registrationnumber,omitempty"`
 	Custom             *CustomField `json:"custom,omitempty"`
 	ListenerUpdatedAt  string
 }

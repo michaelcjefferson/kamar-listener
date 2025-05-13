@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -87,12 +89,24 @@ type TimetablesField struct {
 func (app *application) kamarRefreshHandler(c echo.Context) error {
 	var kamarData KAMARData
 
+	body, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		app.logger.PrintError(errors.New("listener: failed to read data from directory service"), map[string]any{
+			// "request body": c.Request().Body,
+			"error": err.Error(),
+		})
+		return app.kamarUnprocessableEntityResponse(c)
+	}
+
+	err = json.Unmarshal(body, &kamarData)
+
+	// err := c.Bind(&kamarData)
+
 	// Response if KAMAR JSON is malformed/incomplete
-	err := c.Bind(&kamarData)
-	// err := app.readJSON(c, &kamarData)
 	if err != nil {
 		app.logger.PrintError(errors.New("listener: failed to bind data from KAMAR to Go structs"), map[string]any{
-			"request body": c.Request().Body,
+			// "request body": c.Request().Body,
+			"error": err.Error(),
 		})
 		return app.kamarUnprocessableEntityResponse(c)
 	}
