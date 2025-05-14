@@ -6,10 +6,158 @@ templ SQLiteInstructions() {
 
     <div class="intro">
 			<p>
-				This application will create two SQLite databases for you - one that holds your app configuration, logs, user authentication etc., and one that holds the data from KAMAR.
+				This application will create two SQLite databases for you:
+        <strong>app.db</strong>, which holds your app configuration, logs, user authentication etc., and
+        <strong>listener.db</strong>, which holds the data from KAMAR.
         <br>
-        These databases exist as files on your computer, and can be viewed (and altered, though it is not recommended) in a few different ways.
+        These databases exist as files on your computer, and can be viewed (and altered, though it is not recommended) easily via the following.
 			</p>
 		</div>
+
+    <div class="help-content" id="sqlite-instructions">
+    <h3>Browse an SQLite Database</h3>
+    <div class="intro">
+      <p>
+        Follow the instructions below to install an SQLite browser, open a database file, and view its contents. These steps vary slightly depending on your operating system.
+      </p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button 
+          class="tab-button active" 
+          onclick="showTab('windows')" 
+          id="windows-tab-btn">
+          Windows
+        </button>
+        <button 
+          class="tab-button" 
+          onclick="showTab('mac')" 
+          id="mac-tab-btn">
+          macOS
+        </button>
+        <button 
+          class="tab-button" 
+          onclick="showTab('linux')" 
+          id="linux-tab-btn">
+          Linux
+        </button>
+      </div>
+
+      <!-- WINDOWS -->
+      <div id="windows-tab" class="tab-content active">
+        <h2>Using DB Browser for SQLite on Windows</h2>
+        <div class="steps">
+          <div class="step">
+            <h3>1. Download and Install</h3>
+            <p>Visit the official DB Browser for SQLite website and download the Windows installer.</p>
+            <div class="code-block">
+              <code>https://sqlitebrowser.org/dl/</code>
+            </div>
+          </div>
+
+          <div class="step">
+            <h3>2. Launch DB Browser</h3>
+            <p>Once installed, open DB Browser for SQLite from the Start menu.</p>
+          </div>
+
+          <div class="step">
+            <h3>3. Open Your SQLite File</h3>
+            <p>Click <strong>File &gt; Open Database</strong> and select your `.sqlite` or `.db` file.</p>
+          </div>
+
+          <div class="step">
+            <h3>4. Browse Data</h3>
+            <p>Switch to the <strong>Browse Data</strong> tab to view table contents, or use the <strong>Execute SQL</strong> tab to run custom queries.</p>
+          </div>
+        </div>
+
+        <div class="troubleshooting">
+          <h3>Troubleshooting</h3>
+          <ul>
+            <li>If the app won’t launch, try reinstalling or running as administrator.</li>
+            <li>If your file appears empty, ensure it’s a valid SQLite database.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- macOS -->
+      <div id="mac-tab" class="tab-content">
+        <h2>Using DB Browser for SQLite on macOS</h2>
+        <div class="steps">
+          <div class="step">
+            <h3>1. Download and Install</h3>
+            <p>Go to the DB Browser website and download the macOS `.dmg` installer.</p>
+            <div class="code-block">
+              <code>https://sqlitebrowser.org/dl/</code>
+            </div>
+            <p class="note">You may need to allow the app in System Preferences &gt; Security &amp; Privacy after opening it the first time.</p>
+          </div>
+
+          <div class="step">
+            <h3>2. Open the Application</h3>
+            <p>Drag the DB Browser app into your Applications folder and double-click it to launch.</p>
+          </div>
+
+          <div class="step">
+            <h3>3. Open Your SQLite Database</h3>
+            <p>Select <strong>File &gt; Open Database</strong> and locate your `.sqlite` or `.db` file.</p>
+          </div>
+
+          <div class="step">
+            <h3>4. View and Query Data</h3>
+            <p>Use the <strong>Browse Data</strong> and <strong>Execute SQL</strong> tabs to explore and query your database.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINUX -->
+      <div id="linux-tab" class="tab-content">
+        <h2>Using DB Browser for SQLite on Linux</h2>
+        <div class="steps">
+          <div class="step">
+            <h3>1. Install DB Browser</h3>
+            <p>Use your package manager to install DB Browser. For example, on Debian/Ubuntu:</p>
+            <div class="code-block">
+              <code>sudo apt install sqlitebrowser</code>
+            </div>
+          </div>
+
+          <div class="step">
+            <h3>2. Launch DB Browser</h3>
+            <p>Run <code>sqlitebrowser</code> from a terminal or find it in your applications menu.</p>
+          </div>
+
+          <div class="step">
+            <h3>3. Open a Database</h3>
+            <p>Go to <strong>File &gt; Open Database</strong> and select the SQLite file you want to inspect.</p>
+          </div>
+
+          <div class="step">
+            <h3>4. Explore Tables and Run Queries</h3>
+            <p>Use the graphical interface to browse tables or execute custom SQL queries.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+  </div>
+
+  <script>
+    function showTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show the selected tab
+      document.getElementById(tabName + '-tab').classList.add('active');
+      
+      // Update button styles
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(tabName + '-tab-btn').classList.add('active');
+    }
+  </script>
 }

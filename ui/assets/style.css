@@ -673,7 +673,7 @@ body.sidebar-open {
   color: #333;
 }
 
-.help-content p code {
+.help-content p > code {
   background-color: #f6f8fa;
   padding: 2px 5px;
   border-radius: 3px;
