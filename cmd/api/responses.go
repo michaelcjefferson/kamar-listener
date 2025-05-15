@@ -3,8 +3,10 @@ package main
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/mjefferson-whs/listener/internal/data"
 )
 
 // ------------General Responses------------ //
@@ -62,6 +64,13 @@ func (app *application) kamarAuthFailedResponse(c echo.Context) error {
 		"version": "1.0",
 	}
 
+	e := data.ListenerEvent{
+		ReqType:       "unknown",
+		WasSuccessful: false,
+		Message:       "credentials provided by KAMAR directory service were incorrect",
+	}
+	app.models.ListenerEvents.Insert(&e)
+
 	return app.kamarResponse(c, http.StatusForbidden, j)
 }
 
@@ -72,6 +81,13 @@ func (app *application) kamarNoCredentialsResponse(c echo.Context) error {
 		"service": "WHS KAMAR Refresh",
 		"version": "1.0",
 	}
+
+	e := data.ListenerEvent{
+		ReqType:       "unknown",
+		WasSuccessful: false,
+		Message:       "request from KAMAR didn't include authorisation credentials",
+	}
+	app.models.ListenerEvents.Insert(&e)
 
 	return app.kamarResponse(c, http.StatusUnauthorized, j)
 }
@@ -84,6 +100,13 @@ func (app *application) kamarUnprocessableEntityResponse(c echo.Context) error {
 		"service": "WHS KAMAR Refresh",
 		"version": "1.0",
 	}
+
+	e := data.ListenerEvent{
+		ReqType:       "unknown",
+		WasSuccessful: false,
+		Message:       "issue reading or processing data from KAMAR",
+	}
+	app.models.ListenerEvents.Insert(&e)
 
 	return app.kamarResponse(c, http.StatusUnprocessableEntity, j)
 }
@@ -137,7 +160,14 @@ func (app *application) kamarCheckResponse(c echo.Context) error {
 		},
 	}
 
-	app.appMetrics.SetLastCheckTime()
+	e := data.ListenerEvent{
+		ReqType:       "check",
+		WasSuccessful: true,
+		Message:       "",
+	}
+
+	app.appMetrics.SetLastCheckTime(time.Now())
+	app.models.ListenerEvents.Insert(&e)
 
 	return app.kamarResponse(c, http.StatusOK, j)
 }

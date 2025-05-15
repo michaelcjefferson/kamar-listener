@@ -25,6 +25,7 @@ type Models struct {
 	Timetables     TimetableModel
 	Tokens         TokenModel
 	Users          UserModel
+	Widgets        WidgetModel
 }
 
 func NewModels(appdb, kamardb *sql.DB, background func(fn func())) Models {
@@ -44,5 +45,6 @@ func NewModels(appdb, kamardb *sql.DB, background func(fn func())) Models {
 		Timetables:     TimetableModel{DB: kamardb},
 		Tokens:         TokenModel{DB: appdb},
 		Users:          UserModel{DB: appdb},
+		Widgets:        WidgetModel{DB: appdb},
 	}
 }

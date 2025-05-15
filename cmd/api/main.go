@@ -157,7 +157,16 @@ func main() {
 
 	err = app.UpdateRecordCountsFromDB()
 	if err != nil {
-		app.logger.PrintFatal(err, nil)
+		app.logger.PrintFatal(err, map[string]any{
+			"message": "couldn't retrieve record counts from database",
+		})
+	}
+
+	err = app.UpdateCheckInsertTimesFromDB()
+	if err != nil {
+		app.logger.PrintFatal(err, map[string]any{
+			"message": "couldn't retrieve most recent update times from database",
+		})
 	}
 
 	ip, err := getip.GetLocalIP()

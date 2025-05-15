@@ -3,6 +3,8 @@ package main
 import (
 	"sync"
 	"time"
+
+	"github.com/mjefferson-whs/listener/internal/data"
 )
 
 // Mutex to prevent race conditions, in case two routines try to write to appMetrics at the same time
@@ -23,16 +25,16 @@ func (a *appMetrics) Snapshot() (time.Time, time.Time, int, int, map[string]int)
 	return a.lastCheckTime, a.lastInsertTime, a.recordsToday, a.totalRecords, a.countByType
 }
 
-func (a *appMetrics) SetLastCheckTime() {
+func (a *appMetrics) SetLastCheckTime(t time.Time) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	a.lastCheckTime = time.Now()
+	a.lastCheckTime = t
 }
 
-func (a *appMetrics) SetLastInsertTime() {
+func (a *appMetrics) SetLastInsertTime(t time.Time) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	a.lastInsertTime = time.Now()
+	a.lastInsertTime = t
 }
 
 func (a *appMetrics) SetRecords(today, total int, countByType map[string]int) {
@@ -144,6 +146,26 @@ func (app *application) UpdateRecordCountsFromDB() error {
 	countByType["timetables"] = tot
 
 	app.appMetrics.SetRecords(today, total, countByType)
+
+	return nil
+}
+
+func (app *application) UpdateCheckInsertTimesFromDB() error {
+	var events []data.ListenerEvent
+
+	events, err := app.models.ListenerEvents.GetMostRecentCheckAndInsert()
+	if err != nil {
+		return err
+	}
+
+	for _, e := range events {
+		if e.ReqType == "check" {
+			app.appMetrics.SetLastCheckTime(e.Time)
+		}
+		if e.ReqType == "insert" {
+			app.appMetrics.SetLastInsertTime(e.Time)
+		}
+	}
 
 	return nil
 }

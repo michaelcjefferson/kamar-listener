@@ -10,11 +10,11 @@ import (
 var ErrMissingReqType = errors.New("missing request type")
 
 type ListenerEvent struct {
-	ID            int    `json:"id,omitempty"`
-	ReqType       string `json:"req_type"`
-	WasSuccessful bool   `json:"was_successful"`
-	Message       string `json:"message"`
-	Time          string `json:"time"`
+	ID            int       `json:"id,omitempty"`
+	ReqType       string    `json:"req_type"`
+	WasSuccessful bool      `json:"was_successful"`
+	Message       string    `json:"message"`
+	Time          time.Time `json:"time"`
 }
 
 type ListenerEventsModel struct {
@@ -67,13 +67,14 @@ func (m *ListenerEventsModel) GetAll() ([]ListenerEvent, error) {
 	for rows.Next() {
 		var event ListenerEvent
 		var wasSuccessful int
+		var timeStr string
 
 		err := rows.Scan(
 			&event.ID,
 			&event.ReqType,
 			&wasSuccessful,
 			&event.Message,
-			&event.Time,
+			&timeStr,
 		)
 		if err != nil {
 			return nil, err
@@ -85,6 +86,83 @@ func (m *ListenerEventsModel) GetAll() ([]ListenerEvent, error) {
 		} else {
 			event.WasSuccessful = false
 		}
+
+		t, err := time.Parse("2006-01-02 15:04:05", timeStr)
+		if err != nil {
+			return nil, err
+		}
+		event.Time = t
+
+		events = append(events, event)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
+func (m *ListenerEventsModel) GetMostRecentCheckAndInsert() ([]ListenerEvent, error) {
+	query := `
+		WITH latest_check AS (
+			SELECT * FROM listener_events
+			WHERE req_type = 'check' AND was_successful = 1
+			ORDER BY time DESC
+			LIMIT 1
+		),
+		latest_insert AS (
+			SELECT * FROM listener_events
+			WHERE req_type = 'insert' AND was_successful = 1
+			ORDER BY time DESC
+			LIMIT 1
+		)
+		SELECT * FROM latest_check
+		UNION ALL
+		SELECT * FROM latest_insert;
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure result from QueryContext is closed before returning from function
+	defer rows.Close()
+
+	var events []ListenerEvent
+
+	for rows.Next() {
+		var event ListenerEvent
+		var wasSuccessful int
+		var timeStr string
+
+		err := rows.Scan(
+			&event.ID,
+			&event.ReqType,
+			&wasSuccessful,
+			&event.Message,
+			&timeStr,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Attach value of user_id if it isn't nil
+		if wasSuccessful > 0 {
+			event.WasSuccessful = true
+		} else {
+			event.WasSuccessful = false
+		}
+
+		t, err := time.Parse("2006-01-02 15:04:05", timeStr)
+		if err != nil {
+			return nil, err
+		}
+		event.Time = t
 
 		events = append(events, event)
 	}

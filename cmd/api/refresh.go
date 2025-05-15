@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mjefferson-whs/listener/internal/data"
@@ -242,7 +243,15 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	}
 
 	app.logger.PrintInfo("listener: data successfully received from KAMAR and written to the SQLite database", nil)
-	app.appMetrics.SetLastInsertTime()
+
+	e := data.ListenerEvent{
+		ReqType:       "insert",
+		WasSuccessful: true,
+		Message:       "sync type: " + syncType,
+	}
+
+	app.appMetrics.SetLastInsertTime(time.Now())
+	app.models.ListenerEvents.Insert(&e)
 	// TODO: Count represents written AND updated AND ignored - make this a more useful metric
 	app.appMetrics.IncreaseRecordCount(count)
 
