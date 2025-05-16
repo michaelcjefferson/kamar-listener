@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -68,7 +69,7 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 		yearlevel = excluded.yearlevel,
 		listener_updated_at = (datetime('now'))
 	;`)
-	// INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, subject, tnv, type, version, year, yearlevel) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`)
+
 	if err != nil {
 		return err
 	}
@@ -83,9 +84,23 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 		// Insert each entry
 		for _, result := range batch {
 			result.CreateTNV()
+
+			if result.Subject == nil {
+				var exists bool
+
+				err := tx.QueryRow(`SELECT 1 FROM results WHERE id = ? AND tnv = ? LIMIT 1;`, result.ID, result.TNV).Scan(&exists)
+				if err != nil && err != sql.ErrNoRows {
+					return err
+				}
+				if exists {
+					continue
+				}
+			}
+
 			_, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
-			// _, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
+
 			if err != nil {
+				log.Printf("subject: %v\nid: %v\ntnv: %v\n", *result.Subject, *result.ID, *result.TNV)
 				return err
 			}
 		}

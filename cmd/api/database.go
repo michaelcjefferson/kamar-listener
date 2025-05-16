@@ -275,7 +275,7 @@ func createSMSTables(db *sql.DB) error {
 		result          TEXT,
 		resultData TEXT,
 		results TEXT,
-		subject         TEXT,
+		subject         TEXT NULL,
 		tnv 			TEXT,
 		type            TEXT,
 		version         INTEGER,
@@ -306,6 +306,9 @@ func createSMSTables(db *sql.DB) error {
 	// )`
 
 	_, err := db.Exec(resultTableStmt)
+	if err != nil {
+		log.Printf("couldn't set up results table: %v", err)
+	}
 
 	assessmentTableStmt := `CREATE TABLE IF NOT EXISTS assessments (
 		credits			INTEGER,
