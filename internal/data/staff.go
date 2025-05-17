@@ -87,20 +87,47 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 	}
 	defer staffStmt.Close()
 
+	staffClassGrpUpdateStmt, err := tx.Prepare(`
+	UPDATE staff_groups
+	SET
+		staff_id = $1,
+		type = $2,
+		subject = $3,
+		year = $4,
+		name = $5,
+		description = $6,
+		teacher = $7,
+		showreport = $8,
+		listener_updated_at = (datetime('now'))
+	WHERE staff_uuid = $9 AND coreoption = $10
+	;`)
+	if err != nil {
+		return err
+	}
+	defer staffClassGrpUpdateStmt.Close()
+
+	staffOtherGrpUpdateStmt, err := tx.Prepare(`
+	UPDATE staff_groups
+	SET
+		staff_id = $1,
+		type = $2,
+		subject = $3,
+		year = $4,
+		name = $5,
+		description = $6,
+		teacher = $7,
+		showreport = $8,
+		listener_updated_at = (datetime('now'))
+	WHERE staff_uuid = $9 AND ref = $10
+	;`)
+	if err != nil {
+		return err
+	}
+	defer staffOtherGrpUpdateStmt.Close()
+
 	staffGrpStmt, err := tx.Prepare(`
 	INSERT INTO staff_groups (staff_uuid, staff_id, type, subject, coreoption, ref, year, name, description, teacher, showreport)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-	ON CONFLICT(staff_uuid, ref, coreoption) DO UPDATE SET
-		staff_id = excluded.staff_id,
-		type = excluded.type,
-		subject = excluded.subject,
-		year = excluded.year,
-		name = excluded.name,
-		description = excluded.description,
-		teacher = excluded.teacher,
-		showreport = excluded.showreport,
-		listener_updated_at = (datetime('now'))
-	;`)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`)
 	if err != nil {
 		return err
 	}
@@ -140,7 +167,43 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 				return err
 			}
 
+			// Check for group type (class or group), and check for pre-existing rows with corresponding unique identifiers. If a match is found, run an update - if not, insert a new row
 			for _, g := range s.Groups {
+				switch *g.Type {
+				case "class":
+					var exists bool
+
+					err := tx.QueryRow(`SELECT 1 FROM staff_groups WHERE staff_uuid = ? AND coreoption = ? LIMIT 1;`, s.UUID, g.Coreoption).Scan(&exists)
+					if err != nil && err != sql.ErrNoRows {
+						return err
+					}
+					if exists {
+						_, err := staffClassGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Coreoption)
+						if err != nil {
+							return err
+						}
+						continue
+					}
+				case "group":
+					var exists bool
+
+					err := tx.QueryRow(`SELECT 1 FROM staff_groups WHERE staff_uuid = ? AND ref = ? LIMIT 1;`, s.UUID, g.Ref).Scan(&exists)
+					if err != nil && err != sql.ErrNoRows {
+						return err
+					}
+					if exists {
+						_, err := staffOtherGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Ref)
+						if err != nil {
+							return err
+						}
+						continue
+					}
+				default:
+					// TODO: Handle gracefully, rather than preventing writes?
+					return ErrUnfoundGroupType
+				}
+
+				// Insert new row if a matching previous entry wasn't found
 				_, err = staffGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption, g.Ref, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport)
 				if err != nil {
 					return err

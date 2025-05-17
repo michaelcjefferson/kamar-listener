@@ -93,6 +93,10 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 					return err
 				}
 				if exists {
+					// _, err := staffClassGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Coreoption)
+					// 	if err != nil {
+					// 		return err
+					// 	}
 					continue
 				}
 			}

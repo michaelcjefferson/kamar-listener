@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -144,6 +145,8 @@ type Flags struct {
 	EOTCForm          *any    `json:"eotcform,omitempty"`
 	ListenerUpdatedAt string
 }
+
+var ErrUnfoundGroupType = errors.New("student/staff groups: couldn't retrieve group type from data")
 
 type Group struct {
 	Type              *string `json:"type,omitempty"`
@@ -334,28 +337,54 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	}
 	defer studentFlagStmt.Close()
 
+	studentClassGrpUpdateStmt, err := tx.Prepare(`
+	UPDATE student_groups
+	SET
+		student_id = $1,
+		type = $2,
+		subject = $3,
+		year = $4,
+		name = $5,
+		description = $6,
+		teacher = $7,
+		showreport = $8,
+		listener_updated_at = (datetime('now'))
+	WHERE student_uuid = $9 AND coreoption = $10
+	;`)
+	if err != nil {
+		return err
+	}
+	defer studentClassGrpUpdateStmt.Close()
+
+	studentOtherGrpUpdateStmt, err := tx.Prepare(`
+	UPDATE student_groups
+	SET
+		student_id = $1,
+		type = $2,
+		subject = $3,
+		year = $4,
+		name = $5,
+		description = $6,
+		teacher = $7,
+		showreport = $8,
+		listener_updated_at = (datetime('now'))
+	WHERE student_uuid = $9 AND ref = $10
+	;`)
+	if err != nil {
+		return err
+	}
+	defer studentOtherGrpUpdateStmt.Close()
+
 	studentGrpStmt, err := tx.Prepare(`
 	INSERT INTO student_groups (student_uuid, student_id, type, subject, coreoption, ref, year, name, description, teacher, showreport)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-	ON CONFLICT(student_uuid, ref, coreoption) DO UPDATE SET
-		student_id = excluded.student_id,
-		type = excluded.type,
-		subject = excluded.subject,
-		year = excluded.year,
-		name = excluded.name,
-		description = excluded.description,
-		teacher = excluded.teacher,
-		showreport = excluded.showreport,
-		listener_updated_at = (datetime('now'))
-	;`)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`)
 	if err != nil {
 		return err
 	}
 	defer studentGrpStmt.Close()
 
 	studentResStmt, err := tx.Prepare(`
-	INSERT INTO student_residences (student_uuid, student_id, title, salutation, email, numFlatUnit, numStreet, ruralDelivery, suburb, town, postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-	`)
+	INSERT INTO student_residences (student_uuid, student_id, title, salutation, email, numFlatUnit, numStreet, ruralDelivery, suburb, town, postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`)
 	if err != nil {
 		return err
 	}
@@ -409,7 +438,6 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 				leavingSchoolJSON = nil
 			}
 
-			// _, err = studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, s.LeavingSchool, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, s.Ethnicity, s.Iwi, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, s.Custom)
 			_, err = studentStmt.Exec(s.ID, s.UUID, s.Role, s.Created, s.Uniqueid, s.Nsn, s.Username, s.Firstname, s.FirstnameLegal, s.Lastname, s.LastnameLegal, s.Forenames, s.ForenamesLegal, s.Gender, s.GenderPreferred, s.Gendercode, s.SchoolIndex, s.Email, s.Mobile, s.House, s.Whanau, s.Boarder, s.BYODInfo, s.ECE, s.ESOL, s.ORS, s.LanguageSpoken, s.Datebirth, s.Startingdate, s.StartSchoolDate, s.Leavingdate, s.LeavingReason, leavingSchoolJSON, s.LeavingActivity, s.MOEType, s.EthnicityL1, s.EthnicityL2, ethnicityJSON, iwiJSON, s.YearLevel, s.FundingLevel, s.Tutor, s.TimetableBottom1, s.TimetableBottom2, s.TimetableBottom3, s.TimetableBottom4, s.TimetableTop1, s.TimetableTop2, s.TimetableBottom3, s.TimetableBottom4, s.MaoriLevel, s.PacificLanguage, s.PacificLevel, s.SiblingLink, s.PhotocopierID, s.SignedAgreement, s.AccountDisabled, s.NetworkAccess, s.AltDescription, s.AltHomeDrive, customJSON)
 			if err != nil {
 				return err
@@ -446,7 +474,43 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 				return err
 			}
 
+			// Check for group type (class or group), and check for pre-existing rows with corresponding unique identifiers. If a match is found, run an update - if not, insert a new row
 			for _, g := range s.Groups {
+				switch *g.Type {
+				case "class":
+					var exists bool
+
+					err := tx.QueryRow(`SELECT 1 FROM student_groups WHERE student_uuid = ? AND coreoption = ? LIMIT 1;`, s.UUID, g.Coreoption).Scan(&exists)
+					if err != nil && err != sql.ErrNoRows {
+						return err
+					}
+					if exists {
+						_, err := studentClassGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Coreoption)
+						if err != nil {
+							return err
+						}
+						continue
+					}
+				case "group":
+					var exists bool
+
+					err := tx.QueryRow(`SELECT 1 FROM student_groups WHERE student_uuid = ? AND ref = ? LIMIT 1;`, s.UUID, g.Ref).Scan(&exists)
+					if err != nil && err != sql.ErrNoRows {
+						return err
+					}
+					if exists {
+						_, err := studentOtherGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Ref)
+						if err != nil {
+							return err
+						}
+						continue
+					}
+				default:
+					// TODO: Handle gracefully, rather than preventing writes?
+					return ErrUnfoundGroupType
+				}
+
+				// Insert new row if a matching previous entry wasn't found
 				_, err = studentGrpStmt.Exec(s.UUID, s.ID, g.Type, g.Subject, g.Coreoption, g.Ref, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport)
 				if err != nil {
 					return err

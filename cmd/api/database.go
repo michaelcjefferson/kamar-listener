@@ -285,26 +285,6 @@ func createSMSTables(db *sql.DB) error {
 		UNIQUE(id, tnv, subject)
 	);`
 
-	// If the results table doesn't already exist in the database, create it
-	// tableStmt := `CREATE TABLE IF NOT EXISTS results (
-	// 	code,			TEXT,
-	// 	comment         TEXT,
-	// 	course          TEXT,
-	// 	curriculumlevel,
-	// 	date            TEXT,
-	// 	enrolled,		INTEGER,
-	// 	id              INTEGER,
-	// 	nsn             TEXT,
-	// 	number          TEXT,
-	// 	published,		INTEGER,
-	// 	result          TEXT,
-	// 	subject         TEXT,
-	// 	type            TEXT,
-	// 	version         INTEGER,
-	// 	year            INTEGER,
-	// 	yearlevel       INTEGER
-	// )`
-
 	_, err := db.Exec(resultTableStmt)
 	if err != nil {
 		log.Printf("couldn't set up results table: %v", err)
@@ -482,8 +462,7 @@ func createSMSTables(db *sql.DB) error {
 		teacher TEXT,
 		showreport INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (staff_uuid) REFERENCES staff(uuid) ON DELETE CASCADE,
-		UNIQUE(staff_uuid, ref, coreoption)
+		FOREIGN KEY (staff_uuid) REFERENCES staff(uuid) ON DELETE CASCADE
 	);`
 
 	_, err = db.Exec(staffTableStmt)
@@ -636,8 +615,7 @@ func createSMSTables(db *sql.DB) error {
 		teacher TEXT,
 		showreport INTEGER,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
-		UNIQUE(student_uuid, ref, coreoption)
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
 	);
 
 	CREATE TABLE IF NOT EXISTS student_residences (
