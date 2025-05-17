@@ -3,7 +3,6 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -49,7 +48,41 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 	}
 	defer tx.Rollback() // Rollback transaction if there's an error
 
-	stmt, err := tx.Prepare(`
+	updateStmt, err := tx.Prepare(`
+	UPDATE results
+	SET
+		code = $1,
+		comment = $2,
+		course = $3,
+		curriculumlevel = $4,
+		date = $5,
+		enrolled = $6,
+		nsn = $7,
+		published = $8,
+		result = $9,
+		resultData = $10,
+		results = $11,
+		year = $12,
+		yearlevel = $13,
+		listener_updated_at = (datetime('now'))
+	WHERE id = $14 AND tnv = $15
+	;`)
+
+	if err != nil {
+		return err
+	}
+	defer updateStmt.Close()
+
+	insertStmt, err := tx.Prepare(`
+	INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, resultData, results, subject, tnv, type, version, year, yearlevel)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);`)
+
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+
+	upsertStmt, err := tx.Prepare(`
 	INSERT INTO results (code, comment, course, curriculumlevel, date, enrolled, id, nsn, number, published, result, resultData, results, subject, tnv, type, version, year, yearlevel)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
 	ON CONFLICT(id, tnv, subject) DO UPDATE SET
@@ -59,7 +92,6 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 		curriculumlevel = excluded.curriculumlevel,
 		date = excluded.date,
 		enrolled = excluded.enrolled,
-		id = excluded.id,
 		nsn = excluded.nsn,
 		published = excluded.published,
 		result = excluded.result,
@@ -73,7 +105,7 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer upsertStmt.Close()
 
 	// Insert entries in batches - extrapolate into own function
 	batchSize := 100 // adjust as needed
@@ -87,25 +119,29 @@ func (m *ResultModel) InsertManyResults(results []Result) error {
 
 			if result.Subject == nil {
 				var exists bool
+				var err error
 
-				err := tx.QueryRow(`SELECT 1 FROM results WHERE id = ? AND tnv = ? LIMIT 1;`, result.ID, result.TNV).Scan(&exists)
+				err = tx.QueryRow(`SELECT 1 FROM results WHERE id = ? AND tnv = ? LIMIT 1;`, result.ID, result.TNV).Scan(&exists)
 				if err != nil && err != sql.ErrNoRows {
 					return err
 				}
 				if exists {
-					// _, err := staffClassGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Coreoption)
-					// 	if err != nil {
-					// 		return err
-					// 	}
-					continue
+					_, err = updateStmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.NSN, result.Published, result.Result, result.ResultData, result.Results, result.Year, result.YearLevel, result.ID, result.TNV)
+				} else {
+					_, err = insertStmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
 				}
-			}
 
-			_, err := stmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
+				if err != nil {
+					// log.Printf("subject: %v\nid: %v\ntnv: %v\n", *result.Subject, *result.ID, *result.TNV)
+					return err
+				}
+			} else {
+				_, err := upsertStmt.Exec(result.Code, result.Comment, result.Course, result.CurriculumLevel, result.Date, result.Enrolled, result.ID, result.NSN, result.Number, result.Published, result.Result, result.ResultData, result.Results, result.Subject, result.TNV, result.Type, result.Version, result.Year, result.YearLevel)
 
-			if err != nil {
-				log.Printf("subject: %v\nid: %v\ntnv: %v\n", *result.Subject, *result.ID, *result.TNV)
-				return err
+				if err != nil {
+					// log.Printf("subject: %v\nid: %v\ntnv: %v\n", *result.Subject, *result.ID, *result.TNV)
+					return err
+				}
 			}
 		}
 	}
