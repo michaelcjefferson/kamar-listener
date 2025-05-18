@@ -8,8 +8,11 @@ import (
 
 templ LogCard(log *data.Log) {
   <a class="log-card" href={ templ.URL(fmt.Sprintf("/logs/%v", log.ID)) }>
-    <p><strong>ID:</strong>{ fmt.Sprintf("%v", log.ID) }</p>
     <h3 class={ strings.ToLower(log.Level) + "-text truncate-text" }>{ log.Message }</h3>
-    <h4>{ log.Time }</h4>
+    <div class="log-meta-container">
+      <p><strong>ID:</strong>{ fmt.Sprintf("%v", log.ID) }
+      <br>
+      { log.Time }</p>
+    </div>
   </a>
 }

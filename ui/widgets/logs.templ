@@ -10,7 +10,7 @@ import (
 templ Logs(totalCount int, logs []*data.Log) {
   <div class="widget">
     <p>
-      <strong>Total Logs:</strong> { fmt.Sprintf("%d", totalCount) }
+      <a href="/logs"><strong>Total Logs:</strong> { fmt.Sprintf("%d", totalCount) }</a>
     </p>
     <div class="scroll-window">
       @components.LogList(logs)
