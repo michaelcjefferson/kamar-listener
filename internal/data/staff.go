@@ -198,9 +198,23 @@ func (m *StaffModel) InsertManyStaff(staff []Staff) error {
 						}
 						continue
 					}
-				default:
-					// TODO: Handle gracefully, rather than preventing writes?
-					return ErrUnfoundGroupType
+				case "department":
+					var exists bool
+
+					err := tx.QueryRow(`SELECT 1 FROM staff_groups WHERE staff_uuid = ? AND name = ? LIMIT 1;`, s.UUID, g.Name).Scan(&exists)
+					if err != nil && err != sql.ErrNoRows {
+						return err
+					}
+					if exists {
+						_, err := staffOtherGrpUpdateStmt.Exec(s.ID, g.Type, g.Subject, g.Year, g.Name, g.Description, g.Teacher, g.ShowReport, s.UUID, g.Ref)
+						if err != nil {
+							return err
+						}
+						continue
+					}
+					// default:
+					// 	// TODO: Handle gracefully, rather than preventing writes?
+					// 	return ErrUnfoundGroupType
 				}
 
 				// Insert new row if a matching previous entry wasn't found
