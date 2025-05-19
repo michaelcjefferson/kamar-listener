@@ -232,6 +232,8 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 	- notices
 	- pastoral
 	- photos/staffphotos (json keys="photos", "staffphotos")
+	- recognitions (unavailable in test data)
+	- classefforts (unavailable in test data)
 	- full/part (json keys="staff", "students")
 	- subjects
 	- studenttimetables/stafftimetables (json key="timetables")

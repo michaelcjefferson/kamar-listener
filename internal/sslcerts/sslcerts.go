@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/mjefferson-whs/listener/internal/jsonlog"
 )
@@ -48,18 +49,60 @@ func installMkcert(downloadURL, installPath string, logger *jsonlog.Logger) erro
 }
 
 // isRootCAInstalled checks if the root CA is already installed
-// TODO: Not working
-func isRootCAInstalled() bool {
-	cmd := exec.Command("mkcert", "-CAROOT")
+func isRootCAInstalled(mkcertPath string) bool {
+	cmd := exec.Command(mkcertPath, "-CAROOT")
 	output, err := cmd.Output()
 	if err != nil {
 		return false
 	}
 
-	// Check if the CA directory exists
-	caRoot := string(output)
-	_, err = os.Stat(caRoot)
-	return err == nil
+	caRoot := strings.TrimSpace(string(output))
+	rootCert := filepath.Join(caRoot, "rootCA.pem")
+	rootKey := filepath.Join(caRoot, "rootCA-key.pem")
+
+	// Check if both rootCA files exist
+	if _, err := os.Stat(rootCert); err != nil {
+		return false
+	}
+	if _, err := os.Stat(rootKey); err != nil {
+		return false
+	}
+
+	// Optional: Check if the rootCA is trusted by the system
+	return isCATrusted(rootCert)
+}
+
+func isCATrusted(certPath string) bool {
+	switch runtime.GOOS {
+	case "darwin":
+		// macOS: Use `security` to check if cert is in System keychain
+		cmd := exec.Command("security", "find-certificate", "-c", "mkcert development CA")
+		err := cmd.Run()
+		return err == nil
+
+	case "linux":
+		// Linux: check if cert has been linked into /etc/ssl or /usr/local/share/ca-certificates
+		// or try running update-ca-certificates --fresh
+		_, err := os.ReadFile(certPath)
+		if err != nil {
+			return false
+		}
+
+		// Check if the cert exists in the system's trust store
+		cmd := exec.Command("openssl", "verify", "-CAfile", "/etc/ssl/certs/ca-certificates.crt", certPath)
+		err = cmd.Run()
+		return err == nil
+
+	case "windows":
+		// Windows: use certutil to search the root store
+		cmd := exec.Command("certutil", "-verifystore", "root", "mkcert development CA")
+		output, err := cmd.CombinedOutput()
+		return err == nil && strings.Contains(string(output), "mkcert development CA")
+
+	default:
+		// Unsupported OS
+		return false
+	}
 }
 
 // generateSSLCert runs mkcert to create a trusted certificate pair in the provided TLS directory path
@@ -81,16 +124,27 @@ func GenerateSSLCert(tlsDirPath, ip string, logger *jsonlog.Logger) error {
 	}
 
 	// Check if mkcert is installed
-	if _, err := exec.LookPath("mkcert"); err != nil {
-		if err := installMkcert(downloadURL, mkcertPath, logger); err != nil {
-			return err
-		}
-	} else {
+	if _, err := exec.LookPath("mkcert"); err == nil {
 		mkcertPath = "mkcert"
+	} else {
+		if _, err := os.Stat(mkcertPath); os.IsNotExist(err) {
+			if err := installMkcert(downloadURL, mkcertPath, logger); err != nil {
+				return err
+			}
+		}
 	}
 
+	// // Check if mkcert is installed
+	// if _, err := exec.LookPath("mkcert"); err != nil {
+	// 	if err := installMkcert(downloadURL, mkcertPath, logger); err != nil {
+	// 		return err
+	// 	}
+	// } else {
+	// 	mkcertPath = "mkcert"
+	// }
+
 	// Install mkcert root CA
-	if !isRootCAInstalled() {
+	if !isRootCAInstalled(mkcertPath) {
 		logger.PrintInfo("Running mkcert -install...", nil)
 		cmd := exec.Command(mkcertPath, "-install")
 		if err := cmd.Run(); err != nil {
