@@ -11,7 +11,7 @@ import (
 // SQLite config for reads and writes (avoid SQLITE BUSY error): https://kerkour.com/sqlite-for-servers
 func openAppDB(dbpath string) (*sql.DB, bool, error) {
 	// Create string of connection params to prevent "SQLITE_BUSY" errors - to be further improved based on the above article
-	dbParams := "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL"
+	dbParams := "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL&parseTime=true"
 
 	// Either connect to or create (if it doesn't exist) the database at the provided path
 	db, err := sql.Open("sqlite3", dbpath+dbParams)
@@ -106,7 +106,7 @@ func createLogsTable(db *sql.DB) error {
 	userTableStmt := `CREATE TABLE IF NOT EXISTS logs (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		level TEXT NOT NULL,
-		time TEXT NOT NULL DEFAULT (datetime('now')),
+		time DATETIME NOT NULL DEFAULT (datetime('now')),
 		message TEXT NOT NULL,
 		properties TEXT,
 		trace TEXT

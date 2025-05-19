@@ -78,24 +78,12 @@ func (l *Logger) print(level Level, message string, properties map[string]any) (
 	}
 
 	aux := data.Log{
-		Level:      level.String(),
-		Time:       time.Now().UTC().Format(time.RFC3339),
+		Level: level.String(),
+		Time:  time.Now().UTC(),
+		// Time:       time.Now().UTC().Format(time.RFC3339),
 		Message:    message,
 		Properties: properties,
 	}
-
-	// aux := struct {
-	// 	Level      string                 `json:"level"`
-	// 	Time       string                 `json:"time"`
-	// 	Message    string                 `json:"message"`
-	// 	Properties map[string]any `json:"properties,omitempty"`
-	// 	Trace      string                 `json:"trace,omitempty"`
-	// }{
-	// 	Level:      level.String(),
-	// 	Time:       time.Now().UTC().Format(time.RFC3339),
-	// 	Message:    message,
-	// 	Properties: properties,
-	// }
 
 	// If log is at least debug level, include a stacktrace in the log
 	if level >= LevelDebug {

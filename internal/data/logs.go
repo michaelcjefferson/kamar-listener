@@ -13,7 +13,7 @@ import (
 type Log struct {
 	ID         int            `json:"id,omitempty"`
 	Level      string         `json:"level"`
-	Time       string         `json:"time"`
+	Time       time.Time      `json:"time"`
 	Message    string         `json:"message"`
 	Properties map[string]any `json:"properties,omitempty"`
 	Trace      string         `json:"trace,omitempty"`
@@ -93,8 +93,10 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 
 	// Declare Log struct to hold data returned by query
 	var log Log
-	// Decalre propertiesJSON string to hold the properties value returned by the query, so that it can be unmarshalled before being attached to the Log struct
+	// Declare propertiesJSON string to hold the properties value returned by the query, so that it can be unmarshalled before being attached to the Log struct
 	var propertiesJSON string
+	// Declare string to hold time value from database, which will be converted into time.Time
+	// var timeStr string
 
 	// Create an empty context (Background()) with a 3 second timeout. The timeout countdown will begin as soon as it is created
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -106,11 +108,18 @@ func (m *LogModel) GetForID(id int) (*Log, error) {
 		&log.ID,
 		&log.Level,
 		&log.Time,
+		// &timeStr,
 		&log.Message,
 		&propertiesJSON,
 		&log.Trace,
 		&log.UserID,
 	)
+
+	// t, err := time.Parse("2025-05-19 09:27:59.336072653+00:00", timeStr)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// log.Time = t
 
 	// Unmarshal properties into log struct
 	if propertiesJSON != "" {
@@ -182,11 +191,13 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 		var log Log
 		var propertiesJSON string
 		var userID *int
+		// var timeStr string
 
 		err := rows.Scan(
 			&log.ID,
 			&log.Level,
 			&log.Time,
+			// &timeStr,
 			&log.Message,
 			&propertiesJSON,
 			&userID,
@@ -195,6 +206,12 @@ func (m *LogModel) GetAll(filters Filters) ([]*Log, Metadata, *LogsMetadata, err
 		if err != nil {
 			return nil, Metadata{}, nil, err
 		}
+
+		// t, err := time.Parse("2025-05-19 09:27:59.336072653+00:00", timeStr)
+		// if err != nil {
+		// 	return nil, Metadata{}, nil, err
+		// }
+		// log.Time = t
 
 		// Unmarshal properties into log struct
 		if propertiesJSON != "" {
