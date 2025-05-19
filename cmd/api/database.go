@@ -209,26 +209,28 @@ func createConfigTable(db *sql.DB) error {
 	// Set default values for config - ignore if they already exist
 	configTableStmt = `
 	INSERT OR IGNORE INTO config (key, value, type, description) VALUES 
-		('kamar_ip', '192.168.1.1', 'string', "IP address of your school's instance of KAMAR - find by running ifconfig"),
-		('service_name', 'KAMAR Listener Service', 'string', 'Use the acronym/name of your school, eg. "WHS KAMAR Listener Service"'),
-		('info_url', 'https://www.educationcounts.govt.nz/directories/list-of-nz-schools', 'string', 'Website where people can contact you/read about how you use this service, eg. https://schoolname.school.nz'),
-		('privacy_statement', 'This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.', 'string', 'Minimum 100 characters: a description of how you use the data from this listener service'),
+		('kamar_ip', '192.168.1.1', 'string', "IP address of your school's instance of KAMAR - find by running ifconfig on device running KAMAR server"),
+		('service_name', '', 'string', 'Use the acronym/name of your school, eg. "WHS KAMAR Listener Service"'),
+		('info_url', '', 'string', 'Website where people can contact you/read about how you use this service, eg. https://schoolname.school.nz'),
+		('privacy_statement', "This service transforms KAMAR's data into an SQLite database, and stores it locally on a secure device. Only authorised staff members of the school have access to the data.", 'string', 'Minimum 100 characters: a description of how you use the data from this listener service'),
 		('listener_username', '', 'string', 'Username entered into KAMAR when setting up listener service'),
 		('listener_password', '', 'password', 'Password entered into KAMAR when setting up listener service'),
 		('details', 'true', 'bool', 'Enable/disable details'),
 		('passwords', 'true', 'bool', 'Enable/disable passwords'),
-		('photos', 'true', 'bool', 'Enable/disable photos'),
 		('groups', 'true', 'bool', 'Enable/disable groups'),
 		('awards', 'true', 'bool', 'Enable/disable awards'),
 		('timetables', 'true', 'bool', 'Enable/disable timetables'),
 		('attendance', 'true', 'bool', 'Enable/disable attendance'),
 		('assessments', 'true', 'bool', 'Enable/disable results and assessments'),
 		('pastoral', 'true', 'bool', 'Enable/disable pastoral'),
-		('learning_support', 'true', 'bool', 'Enable/disable learning support'),
+		('learningsupport', 'true', 'bool', 'Enable/disable learning support'),
 		('subjects', 'true', 'bool', 'Enable/disable subjects'),
-		('notices', 'true', 'bool', 'Enable/disable notices'),
-		('calendar', 'true', 'bool', 'Enable/disable calendar'),
-		('bookings', 'true', 'bool', 'Enable/disable bookings');
+		('recognitions', 'true', 'bool', 'Enable/disable recognitions'),
+		('classefforts', 'true', 'bool', 'Enable/disable class efforts'),
+		('photos', 'false', 'bool', 'Enable/disable photos'),
+		('notices', 'false', 'bool', 'Enable/disable notices'),
+		('calendar', 'false', 'bool', 'Enable/disable calendar'),
+		('bookings', 'false', 'bool', 'Enable/disable bookings');
 	`
 
 	_, err = db.Exec(configTableStmt)

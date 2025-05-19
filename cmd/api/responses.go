@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -113,52 +114,101 @@ func (app *application) kamarUnprocessableEntityResponse(c echo.Context) error {
 
 // TODO: Get check options etc. from DB
 func (app *application) kamarCheckResponse(c echo.Context) error {
+	cfg, err := app.models.Config.LoadConfig()
+	if err != nil {
+		app.serverErrorResponse(c, err)
+	}
+
 	j := map[string]any{
-		"error":             0,
-		"result":            "OK",
-		"service":           "WHS KAMAR Refresh",
-		"version":           "1.1",
-		"status":            "Ready",
-		"infourl":           "https://wakatipu.school.nz/",
-		"privacystatement":  "This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.",
+		"error":            0,
+		"result":           "OK",
+		"service":          "",
+		"version":          "1.1",
+		"status":           "Ready",
+		"infourl":          "",
+		"privacystatement": "",
+		// "infourl":           "https://wakatipu.school.nz/",
+		// "privacystatement":  "This service only collects results data, and stores it locally on a secure device. Only staff members of the school have access to the data.",
 		"countryDataStored": "New Zealand",
 		"options": map[string]any{
 			"ics": true,
 			"students": map[string]any{
-				"details":         true,
-				"passwords":       true,
-				"photos":          false,
-				"groups":          true,
-				"awards":          true,
-				"timetables":      true,
-				"attendance":      true,
-				"assessments":     true,
-				"pastoral":        true,
-				"recognitions":    true,
-				"classefforts":    true,
-				"learningsupport": true,
+				"details":   cfg.GetBool("details"),
+				"passwords": cfg.GetBool("passwords"),
+				"photos":    false,
+				// "photos":          cfg.GetBool("photos"),
+				"groups":          cfg.GetBool("groups"),
+				"awards":          cfg.GetBool("awards"),
+				"timetables":      cfg.GetBool("timetables"),
+				"attendance":      cfg.GetBool("attendance"),
+				"assessments":     cfg.GetBool("assessments"),
+				"pastoral":        cfg.GetBool("pastoral"),
+				"recognitions":    cfg.GetBool("recognitions"),
+				"classefforts":    cfg.GetBool("classefforts"),
+				"learningsupport": cfg.GetBool("learningsupport"),
 				"fields": map[string]string{
 					"required": "firstname;lastname;gender;gendercode;nsn;uniqueid",
 					"optional": "schoolindex;firstnamelegal;lastnamelegal;forenames;forenameslegal;genderpreferred;username;mobile;email;house;whanau;boarder;byodinfo;ece;esol;ors;languagespoken;datebirth;startingdate;startschooldate;created;leavingdate;leavingreason;leavingschool;leavingactivity;res;resa;resb;res.title;res.salutation;res.email;res.numFlatUnit;res.numStreet;res.ruralDelivery;res.suburb;res.town;res.postcode;caregivers;caregivers1;caregivers2;caregivers3;caregivers4;caregiver.name;caregiver.relationship;caregiver.status;caregiver.address,caregiver.mobile;caregiver.email;emergency;emergency1;emergency2;emergency.name;emergency.relationship;emergency.mobile;moetype;ethnicityL1;ethnicityL2;ethnicity;iwi;yearlevel;fundinglevel;tutor;timetablebottom1;timetablebottom2;timetablebottom3;timetablebottom4;timetabletop1;timetabletop2;timetabletop3;timetabletop4;maorilevel;pacificlanguage;pacificlevel;flags;flag.alert;flag.conditions;flag.dietary;flag.general;flag.ibuprofen;flag.medical;flag.notes;flag.paracetamol;flag.pastoral;flag.reactions;flag.specialneeds;flag.vaccinations;flag.eotcconsent;flag.eotcform;custom;custom.custom1;custom.custom2;custom.custom3;custom.custom4;custom.custom5;siblinglink;photocopierid;signedagreement;accountdisabled;networkaccess;altdescription;althomedrive",
 				},
 			},
 			"staff": map[string]any{
-				"details":    true,
+				"details":    cfg.GetBool("details"),
 				"photos":     false,
-				"timetables": true,
+				"timetables": cfg.GetBool("details"),
 				"fields": map[string]string{
 					"required": "uniqueid;firstname;lastname;username;gender;email",
 					"optional": "schoolindex;title;mobile;extension;classification;position;house;tutor;groups;groups.departments;datebirth;created;leavingdate;startingdate;eslguid;moenumber;photocopierid;registrationnumber;custom;custom.custom1;custom.custom2;custom.custom3;custom.custom4;custom.custom5",
 				},
 			},
 			"common": map[string]bool{
-				"subjects": true,
+				"subjects": cfg.GetBool("subjects"),
 				"notices":  false,
 				"calendar": false,
 				"bookings": false,
 			},
 		},
 	}
+
+	sn, ok := cfg.GetString("service_name")
+	if !ok {
+		app.logger.PrintFatal(errors.New("error getting service_name from config table in db"), nil)
+	}
+	if len(sn) < 1 {
+		app.logger.PrintError(errors.New("service_name hasn't been set in KAMAR config - go to config page to fix this"), nil)
+	}
+	j["service"] = sn
+
+	url, ok := cfg.GetString("info_url")
+	if !ok {
+		app.logger.PrintFatal(errors.New("error getting service_name from config table in db"), nil)
+	}
+	if len(url) < 1 {
+		app.logger.PrintError(errors.New("info_url hasn't been set in KAMAR config - go to config page to fix this"), nil)
+	}
+	j["infourl"] = url
+
+	ps, ok := cfg.GetString("privacy_statement")
+	if !ok {
+		app.logger.PrintError(errors.New("privacy_statement hasn't been set in KAMAR config - go to config page to fix this"), nil)
+		e := data.ListenerEvent{
+			ReqType:       "check",
+			WasSuccessful: false,
+			Message:       "privacy_statement not set",
+		}
+		app.models.ListenerEvents.Insert(&e)
+		return app.kamarUnprocessableEntityResponse(c)
+	}
+	if len(ps) < 100 {
+		app.logger.PrintError(errors.New("privacy_statement must be at least 100 characters long - go to config page to fix this"), nil)
+		e := data.ListenerEvent{
+			ReqType:       "check",
+			WasSuccessful: false,
+			Message:       "privacy_statement not long enough",
+		}
+		app.models.ListenerEvents.Insert(&e)
+		return app.kamarUnprocessableEntityResponse(c)
+	}
+	j["privacystatement"] = ps
 
 	e := data.ListenerEvent{
 		ReqType:       "check",
