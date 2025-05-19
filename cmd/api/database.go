@@ -397,7 +397,7 @@ func createSMSTables(db *sql.DB) error {
 	_, err = db.Exec(pastoralTableStmt)
 
 	// TODO: values - how does SQLite best store arrays (of integers?)
-	recognitionsTableStmt := `CREATE TABLE IF NOT EXISTS class_efforts (
+	recognitionsTableStmt := `CREATE TABLE IF NOT EXISTS recognitions (
 		count INTEGER,
 		student_id INTEGER NOT NULL,
 		nsn TEXT,
