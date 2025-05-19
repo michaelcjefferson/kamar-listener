@@ -1,0 +1,68 @@
+package widgets
+
+import "github.com/mjefferson-whs/listener/internal/data"
+
+templ EventTimeline(events []data.ListenerEvent) {
+  <div class="p-4">
+    @templ.JSONScript("events", events)
+
+    <h2 class="text-lg font-bold mb-2">Event Timeline</h2>
+    <canvas id="eventChart" height="300"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      const events = JSON.parse(document.getElementById('events').textContent);
+      
+      const grouped = events.reduce((acc, ev) => {
+        const type = ev.req_type || "unknown";
+        if (!acc[type]) acc[type] = [];
+        acc[type].push({
+          x: new Date(ev.time),
+          y: type,
+          backgroundColor: ev.was_successful ? 'green' : 'red',
+          borderColor: 'black',
+          radius: 6,
+          label: ev.message || "No message"
+        });
+        return acc;
+      }, {});
+      
+      const datasets = Object.keys(grouped).map(type => ({
+        label: type,
+        data: grouped[type],
+        parsing: false,
+        pointStyle: 'circle',
+        showLine: false
+      }));
+
+      const ctx = document.getElementById("eventChart").getContext("2d");
+      new Chart(ctx, {
+        type: 'scatter',
+        data: { datasets },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              type: 'time',
+              time: { unit: 'minute' },
+              title: { display: true, text: 'Time' }
+            },
+            y: {
+              type: 'category',
+              labels: Object.keys(grouped),
+              title: { display: true, text: 'Request Type' }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.raw.x.toLocaleString()}: ${ctx.raw.label}`
+              }
+            }
+          }
+        }
+      });
+    </script>
+  </div>
+}

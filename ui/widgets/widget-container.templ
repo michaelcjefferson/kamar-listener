@@ -10,5 +10,6 @@ templ WidgetContainer(w data.WidgetData) {
     @DBSize(w.DBSize)
     @Logs(w.TotalLogs, w.RecentLogs)
     @ErrorLogs(w.TotalErrors, w.RecentErrorLogs)
+    @EventTimeline(w.Events)
   </div>
 }

@@ -8,6 +8,7 @@ import (
 type WidgetData struct {
 	CountByType     map[string]int
 	DBSize          float64
+	Events          []ListenerEvent
 	IP              string
 	LastCheckTime   time.Time
 	LastInsertTime  time.Time
