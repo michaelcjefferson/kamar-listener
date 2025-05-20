@@ -357,7 +357,12 @@ func (app *application) kamarRefreshJSONHandler(c echo.Context) error {
 		return app.kamarUnprocessableEntityResponse(c)
 	}
 
-	outputDir := "./kamar_json"
+	if syncType == "check" {
+		app.logger.PrintInfo("listener: received and processed check", nil)
+		return app.kamarCheckResponse(c)
+	}
+
+	outputDir := "./kamar-json"
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		app.logger.PrintError(err, nil)
 		return app.kamarUnprocessableEntityResponse(c)
@@ -368,6 +373,11 @@ func (app *application) kamarRefreshJSONHandler(c echo.Context) error {
 		app.logger.PrintError(err, nil)
 		return app.kamarUnprocessableEntityResponse(c)
 	}
+
+	app.logger.PrintInfo("listener: successfully wrote data to json file", map[string]any{
+		"sync type": syncType,
+		"file name": filename,
+	})
 
 	return app.kamarSuccessResponse(c)
 }

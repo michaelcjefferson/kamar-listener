@@ -5,6 +5,7 @@ test/actual-requests/
 test/refresh-test.json
 cmd/api/ui/
 cmd/api/assets/
+kamar-json/
 .envrc
 *.db
 *.db-journal
