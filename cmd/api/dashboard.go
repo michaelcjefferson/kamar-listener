@@ -75,6 +75,8 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 	}
 	w.Events = events
 
+	w.JSONEnabled = app.config.kamar_write_to_json
+
 	return app.Render(c, http.StatusOK, views.DashboardPage(u, w))
 }
 
@@ -102,5 +104,20 @@ func (app *application) openDataFolderHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
+	return c.NoContent(http.StatusOK)
+}
+
+type JSONSwitchRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
+func (app *application) jsonSwitchHandler(c echo.Context) error {
+	var req JSONSwitchRequest
+
+	if err := c.Bind(&req); err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	app.config.kamar_write_to_json = req.Enabled
 	return c.NoContent(http.StatusOK)
 }

@@ -1,0 +1,61 @@
+package widgets
+
+templ JSONSwitch(enabled bool) {
+  <div class="widget">
+    <p><strong>Write to JSON</strong></p>
+    <p>When on, this switch will prevent the application from writing KAMAR data to the SQLite database, and will instead save all data it receives to .json files in the program directory.</p>
+    <p>This can be useful for debugging.</p>
+
+    <label class="switch" id="json-switch">
+      if enabled {
+        <input type="checkbox" aria-label="Toggle JSON" checked />
+      } else {
+        <input type="checkbox" aria-label="Toggle JSON" />
+      }
+      <span class="slider"></span>
+    </label>
+
+    <script>
+      (function() {
+        const jsonSwitch = document.getElementById('json-switch');
+        const checkbox = jsonSwitch.querySelector('input');
+
+        // URL and payload template
+        const endpoint = "/config/update/json-switch";
+        function makePayload(value) {
+          return JSON.stringify({ enabled: value });
+        }
+
+        checkbox.addEventListener('change', async function() {
+          // Clear any previous error state
+          jsonSwitch.classList.remove('switch-error');
+
+          // Optimistic UI: read the new state
+          const newValue = checkbox.checked;
+
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: makePayload(newValue)
+            });
+
+            if (!res.ok) {
+              throw new Error(`Server returned ${res.status}`);
+            }
+
+            // Success — nothing more to do
+          } catch (err) {
+            console.error('Toggle failed:', err);
+            // Revert UI
+            checkbox.checked = !newValue;
+            // Show error
+            jsonSwitch.classList.add('switch-error');
+            // Optionally, remove error state after a few seconds
+            setTimeout(() => jsonSwitch.classList.remove('switch-error'), 3000);
+          }
+        });
+      })();
+    </script>
+  </div>
+}

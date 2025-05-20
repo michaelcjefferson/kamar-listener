@@ -10,6 +10,7 @@ type WidgetData struct {
 	DBSize          float64
 	Events          []ListenerEvent
 	IP              string
+	JSONEnabled     bool
 	LastCheckTime   time.Time
 	LastInsertTime  time.Time
 	RecentErrorLogs []*Log

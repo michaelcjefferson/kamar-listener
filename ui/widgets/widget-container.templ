@@ -11,5 +11,6 @@ templ WidgetContainer(w data.WidgetData) {
     @Logs(w.TotalLogs, w.RecentLogs)
     @ErrorLogs(w.TotalErrors, w.RecentErrorLogs)
     @EventTimeline(w.Events)
+    @JSONSwitch(w.JSONEnabled)
   </div>
 }

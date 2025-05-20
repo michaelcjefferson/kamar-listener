@@ -26,6 +26,7 @@ type config struct {
 	env                  string
 	dblogs_on            bool
 	kamar_auth_set       bool
+	kamar_write_to_json  bool
 	kamar_db_table_names []string
 	https_on             bool
 	basePath             string
@@ -111,6 +112,8 @@ func main() {
 
 	cfg.tokens.expiry = 24 * time.Hour
 	cfg.tokens.refresh = 6 * time.Hour
+
+	cfg.kamar_write_to_json = false
 
 	app := &application{
 		config:         cfg,

@@ -63,6 +63,7 @@ func (app *application) routes() http.Handler {
 	kamarAuthSetGroup := isAuthenticatedGroup.Group("", app.requireKAMARAuthSetUp)
 	kamarAuthSetGroup.GET("/config/update/password", app.updateConfigPasswordPageHandler)
 	kamarAuthSetGroup.POST("/config/update/password", app.updateConfigPasswordHandler)
+	kamarAuthSetGroup.POST("/config/update/json-switch", app.jsonSwitchHandler)
 	kamarAuthSetGroup.POST("/config/update", app.updateConfigHandler)
 	kamarAuthSetGroup.GET("/config", app.configPageHandler)
 
