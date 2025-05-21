@@ -3,13 +3,15 @@ package widgets
 import "github.com/mjefferson-whs/listener/internal/data"
 
 templ EventTimeline(events []data.ListenerEvent) {
-  <div class="p-4">
+  <div class="widget">
     @templ.JSONScript("events", events)
 
     <h2 class="text-lg font-bold mb-2">Event Timeline</h2>
     <canvas id="eventChart" height="300"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
     <script>
       const events = JSON.parse(document.getElementById('events').textContent);
@@ -36,6 +38,13 @@ templ EventTimeline(events []data.ListenerEvent) {
         showLine: false
       }));
 
+      // console.log(grouped);
+      // console.log(datasets);
+
+      const now = new Date();
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(now.getDate() - 7);
+
       const ctx = document.getElementById("eventChart").getContext("2d");
       new Chart(ctx, {
         type: 'scatter',
@@ -45,8 +54,16 @@ templ EventTimeline(events []data.ListenerEvent) {
           scales: {
             x: {
               type: 'time',
-              time: { unit: 'minute' },
-              title: { display: true, text: 'Time' }
+              time: {
+                unit: 'day',
+                tooltipFormat: 'PPpp',
+              },
+              min: oneWeekAgo.toISOString(),
+              max: now.toISOString(),
+              title: {
+                display: true,
+                text: 'Time'
+              }
             },
             y: {
               type: 'category',
