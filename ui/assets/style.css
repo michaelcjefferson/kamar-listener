@@ -91,6 +91,10 @@ li {
 
 /* LAYOUT */
 #app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
 }
 
@@ -166,6 +170,12 @@ nav ul li {
 nav a.active {
   color: #acb0fc;
   pointer-events: none;
+}
+
+/* AUTH FORM */
+#auth-form {
+  display: flex;
+  flex-direction: column;
 }
 
 /* WIDGETS */
@@ -273,27 +283,6 @@ nav a.active {
 }
 
 /* LOGS */
-.log-filters-container {
-  display: flex;
-}
-
-.filter-controls-container {
-  display: flex;
-}
-
-.filters-column {
-  display: flex;
-  flex-direction: column;
-  margin: 0 .5rem;
-}
-
-.search-and-clear-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: space-around;
-}
-
 #log-list {
   width: 100%;
   max-width: 840px;
@@ -335,6 +324,28 @@ nav a.active {
 }
 
 /* FILTERS */
+.log-filters-container {
+  display: flex;
+}
+
+.filter-controls-container {
+  display: flex;
+}
+
+.filters-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 2.5rem;
+}
+
+.search-and-clear-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: space-around;
+}
+
 .filter-button.active {
   background-color: #1b23b8;
   color: #fff;
@@ -348,6 +359,11 @@ nav a.active {
 
 .config-textarea {
   height: 150px;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  justify-content: center;
 }
 
 .tooltip {
@@ -490,7 +506,12 @@ nav a.active {
   display: none;
 }
 
-/* SIDEBAR */
+/* USERS */
+.users-table th, .users-table td {
+  padding: .5rem 1.5rem;
+}
+
+/* HELP PAGE SIDEBAR */
 /* Main wrapper that sits below nav and header */
 .sidebar-content-wrapper {
   display: flex;
