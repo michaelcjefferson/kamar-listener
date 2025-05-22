@@ -2,21 +2,42 @@ package widgets
 
 import (
   "fmt"
+  "sort"
 )
 
 templ RecordCount(today, total int, countByType map[string]int) {
+  {{
+    type recordByType struct {
+      Type string
+      Count int
+    }
+    var recordsByType []recordByType
+    for recordType, count := range countByType {
+      recordsByType = append(recordsByType, recordByType{Type: recordType, Count: count})
+    }
+    // Sort by count in descending order
+    sort.Slice(recordsByType, func(i, j int) bool {
+      return recordsByType[i].Type > recordsByType[j].Type
+    })
+  }}
+
   <div class="widget">
-    <p>
-      <strong>Records Received Today:</strong> { fmt.Sprintf("%d", today) }
-      <br>
-      <br>
-      <strong>Total Records:</strong> { fmt.Sprintf("%d", total) }
-    </p>
-    <p>
-      for recordType, count := range countByType {
-        <br>
-        <strong>{ recordType }:</strong> { fmt.Sprintf("%d", count) }
-      }
-    </p>
+    <div id="record-count-container">
+      <div class="record-count-details">
+        <p>
+          <strong>Records Received Today:</strong> { fmt.Sprintf("%d", today) }
+          <br>
+          <br>
+          <strong>Total Records:</strong> { fmt.Sprintf("%d", total) }
+        </p>
+      </div>
+      <div class="record-count-details">
+        for _, recordByType := range recordsByType {
+          <span>
+            <strong>{ recordByType.Type }:</strong> { fmt.Sprintf("%d", recordByType.Count) }
+          </span>
+        }
+      </div>
+    </div>
   </div>
 }

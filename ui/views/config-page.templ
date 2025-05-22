@@ -1,99 +1,106 @@
 package views
 
-import "github.com/mjefferson-whs/listener/internal/data"
+import (
+  "github.com/mjefferson-whs/listener/internal/data"
+  "github.com/mjefferson-whs/listener/ui/widgets"
+)
 
-templ ConfigPage(config []data.ConfigEntry, u *data.User) {
+templ ConfigPage(config []data.ConfigEntry, jsonEnabled bool, u *data.User) {
   @Authenticated(u) {
     // <h2 class="header">Config Page</h2>
 
-    // TODO: If possible, split into two sections - one for checkboxes to turn on/off data types for the listener service, another for manual inputs such as username
-    <table class="config-table">
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Value</th>
-          <th>Updated At</th>
-          // Aesthetically looks better without this header - consider other approaches
-          <th></th>
-          // <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        // To prevent Google auto-fill for listener_username and listener_password, create hidden dummy inputs
-        <input type="text" name="fake-user" style="display:none;">
-        <input type="password" name="fake-pass" style="display:none;">
-
-        for _, entry := range config {
+    <div id="config-container">
+      // TODO: If possible, split into two sections - one for checkboxes to turn on/off data types for the listener service, another for manual inputs such as username
+      <table class="config-table">
+        <thead>
           <tr>
-            <td>
-              <div class="tooltip">
-                { entry.Key }
-                <span class="tooltip-text">{ entry.Description }</span>
-              </div>
-            </td>
-            <td>
-              if entry.Type == "bool" {
-                <div class="checkbox-wrapper">
+            <th>Key</th>
+            <th>Value</th>
+            <th>Updated At</th>
+            // Aesthetically looks better without this header - consider other approaches
+            <th></th>
+            // <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          // To prevent Google auto-fill for listener_username and listener_password, create hidden dummy inputs
+          <input type="text" name="fake-user" style="display:none;">
+          <input type="password" name="fake-pass" style="display:none;">
+
+          for _, entry := range config {
+            <tr>
+              <td>
+                <div class="tooltip">
+                  { entry.Key }
+                  <span class="tooltip-text">{ entry.Description }</span>
+                </div>
+              </td>
+              <td>
+                if entry.Type == "bool" {
+                  <div class="checkbox-wrapper">
+                    <input
+                      type="checkbox"
+                      id={ "config-" + entry.Key }
+                      name={ entry.Key }
+                      checked?={ entry.Value == "true" }
+                      data-config-key={ entry.Key }
+                      data-config-type={ entry.Type }
+                      class="config-input"
+                      onchange="handleConfigChange(this)"
+                    />
+                    <label for={ "config-" + entry.Key }></label>
+                  </div>
+                } else if entry.Type == "int" {
                   <input
-                    type="checkbox"
+                    type="number"
                     id={ "config-" + entry.Key }
                     name={ entry.Key }
-                    checked?={ entry.Value == "true" }
+                    value={ entry.Value }
                     data-config-key={ entry.Key }
                     data-config-type={ entry.Type }
                     class="config-input"
-                    onchange="handleConfigChange(this)"
+                    onblur="handleConfigChange(this)"
+                    onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
                   />
-                  <label for={ "config-" + entry.Key }></label>
-                </div>
-              } else if entry.Type == "int" {
-                <input
-                  type="number"
-                  id={ "config-" + entry.Key }
-                  name={ entry.Key }
-                  value={ entry.Value }
-                  data-config-key={ entry.Key }
-                  data-config-type={ entry.Type }
-                  class="config-input"
-                  onblur="handleConfigChange(this)"
-                  onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
-                />
-              } else if entry.Type == "password" {
-                <a href="/config/update/password">Update</a>
-              } else if entry.Type == "string" && len(entry.Value) > 50 {
-                <textarea
-                  id={ "config-" + entry.Key }
-                  name={ entry.Key }
-                  data-config-key={ entry.Key }
-                  data-config-type={ entry.Type }
-                  class="config-input"
-                  onblur="handleConfigChange(this)"
-                  onkeydown="if (event.key === 'Enter') handleConfigChange(this)">
-                  { entry.Value }
-                </textarea>
-              } else {
-                <input
-                  type="text"
-                  autocomplete="off"
-                  id={ "config-" + entry.Key }
-                  name={ entry.Key }
-                  value={ entry.Value }
-                  data-config-key={ entry.Key }
-                  data-config-type={ entry.Type }
-                  class="config-input"
-                  onblur="handleConfigChange(this)"
-                  onkeydown="if (event.key === 'Enter') handleConfigChange(this)"
-                />
-              }
-            </td>
-            <td>{ entry.UpdatedAt }</td>
-            <td>
-              <span id={ "status-" + entry.Key } class="status-indicator"></span>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+                } else if entry.Type == "password" {
+                  <a href="/config/update/password">Update</a>
+                } else if entry.Key == "privacy_statement" {
+                  <textarea
+                    id={ "config-" + entry.Key }
+                    name={ entry.Key }
+                    data-config-key={ entry.Key }
+                    data-config-type={ entry.Type }
+                    class="config-input config-textarea"
+                    onblur="handleConfigChange(this)"
+                    onkeydown="if (event.key === 'Enter') handleConfigChange(this)">
+                    { entry.Value }
+                  </textarea>
+                } else {
+                  <input
+                    type="text"
+                    autocomplete="off"
+                    id={ "config-" + entry.Key }
+                    name={ entry.Key }
+                    value={ entry.Value }
+                    data-config-key={ entry.Key }
+                    data-config-type={ entry.Type }
+                    class="config-input"
+                    onblur="handleConfigChange(this)"
+                    onkeydown="if (event.key === 'Enter') handleConfigChange(this)"
+                  />
+                }
+              </td>
+              <td>{ entry.UpdatedAt }</td>
+              <td>
+                <span id={ "status-" + entry.Key } class="status-indicator"></span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @widgets.JSONSwitch(jsonEnabled)
+    </div>
 
     <script>
       // Debounce function to prevent too many requests

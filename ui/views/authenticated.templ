@@ -7,8 +7,11 @@ import (
 
 templ Authenticated(u *data.User) {
   @Base() {
-    @components.NavBar(u)
-    { children... }
-    @components.LogOutButton()
+    <div class="layout-container">
+      @components.NavBar(u)
+      <div class="main-content">
+        { children... }
+      </div>
+    </div>
   }
 }

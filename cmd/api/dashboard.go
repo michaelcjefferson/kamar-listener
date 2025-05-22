@@ -67,7 +67,7 @@ func (app *application) getDashboardPageHandler(c echo.Context) error {
 	w.TotalErrors = errLogMeta.TotalRecords
 	w.RecentErrorLogs = errLogs
 
-	events, err := app.models.ListenerEvents.GetAll()
+	events, err := app.models.ListenerEvents.GetLastWeek()
 	if err != nil {
 		app.logger.PrintError(err, map[string]any{
 			"message": "couldn't get listener events from database",

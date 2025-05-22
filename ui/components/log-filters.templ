@@ -38,35 +38,39 @@ templ LogFilters(logsMetadata *data.LogsMetadata, filters data.Filters) {
     })
   }}
 
-  <div class="filter-controls">
-    <div class="level-filters">
-      for _, l := range levelMetas {
-        if slices.Contains(filters.LogFilters.Level, l.Level) {
-          <button class="filter-button level-filter active" data-filter={ l.Level }>{ l.Level + " (" + strconv.Itoa(l.Count) + ")" }</button>
-        } else {
-          <button class="filter-button level-filter" data-filter={ l.Level }>{ l.Level + " (" + strconv.Itoa(l.Count) + ")" }</button>
+  <div class="log-filters-container">
+    <div class="filter-controls-container">
+      <div class="level-filters filters-column">
+        for _, l := range levelMetas {
+          if slices.Contains(filters.LogFilters.Level, l.Level) {
+            <button class="filter-button level-filter active" data-filter={ l.Level }>{ l.Level + " (" + strconv.Itoa(l.Count) + ")" }</button>
+          } else {
+            <button class="filter-button level-filter" data-filter={ l.Level }>{ l.Level + " (" + strconv.Itoa(l.Count) + ")" }</button>
+          }
         }
-      }
-    </div>
-    <div class="user-filters">
-      for _, u := range userMetas {
-        if slices.Contains(filters.LogFilters.UserID, u.UserID) {
-          <button class="filter-button user_id-filter active" data-filter={ strconv.Itoa(u.UserID) }>{ "User ID " +  strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")" }</button>
-        } else {
-          <button class="filter-button user_id-filter" data-filter={ strconv.Itoa(u.UserID) }>{ "User ID " +  strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")" }</button>
+      </div>
+      <div class="user-filters filters-column">
+        for _, u := range userMetas {
+          if slices.Contains(filters.LogFilters.UserID, u.UserID) {
+            <button class="filter-button user_id-filter active" data-filter={ strconv.Itoa(u.UserID) }>{ "User ID " +  strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")" }</button>
+          } else {
+            <button class="filter-button user_id-filter" data-filter={ strconv.Itoa(u.UserID) }>{ "User ID " +  strconv.Itoa(u.UserID) + " (" + strconv.Itoa(u.Count) + ")" }</button>
+          }
         }
-      }
+      </div>
     </div>
 
-    <div class="search-bar">
-      <form id="search-form">
-        <input type="text" name="message-search-bar" value={filters.LogFilters.Message} id="message-search-bar" placeholder="Search messages...">
+    <div class="search-and-clear-container">
+      <div class="search-bar">
+        <form id="search-form">
+          <input type="text" name="message-search-bar" value={filters.LogFilters.Message} id="message-search-bar" placeholder="Search messages...">
 
-        <input type="submit" value="SEARCH">
-      </form>
+          <input type="submit" value="SEARCH">
+        </form>
+      </div>
+
+      <button id="clear-filters-button">CLEAR FILTERS</button>
     </div>
-
-    <button id="clear-filters-button">CLEAR FILTERS</button>
   </div>
 
   <script>

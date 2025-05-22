@@ -3,11 +3,11 @@ package widgets
 import "github.com/mjefferson-whs/listener/internal/data"
 
 templ EventTimeline(events []data.ListenerEvent) {
-  <div class="widget">
+  <div class="widget" id="timeline-widget">
     @templ.JSONScript("events", events)
 
-    <h2 class="text-lg font-bold mb-2">Event Timeline</h2>
-    <canvas id="eventChart" height="300"></canvas>
+    <h2>Event Timeline</h2>
+    <canvas id="event-chart"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns"></script>
@@ -34,22 +34,25 @@ templ EventTimeline(events []data.ListenerEvent) {
         label: type,
         data: grouped[type],
         parsing: false,
+        pointRadius: 6,
+        pointHoverRadius: 8,
         pointStyle: 'circle',
         showLine: false
       }));
-
-      // console.log(grouped);
-      // console.log(datasets);
 
       const now = new Date();
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(now.getDate() - 7);
 
-      const ctx = document.getElementById("eventChart").getContext("2d");
+      const ctx = document.getElementById("event-chart").getContext("2d");
       new Chart(ctx, {
         type: 'scatter',
         data: { datasets },
         options: {
+          layout: {
+            padding: 20
+          },
+          maintainAspectRatio: false,
           responsive: true,
           scales: {
             x: {

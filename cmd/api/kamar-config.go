@@ -19,7 +19,7 @@ func (app *application) configPageHandler(c echo.Context) error {
 		return app.serverErrorResponse(c, err)
 	}
 
-	return app.Render(c, http.StatusOK, views.ConfigPage(config, u))
+	return app.Render(c, http.StatusOK, views.ConfigPage(config, app.config.kamar_write_to_json, u))
 }
 
 func (app *application) updateConfigHandler(c echo.Context) error {
