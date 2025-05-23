@@ -6,7 +6,7 @@
   --font-colour-d1: rgba(230, 230, 230, 0.87);
   --bg-colour: #242424;
   --bg-colour-l1: #343434;
-  --bg-colour-l2: #34495e;
+  --bg-colour-l2: #213547;
   --bg-colour-d1: #1a1a1a;
   --bg-colour-d2: #111111;
   --neutral-colour: #555555;
@@ -79,7 +79,7 @@ button, .button-link {
   font-family: inherit;
   background-color: var(--bg-colour-d1);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, color 0.25s;
 }
 button:hover {
   border-color: var(--theme-colour);
@@ -949,14 +949,25 @@ body.sidebar-open {
 /* LIGHT MODE */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --success-colour:rgb(0, 161, 22);
+    --error-colour:rgb(204, 126, 0);
+    --fatal-colour:rgb(214, 21, 0);
+
+    color: var(--bg-colour-l2);
+    background-color: var(--font-colour-l1);
   }
-  a:hover {
-    color: #747bff;
+  button, .button-link {
+    border: 1px solid var(--bg-colour);
+    background: var(--font-colour);
+    color: var(--bg-colour-l2);
   }
-  button {
-    background-color: #f9f9f9;
+  button:hover {
+    border-color: var(--theme-colour-l2);
+    color: var(--theme-colour-l2);
+  }
+  .button-link:hover {
+    border-color: var(--theme-colour-l2);
+    color: var(--theme-colour-l2);
   }
 }
 
