@@ -3,7 +3,7 @@ package widgets
 import "github.com/mjefferson-whs/listener/internal/data"
 
 templ EventTimeline(events []data.ListenerEvent) {
-  <div class="widget" id="timeline-widget">
+  <div class="widget full-width-widget" id="timeline-widget">
     @templ.JSONScript("events", events)
 
     <h2>Event Timeline</h2>

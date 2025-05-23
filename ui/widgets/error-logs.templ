@@ -10,7 +10,7 @@ import (
 templ ErrorLogs(totalCount int, errorLogs []*data.Log) {
   <div class="widget">
     <p>
-      <a href="/logs?level=ERROR"><strong>Total Errors:</strong> { fmt.Sprintf("%d", totalCount) }</a>
+      <a href="/logs?level=ERROR"  class="button-link"><strong>Total Errors:</strong> { fmt.Sprintf("%d", totalCount) }</a>
     </p>
     <div class="scroll-window">
       @components.LogList(errorLogs)

@@ -1,18 +1,20 @@
 package views
 
-import "github.com/mjefferson-whs/listener/ui/components"
-import "github.com/mjefferson-whs/listener/internal/data"
+import (
+  "github.com/mjefferson-whs/listener/ui/components"
+  "github.com/mjefferson-whs/listener/internal/data"
+)
 
 templ IndividualLogPage(log data.Log, ref string, u *data.User) {
   @Authenticated(u) {
-    // <h2 class="header">Logs Page</h2>
+    @components.LogDetail(log)
 
     if ref != "" {
-      <a href={ templ.SafeURL(ref) }>BACK</a>
+      <a href={ templ.SafeURL(ref) } class="button-link">BACK</a>
     } else {
-      <a href="/logs">BACK</a>
+      <a href="/logs" class="button-link">BACK</a>
     }
-
-    @components.LogDetail(log)
+    <br>
+    <br>
   }
 }

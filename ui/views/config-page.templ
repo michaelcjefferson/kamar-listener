@@ -37,19 +37,29 @@ templ ConfigPage(config []data.ConfigEntry, jsonEnabled bool, u *data.User) {
               </td>
               <td>
                 if entry.Type == "bool" {
-                  <div class="checkbox-wrapper">
-                    <input
-                      type="checkbox"
-                      id={ "config-" + entry.Key }
-                      name={ entry.Key }
-                      checked?={ entry.Value == "true" }
-                      data-config-key={ entry.Key }
-                      data-config-type={ entry.Type }
-                      class="config-input"
-                      onchange="handleConfigChange(this)"
-                    />
-                    <label for={ "config-" + entry.Key }></label>
-                  </div>
+                  <input
+                    type="checkbox"
+                    id={ "config-" + entry.Key }
+                    name={ entry.Key }
+                    checked?={ entry.Value == "true" }
+                    data-config-key={ entry.Key }
+                    data-config-type={ entry.Type }
+                    class="config-input styled-checkbox"
+                    onchange="handleConfigChange(this)"
+                  />
+                  // <div class="checkbox-wrapper">
+                  //   <input
+                  //     type="checkbox"
+                  //     id={ "config-" + entry.Key }
+                  //     name={ entry.Key }
+                  //     checked?={ entry.Value == "true" }
+                  //     data-config-key={ entry.Key }
+                  //     data-config-type={ entry.Type }
+                  //     class="config-input"
+                  //     onchange="handleConfigChange(this)"
+                  //   />
+                  //   <label for={ "config-" + entry.Key }></label>
+                  // </div>
                 } else if entry.Type == "int" {
                   <input
                     type="number"
@@ -63,7 +73,7 @@ templ ConfigPage(config []data.ConfigEntry, jsonEnabled bool, u *data.User) {
                     onkeydown="if(event.key === 'Enter') handleConfigChange(this)"
                   />
                 } else if entry.Type == "password" {
-                  <a href="/config/update/password">Update</a>
+                  <a href="/config/update/password" class="button-link">Update</a>
                 } else if entry.Key == "privacy_statement" {
                   <textarea
                     id={ "config-" + entry.Key }

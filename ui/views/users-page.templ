@@ -9,6 +9,11 @@ import (
 templ UsersPage(users []*data.User, u *data.User) {
   @Authenticated(u) {
     // <h2 class="header">Users Page</h2>
+    <div class="card register-card">
+      <a href="/register">
+        <button id="register-button" class="info-text">Register New User</button>
+      </a>
+    </div>
 
     <table class="users-table">
       <thead>
@@ -26,7 +31,7 @@ templ UsersPage(users []*data.User, u *data.User) {
             <tr>
               <td>{ fmt.Sprintf("%v", user.ID) }</td>
               <td>{ user.Username }</td>
-              <td><a href="/users/update/password">Change Password</a></td>
+              <td><a href="/users/update/password" class="button-link">Change Password</a></td>
               <td>{ user.LastAuthenticatedAt }</td>
               <td><button id="delete-user-button" class="fatal-text">DELETE</button></td>
             </tr>
@@ -42,12 +47,6 @@ templ UsersPage(users []*data.User, u *data.User) {
         }
       </tbody>
     </table>
-
-    <div class="card">
-      <a href="/register">
-        <button id="register-button" class="info-text">New User</button>
-      </a>
-    </div>
 
     <div id="confirm-delete-modal" class="modal hidden">
       <div class="modal-content">
