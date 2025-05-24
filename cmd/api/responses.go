@@ -162,7 +162,7 @@ func (app *application) kamarCheckResponse(c echo.Context) error {
 			},
 			"common": map[string]bool{
 				"subjects": cfg.GetBool("subjects"),
-				"notices":  false,
+				"notices":  cfg.GetBool(("notices")),
 				"calendar": false,
 				"bookings": false,
 			},

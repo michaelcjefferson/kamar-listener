@@ -70,7 +70,7 @@ type Student struct {
 	AltDescription    *string             `json:"altdescription,omitempty"`
 	AltHomeDrive      *string             `json:"althomedrive,omitempty"`
 	Flags             *Flags              `json:"flags,omitempty"`
-	Residences        []Residence         `json:"residence,omitempty"`
+	Residences        []Residence         `json:"residences,omitempty"`
 	Caregivers        []Caregiver         `json:"caregivers,omitempty"`
 	Emergency         []Emergency         `json:"emergency,omitempty"`
 	Groups            []Group             `json:"groups,omitempty"`
@@ -165,12 +165,13 @@ type Residence struct {
 	Title             *string `json:"title,omitempty"`
 	Salutation        *string `json:"salutation,omitempty"`
 	Email             *string `json:"email,omitempty"`
-	NumFlatUnit       *any    `json:"numFlatUnit,omitempty"`
-	NumStreet         *any    `json:"numStreet,omitempty"`
-	RuralDelivery     *any    `json:"ruralDelivery,omitempty"`
+	NumFlatUnit       *string `json:"numFlatUnit,omitempty"`
+	NumStreet         *string `json:"numStreet,omitempty"`
+	Ref               *int    `json:"ref,omitempty"`
+	RuralDelivery     *string `json:"ruralDelivery,omitempty"`
 	Suburb            *string `json:"suburb,omitempty"`
 	Town              *string `json:"town,omitempty"`
-	Postcode          *any    `json:"postcode,omitempty"`
+	Postcode          *string `json:"postcode,omitempty"`
 	ListenerUpdatedAt string
 }
 
@@ -383,8 +384,22 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 	}
 	defer studentGrpStmt.Close()
 
+	// TODO: Upsert on ref
 	studentResStmt, err := tx.Prepare(`
-	INSERT INTO student_residences (student_uuid, student_id, title, salutation, email, numFlatUnit, numStreet, ruralDelivery, suburb, town, postcode) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`)
+	INSERT INTO student_residences (student_uuid, student_id, title, salutation, email, numFlatUnit, numStreet, ref, ruralDelivery, suburb, town, postcode)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+	ON CONFLICT(student_uuid, ref) DO UPDATE SET
+		student_id = excluded.student_id,
+		title = excluded.title,
+		salutation = excluded.salutation,
+		email = excluded.email,
+		numFlatUnit = excluded.numFlatUnit,
+		numStreet = excluded.numStreet,
+		ruralDelivery = excluded.ruralDelivery,
+		suburb = excluded.suburb,
+		town = excluded.town,
+		postcode = excluded.postcode,
+		listener_updated_at = (datetime('now'));`)
 	if err != nil {
 		return err
 	}
@@ -457,9 +472,11 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 				}
 			}
 
-			_, err = studentDataStmt.Exec(s.UUID, s.ID, s.Datasharing.Details, s.Datasharing.Photo, s.Datasharing.Other)
-			if err != nil {
-				return err
+			if s.Datasharing != nil {
+				_, err = studentDataStmt.Exec(s.UUID, s.ID, s.Datasharing.Details, s.Datasharing.Photo, s.Datasharing.Other)
+				if err != nil {
+					return err
+				}
 			}
 
 			for _, e := range s.Emergency {
@@ -469,9 +486,11 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 				}
 			}
 
-			_, err = studentFlagStmt.Exec(s.UUID, s.ID, s.Flags.General, s.Flags.Notes, s.Flags.Alert, s.Flags.Conditions, s.Flags.Dietary, s.Flags.Ibuprofen, s.Flags.Medical, s.Flags.Paracetamol, s.Flags.Pastoral, s.Flags.Reactions, s.Flags.SpecialNeeds, s.Flags.Vaccinations, s.Flags.EOTCConsent, s.Flags.EOTCForm)
-			if err != nil {
-				return err
+			if s.Flags != nil {
+				_, err = studentFlagStmt.Exec(s.UUID, s.ID, s.Flags.General, s.Flags.Notes, s.Flags.Alert, s.Flags.Conditions, s.Flags.Dietary, s.Flags.Ibuprofen, s.Flags.Medical, s.Flags.Paracetamol, s.Flags.Pastoral, s.Flags.Reactions, s.Flags.SpecialNeeds, s.Flags.Vaccinations, s.Flags.EOTCConsent, s.Flags.EOTCForm)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Check for group type (class or group), and check for pre-existing rows with corresponding unique identifiers. If a match is found, run an update - if not, insert a new row
@@ -518,7 +537,7 @@ func (m *StudentModel) InsertManyStudents(students []Student) error {
 			}
 
 			for _, r := range s.Residences {
-				_, err = studentResStmt.Exec(s.UUID, s.ID, r.Title, r.Salutation, r.Email, r.NumFlatUnit, r.NumStreet, r.RuralDelivery, r.Suburb, r.Town, r.Postcode)
+				_, err = studentResStmt.Exec(s.UUID, s.ID, r.Title, r.Salutation, r.Email, r.NumFlatUnit, r.NumStreet, r.Ref, r.RuralDelivery, r.Suburb, r.Town, r.Postcode)
 				if err != nil {
 					return err
 				}

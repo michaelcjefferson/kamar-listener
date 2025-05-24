@@ -16,6 +16,7 @@ type Models struct {
 	Config         ConfigModel
 	ListenerEvents ListenerEventsModel
 	Logs           LogModel
+	Notices        NoticesModel
 	Pastoral       PastoralModel
 	Recognitions   RecognitionsModel
 	Results        ResultModel
@@ -36,6 +37,7 @@ func NewModels(appdb, kamardb *sql.DB, background func(fn func())) Models {
 		Config:         ConfigModel{DB: appdb},
 		ListenerEvents: ListenerEventsModel{DB: appdb},
 		Logs:           LogModel{DB: appdb, background: background},
+		Notices:        NoticesModel{DB: kamardb},
 		Pastoral:       PastoralModel{DB: kamardb},
 		Recognitions:   RecognitionsModel{DB: kamardb},
 		Results:        ResultModel{DB: kamardb},

@@ -38,6 +38,7 @@ type SMSDirectoryData struct {
 	Assessments      AssessmentsField  `json:"assessments,omitempty"`
 	Attendance       AttendanceField   `json:"attendance,omitempty"`
 	ClassEfforts     ClassEffortsField `json:"classefforts,omitempty"`
+	Notices          NoticesField      `json:"notices,omitempty"`
 	Pastoral         PastoralField     `json:"pastoral,omitempty"`
 	Recognitions     RecognitionsField `json:"recognitions,omitempty"`
 	Results          ResultsField      `json:"results,omitempty"`
@@ -59,6 +60,10 @@ type AttendanceField struct {
 type ClassEffortsField struct {
 	Count int                `json:"count,omitempty"`
 	Data  []data.ClassEffort `json:"data,omitempty"`
+}
+type NoticesField struct {
+	Count int           `json:"count,omitempty"`
+	Data  []data.Notice `json:"data,omitempty"`
 }
 type PastoralField struct {
 	Count int             `json:"count,omitempty"`
@@ -186,6 +191,13 @@ func (app *application) kamarRefreshHandler(c echo.Context) error {
 				})
 				err = app.models.Subjects.InsertManySubjects(kamarData.Data.Subjects.Data)
 			}
+		case "notices":
+			count += kamarData.Data.Notices.Count
+			app.logger.PrintInfo("listener: attempting to write notices records to database...", map[string]any{
+				"count": count,
+				"sync":  syncType,
+			})
+			err = app.models.Notices.InsertManyNotices(kamarData.Data.Notices.Data)
 		case "pastoral":
 			count = kamarData.Data.Pastoral.Count
 			app.logger.PrintInfo("listener: attempting to write pastoral records to database...", map[string]any{

@@ -367,6 +367,23 @@ func createSMSTables(db *sql.DB) error {
 
 	// _, err = db.Exec(effortIndicesTableStmt)
 
+	noticesTableStmt := `CREATE TABLE IF NOT EXISTS notices (
+		uuid TEXT PRIMARY KEY,
+		datestart TEXT,
+		datefinish TEXT,
+		publishweb INTEGER,
+		level TEXT,
+		subject TEXT,
+		body TEXT,
+		teacher TEXT,
+		meetingdate TEXT,
+		meetingtime TEXT,
+		meetingplace TEXT,
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+	);`
+
+	_, err = db.Exec(noticesTableStmt)
+
 	pastoralTableStmt := `CREATE TABLE IF NOT EXISTS pastoral (
 		student_id			INTEGER NOT NULL,
 		nsn TEXT,
@@ -628,12 +645,14 @@ func createSMSTables(db *sql.DB) error {
 		email TEXT,
 		numFlatUnit TEXT,
 		numStreet TEXT,
+		ref INTEGER NOT NULL,
 		ruralDelivery TEXT,
 		suburb TEXT,
 		town TEXT,
 		postcode TEXT,
 		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE
+		FOREIGN KEY (student_uuid) REFERENCES students(uuid) ON DELETE CASCADE,
+		UNIQUE(student_uuid, ref)
 	);`
 
 	_, err = db.Exec(studentTableStmt)
