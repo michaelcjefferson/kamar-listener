@@ -9,9 +9,9 @@ type MenuItem struct {
 }
 
 templ SidebarMenu(menuItems []MenuItem) {
-  <div class="sidebar-content-wrapper">
-		<div class="sidebar">
-			<nav class="sidebar-menu">
+  <div class="help-sidebar-content-wrapper">
+		<div class="help-sidebar">
+			<nav class="help-sidebar-menu">
 				<ul>
 					for _, item := range menuItems {
 						<li class={ templ.KV("active", item.Active) }>
@@ -73,7 +73,7 @@ templ SidebarMenu(menuItems []MenuItem) {
 				}
 
 				// Update menu active state
-				const menuItems = document.querySelectorAll('.sidebar-menu li');
+				const menuItems = document.querySelectorAll('.help-sidebar-menu li');
 				menuItems.forEach(item => {
 					item.classList.remove('active');
 				});
@@ -84,7 +84,7 @@ templ SidebarMenu(menuItems []MenuItem) {
 				document.getElementById('content-title').textContent = menuItemLabel;
 
 				// In mobile view, toggle the sidebar if it's visible
-				if (window.innerWidth <= 768 && document.querySelector('.sidebar').classList.contains('mobile-visible')) {
+				if (window.innerWidth <= 768 && document.querySelector('.help-sidebar').classList.contains('mobile-visible')) {
 					toggleMobileSidebar();
 				}
 
@@ -93,29 +93,29 @@ templ SidebarMenu(menuItems []MenuItem) {
 			}
 
 			function toggleMobileSidebar() {
-				const sidebar = document.querySelector('.sidebar');
+				const sidebar = document.querySelector('.help-sidebar');
 				sidebar.classList.toggle('mobile-visible');
 				
 				// Toggle overlay
-				let overlay = document.getElementById('sidebar-overlay');
+				let overlay = document.getElementById('help-sidebar-overlay');
 				if (!overlay) {
 					overlay = document.createElement('div');
-					overlay.id = 'sidebar-overlay';
+					overlay.id = 'help-sidebar-overlay';
 					overlay.onclick = toggleMobileSidebar;
-					document.querySelector('.sidebar-content-wrapper').appendChild(overlay);
+					document.querySelector('.help-sidebar-content-wrapper').appendChild(overlay);
 				}
 				
 				overlay.classList.toggle('visible');
 				
 				// Prevent body scrolling when sidebar is open
-				document.body.classList.toggle('sidebar-open');
+				document.body.classList.toggle('help-sidebar-open');
 			}
 
 			// Initialize the first item as active if none is active
 			document.addEventListener('DOMContentLoaded', function() {
-				const activeItems = document.querySelectorAll('.sidebar-menu li.active');
-				if (activeItems.length === 0 && document.querySelector('.sidebar-menu li')) {
-					const firstItem = document.querySelector('.sidebar-menu li a');
+				const activeItems = document.querySelectorAll('.help-sidebar-menu li.active');
+				if (activeItems.length === 0 && document.querySelector('.help-sidebar-menu li')) {
+					const firstItem = document.querySelector('.help-sidebar-menu li a');
 					if (firstItem) {
 						const contentId = firstItem.id.replace('-link', '');
 						toggleContent(contentId);
@@ -123,7 +123,7 @@ templ SidebarMenu(menuItems []MenuItem) {
 				}
 				
 				// Add mobile menu toggle button
-				const sidebarMenu = document.querySelector('.sidebar-menu');
+				const sidebarMenu = document.querySelector('.help-sidebar-menu');
 				const menuToggle = document.createElement('button');
 				menuToggle.className = 'mobile-menu-toggle';
 				menuToggle.innerHTML = '<span></span><span></span><span></span>';

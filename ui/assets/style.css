@@ -3,7 +3,7 @@
   /* VARS */
   --font-colour: rgba(255, 255, 255, 0.87);
   --font-colour-l1: #ffffff;
-  --font-colour-d1: rgba(230, 230, 230, 0.87);
+  --font-colour-d1: rgba(240, 240, 248, 0.87);
   --bg-colour: #242424;
   --bg-colour-l1: #343434;
   --bg-colour-l2: #213547;
@@ -435,36 +435,6 @@ nav a.active {
   cursor: pointer;
   vertical-align: middle;
 }
-/* .checkbox-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.checkbox-wrapper input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.checkbox-wrapper label {
-  position: relative;
-  cursor: pointer;
-  padding-left: 25px;
-  line-height: 20px;
-}
-
-.checkbox-wrapper label:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--font-colour-d1);
-  background: var(--font-colour-l1);
-  border-radius: 3px;
-} */
 
 .checkbox-wrapper input[type="checkbox"]:checked + label:after {
   content: '';
@@ -552,7 +522,7 @@ nav a.active {
 
 /* HELP PAGE SIDEBAR */
 /* Main wrapper that sits below nav and header */
-.sidebar-content-wrapper {
+.help-sidebar-content-wrapper {
   display: flex;
   flex: 1;
   min-height: 0; /* Important for proper scrolling behavior */
@@ -561,23 +531,23 @@ nav a.active {
 }
 
 /* Sidebar styles */
-.sidebar {
+.help-sidebar {
   width: 250px;
-  background-color: var(--bg-colour-l2);
+  background-color: var(--bg-colour-d1);
   color: #ddd;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--splash-colour);
+  border-right: 1px solid var(--theme-colour-d1);
   overflow-y: auto; /* Allow scrolling if needed */
   flex-shrink: 0; /* Prevent sidebar from shrinking */
   z-index: 10; /* Ensure sidebar is above content on mobile */
 }
 
-.sidebar-menu {
+.help-sidebar-menu {
   flex: 1;
 }
 
-.sidebar-menu ul {
+.help-sidebar-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -585,11 +555,11 @@ nav a.active {
   flex-direction: column;
 }
 
-.sidebar-menu li {
+.help-sidebar-menu li {
   margin: 0;
 }
 
-.sidebar-menu li a {
+.help-sidebar-menu li a {
   display: flex;
   align-items: center;
   padding: 12px 16px;
@@ -598,18 +568,18 @@ nav a.active {
   transition: all 0.2s ease;
 }
 
-.sidebar-menu li a:hover {
-  background-color: var(--bg-colour-l2);
-  color: var(--theme-colour-d1);
+.help-sidebar-menu li a:hover {
+  background-color: var(--theme-colour-d2);
+  color: var(--theme-colour-l2);
 }
 
-.sidebar-menu li.active a {
-  background-color: var(--theme-colour-d2);
+.help-sidebar-menu li.active a {
+  background-color: var(--bg-colour-d2);
   color: var(--font-colour);
   font-weight: 500;
 }
 
-.sidebar-menu .icon {
+.help-sidebar-menu .icon {
   margin-right: 10px;
   width: 20px;
   height: 20px;
@@ -618,28 +588,17 @@ nav a.active {
   justify-content: center;
 }
 
-/* Optional: Add icons using a basic icon system */
-.icon-certificate::before {
-  content: "🔒"; /* Using emoji as placeholder */
-}
-
-.icon-settings::before {
-  content: "⚙️"; /* Using emoji as placeholder */
-}
-
 /* Main content area */
 .content-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-colour-d1);
   min-width: 0; /* Prevents content from pushing the sidebar */
   overflow: hidden; /* Prevents double scrollbars */
 }
 
 .content-header {
-  background-color: #333;
-  border-bottom: 1px solid var(--splash-colour);
+  border-bottom: 1px solid var(--theme-colour-d1);
   padding: 16px 24px;
   box-shadow: 0 1px 3px var(--bg-colour-d2);
   display: flex;
@@ -650,7 +609,6 @@ nav a.active {
   margin: 0;
   font-size: 22px;
   font-weight: 500;
-  color: var(--font-colour-d1);
   flex: 1;
 }
 
@@ -661,7 +619,6 @@ nav a.active {
 }
 
 .content-panel {
-  background-color: #333;
   border-radius: 6px;
   box-shadow: 0 1px 3px var(--bg-colour-d2);
   padding: 24px;
@@ -683,14 +640,15 @@ nav a.active {
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
+  z-index: 500;
 }
 
 .mobile-menu-toggle span {
   display: block;
   position: absolute;
+  background: var(--font-colour);
   height: 3px;
   width: 100%;
-  background: var(--bg-colour);
   border-radius: 3px;
   left: 0;
   transform-origin: center;
@@ -716,7 +674,6 @@ nav a.active {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--bg-colour-d2);
   z-index: 5;
   display: none;
 }
@@ -726,13 +683,13 @@ nav a.active {
 }
 
 /* Prevent body scrolling when mobile sidebar is open */
-body.sidebar-open {
+body.help-sidebar-open {
   overflow: hidden;
 }
 
 /* Responsive styles for mobile */
 @media (max-width: 768px) {
-  .sidebar-content-wrapper {
+  .help-sidebar-content-wrapper {
     display: block; /* Stack elements vertically on mobile */
     overflow: visible;
   }
@@ -742,7 +699,7 @@ body.sidebar-open {
     overflow: visible;
   }
 
-  .sidebar {
+  .help-sidebar {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -753,7 +710,7 @@ body.sidebar-open {
     width: 250px;
   }
 
-  .sidebar.mobile-visible {
+  .help-sidebar.mobile-visible {
     left: 0; /* Slide in when visible */
   }
 
@@ -777,8 +734,6 @@ body.sidebar-open {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; */
-  color: var(--font-colour-d1);
   line-height: 1.5;
 }
 
@@ -786,35 +741,23 @@ body.sidebar-open {
   font-size: 28px;
   font-weight: bold;
   margin-bottom: 20px;
-  /* color: #222; */
 }
 
 .help-content h2 {
   font-size: 22px;
   font-weight: 600;
   margin: 24px 0 16px;
-  /* color: #333; */
 }
 
 .help-content h3 {
   font-size: 18px;
   font-weight: 600;
   margin: 20px 0 10px;
-  /* color: #444; */
 }
 
 .help-content p {
   margin: 12px 0;
 }
-
-/* .help-content a {
-  color: #0366d6;
-  text-decoration: none;
-} */
-
-/* .help-content a:hover {
-  text-decoration: underline;
-} */
 
 .help-content .intro {
   margin-bottom: 24px;
@@ -883,7 +826,7 @@ body.sidebar-open {
 
 /* Code blocks */
 .help-content .code-block {
-  background-color: var(--font-colour);
+  background-color: var(--font-colour-d1);
   border-radius: 6px;
   padding: 16px;
   margin: 12px 0;
@@ -897,7 +840,7 @@ body.sidebar-open {
 }
 
 .help-content p > code {
-  background-color: var(--font-colour);
+  background-color: var(--font-colour-d1);
   padding: 2px 5px;
   border-radius: 3px;
 }
@@ -972,12 +915,31 @@ body.sidebar-open {
     color: var(--theme-colour-d1);
   }
   button:hover {
-    border-color: var(--theme-colour-l1);
-    color: var(--theme-colour);
+    border-color: var(--theme-colour-l2);
+    color: var(--theme-colour-l1);
   }
   .button-link:hover {
-    border-color: var(--theme-colour-l1);
-    color: var(--theme-colour);
+    border-color: var(--theme-colour-l2);
+    color: var(--theme-colour-l1);
+  }
+
+  .help-sidebar {
+    background-color: var(--font-colour-d1);
+  }
+
+  .help-sidebar-menu li a:hover {
+    background-color: var(--theme-colour-l2);
+    color: var(--theme-colour-d2);
+  }
+
+  .help-sidebar-menu li.active a {
+    background-color: var(--theme-colour-d1);
+    color: var(--font-colour);
+    font-weight: 500;
+  }
+
+  .mobile-menu-toggle span {
+    background: var(--bg-colour);
   }
 }
 
