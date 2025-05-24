@@ -540,6 +540,16 @@ nav a.active {
   padding: .5rem 1.5rem;
 }
 
+#register-button:hover {
+  border-color: rgb(69, 175, 27);
+  color:rgb(102, 218, 56);
+}
+
+#delete-user-button:hover {
+  border-color:rgb(192, 24, 24);
+  color:rgb(247, 43, 43);
+}
+
 /* HELP PAGE SIDEBAR */
 /* Main wrapper that sits below nav and header */
 .sidebar-content-wrapper {
@@ -959,15 +969,15 @@ body.sidebar-open {
   button, .button-link {
     border: 1px solid var(--bg-colour);
     background: var(--font-colour);
-    color: var(--bg-colour-l2);
+    color: var(--theme-colour-d1);
   }
   button:hover {
-    border-color: var(--theme-colour-l2);
-    color: var(--theme-colour-l2);
+    border-color: var(--theme-colour-l1);
+    color: var(--theme-colour);
   }
   .button-link:hover {
-    border-color: var(--theme-colour-l2);
-    color: var(--theme-colour-l2);
+    border-color: var(--theme-colour-l1);
+    color: var(--theme-colour);
   }
 }
 
