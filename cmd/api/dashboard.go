@@ -8,8 +8,8 @@ import (
 	"runtime"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mjefferson-whs/listener/internal/data"
-	views "github.com/mjefferson-whs/listener/ui/views"
+	"github.com/michaelcjefferson/kamar-listener/internal/data"
+	views "github.com/michaelcjefferson/kamar-listener/ui/views"
 )
 
 func (app *application) getDashboardPageHandler(c echo.Context) error {

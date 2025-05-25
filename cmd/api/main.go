@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mjefferson-whs/listener/internal/data"
-	"github.com/mjefferson-whs/listener/internal/getip"
-	"github.com/mjefferson-whs/listener/internal/jsonlog"
-	"github.com/mjefferson-whs/listener/internal/setfiledirs"
-	"github.com/mjefferson-whs/listener/internal/sslcerts"
+	"github.com/michaelcjefferson/kamar-listener/internal/data"
+	"github.com/michaelcjefferson/kamar-listener/internal/getip"
+	"github.com/michaelcjefferson/kamar-listener/internal/jsonlog"
+	"github.com/michaelcjefferson/kamar-listener/internal/setfiledirs"
+	"github.com/michaelcjefferson/kamar-listener/internal/sslcerts"
 
 	// _ "modernc.org/sqlite"
 	_ "github.com/mattn/go-sqlite3"

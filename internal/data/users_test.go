@@ -3,7 +3,7 @@ package data
 import (
 	"testing"
 
-	"github.com/mjefferson-whs/listener/internal/assert"
+	"github.com/michaelcjefferson/kamar-listener/internal/assert"
 )
 
 func TestInsert(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/mjefferson-whs/listener/internal/validator"
+	"github.com/michaelcjefferson/kamar-listener/internal/validator"
 )
 
 type Filters struct {

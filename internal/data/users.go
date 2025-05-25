@@ -7,7 +7,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/mjefferson-whs/listener/internal/validator"
+	"github.com/michaelcjefferson/kamar-listener/internal/validator"
 )
 
 var (

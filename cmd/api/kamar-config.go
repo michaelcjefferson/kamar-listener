@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mjefferson-whs/listener/internal/data"
-	"github.com/mjefferson-whs/listener/internal/validator"
-	views "github.com/mjefferson-whs/listener/ui/views"
+	"github.com/michaelcjefferson/kamar-listener/internal/data"
+	"github.com/michaelcjefferson/kamar-listener/internal/validator"
+	views "github.com/michaelcjefferson/kamar-listener/ui/views"
 	"golang.org/x/crypto/bcrypt"
 )
 

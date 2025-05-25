@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/mjefferson-whs/listener/internal/jsonlog"
+	"github.com/michaelcjefferson/kamar-listener/internal/jsonlog"
 )
 
 // installMkcert downloads and installs mkcert if not found

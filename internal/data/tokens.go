@@ -8,7 +8,7 @@ import (
 	"encoding/base32"
 	"time"
 
-	"github.com/mjefferson-whs/listener/internal/validator"
+	"github.com/michaelcjefferson/kamar-listener/internal/validator"
 )
 
 // JSON tags dictate which fields will be encoded into JSON for the client, and the names  of their corresponding keys ("token" is more meaningful for the client than "plaintext")

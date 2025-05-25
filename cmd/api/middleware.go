@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/mjefferson-whs/listener/internal/data"
-	"github.com/mjefferson-whs/listener/internal/validator"
-	"github.com/mjefferson-whs/listener/ui/views"
+	"github.com/michaelcjefferson/kamar-listener/internal/data"
+	"github.com/michaelcjefferson/kamar-listener/internal/validator"
+	"github.com/michaelcjefferson/kamar-listener/ui/views"
 )
 
 func (app *application) recoverPanicMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

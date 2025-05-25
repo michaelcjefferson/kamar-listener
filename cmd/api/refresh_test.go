@@ -16,9 +16,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/mjefferson-whs/listener/internal/assert"
-	"github.com/mjefferson-whs/listener/internal/data"
-	"github.com/mjefferson-whs/listener/internal/jsonlog"
+	"github.com/michaelcjefferson/kamar-listener/internal/assert"
+	"github.com/michaelcjefferson/kamar-listener/internal/data"
+	"github.com/michaelcjefferson/kamar-listener/internal/jsonlog"
 )
 
 func setupTestDB(t *testing.T) (*sql.DB, *sql.DB) {

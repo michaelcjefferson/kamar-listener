@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mjefferson-whs/listener/internal/data"
+	"github.com/michaelcjefferson/kamar-listener/internal/data"
 )
 
 // Mutex to prevent race conditions, in case two routines try to write to appMetrics at the same time
