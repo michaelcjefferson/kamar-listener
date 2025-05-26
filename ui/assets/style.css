@@ -188,7 +188,7 @@ nav a.active {
 }
 
 /* AUTH FORM */
-#auth-form, #update-password-form {
+#auth-form, #update-password-form, #kamar-auth-form {
   display: flex;
   flex-direction: column;
 }

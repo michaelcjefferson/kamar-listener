@@ -32,7 +32,7 @@ These steps assume you are running listenerService.exe on a Windows machine, whi
   <img src="/ui/assets/ca-warning.png" alt="Certificate Authority warning" width="450">  
   Instead of HERBERT-THE-AVE\LENOVO@Herbert-the-Avenger, you will see your device name, which will act as the SSL certificate authority. Click "Yes" to approve - this is required in order for Directory Services to connect.
 
-3. Run the listenerService.exe file - a terminal will open representing the running server. DO NOT CLOSE THIS - it will stop the listener service.
+3. Run the listenerService.exe file - a terminal will open representing the running server. DO NOT CLOSE THIS - it will stop the listener service. **When prompted to allow the service to communicate over public and private networks, click "Allow"**.
 
 4. Open a browser and navigate to https://localhost:8085 - this is the user interface for this application. You will be prompted to create an admin account, allowing you to view logs, create new users, configure settings etc. for the listener service.
 

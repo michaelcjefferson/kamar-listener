@@ -209,9 +209,8 @@ func createConfigTable(db *sql.DB) error {
 	// Set default values for config - ignore if they already exist
 	configTableStmt = `
 	INSERT OR IGNORE INTO config (key, value, type, description) VALUES 
-		('kamar_ip', '192.168.1.1', 'string', "IP address of your school's instance of KAMAR - find by running ifconfig on device running KAMAR server"),
-		('service_name', '', 'string', 'Use the acronym/name of your school, eg. "WHS KAMAR Listener Service"'),
-		('info_url', '', 'string', 'Website where people can contact you/read about how you use this service, eg. https://schoolname.school.nz'),
+		('service_name', 'KAMAR Listener Service', 'string', 'Use the acronym/name of your school, eg. "WHS KAMAR Listener Service"'),
+		('info_url', 'https://directoryservices.kamar.nz/', 'string', 'Website where people can contact you/read about how you use this service, eg. https://schoolname.school.nz'),
 		('privacy_statement', "This service transforms KAMAR's data into an SQLite database, and stores it locally on a secure device. Only authorised staff members of the school have access to the data.", 'string', 'Minimum 100 characters: a description of how you use the data from this listener service'),
 		('listener_username', '', 'string', 'Username entered into KAMAR when setting up listener service'),
 		('listener_password', '', 'password', 'Password entered into KAMAR when setting up listener service'),

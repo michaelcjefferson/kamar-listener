@@ -15,74 +15,82 @@ templ EventTimeline(events []data.ListenerEvent) {
 
     <script>
       const events = JSON.parse(document.getElementById('events').textContent);
-      
-      const grouped = events.reduce((acc, ev) => {
-        const type = ev.req_type || "unknown";
-        if (!acc[type]) acc[type] = [];
-        acc[type].push({
-          x: new Date(ev.time),
-          y: type,
-          backgroundColor: ev.was_successful ? 'green' : 'red',
-          borderColor: 'black',
-          radius: 6,
-          label: ev.message || "No message"
-        });
-        return acc;
-      }, {});
-      
-      const datasets = Object.keys(grouped).map(type => ({
-        label: type,
-        data: grouped[type],
-        parsing: false,
-        pointRadius: 6,
-        pointHoverRadius: 8,
-        pointStyle: 'circle',
-        showLine: false
-      }));
 
-      const now = new Date();
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(now.getDate() - 7);
+      console.log(events);
 
-      const ctx = document.getElementById("event-chart").getContext("2d");
-      new Chart(ctx, {
-        type: 'scatter',
-        data: { datasets },
-        options: {
-          layout: {
-            padding: 20
-          },
-          maintainAspectRatio: false,
-          responsive: true,
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: 'day',
-                tooltipFormat: 'PPpp',
+      if (events === null) {
+        const noEventsMessage = document.createElement("h2");
+        noEventsMessage.innerHTML = "No events yet.";
+        document.getElementById("event-chart").replaceWith(noEventsMessage);
+      } else {
+        const grouped = events.reduce((acc, ev) => {
+          const type = ev.req_type || "unknown";
+          if (!acc[type]) acc[type] = [];
+          acc[type].push({
+            x: new Date(ev.time),
+            y: type,
+            backgroundColor: ev.was_successful ? 'green' : 'red',
+            borderColor: 'black',
+            radius: 6,
+            label: ev.message || "No message"
+          });
+          return acc;
+        }, {});
+        
+        const datasets = Object.keys(grouped).map(type => ({
+          label: type,
+          data: grouped[type],
+          parsing: false,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointStyle: 'circle',
+          showLine: false
+        }));
+
+        const now = new Date();
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+
+        const ctx = document.getElementById("event-chart").getContext("2d");
+        new Chart(ctx, {
+          type: 'scatter',
+          data: { datasets },
+          options: {
+            layout: {
+              padding: 20
+            },
+            maintainAspectRatio: false,
+            responsive: true,
+            scales: {
+              x: {
+                type: 'time',
+                time: {
+                  unit: 'day',
+                  tooltipFormat: 'PPpp',
+                },
+                min: oneWeekAgo.toISOString(),
+                max: now.toISOString(),
+                title: {
+                  display: true,
+                  text: 'Time'
+                }
               },
-              min: oneWeekAgo.toISOString(),
-              max: now.toISOString(),
-              title: {
-                display: true,
-                text: 'Time'
+              y: {
+                type: 'category',
+                labels: Object.keys(grouped),
+                title: { display: true, text: 'Request Type' }
               }
             },
-            y: {
-              type: 'category',
-              labels: Object.keys(grouped),
-              title: { display: true, text: 'Request Type' }
-            }
-          },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: ctx => `${ctx.raw.x.toLocaleString()}: ${ctx.raw.label}`
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: ctx => `${ctx.raw.x.toLocaleString()}: ${ctx.raw.label}`
+                }
               }
             }
           }
-        }
-      });
+        });
+      }
     </script>
   </div>
 }

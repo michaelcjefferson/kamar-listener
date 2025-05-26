@@ -16,7 +16,6 @@ import (
 // 	PrivacyStatement string   `json:"privacy_statement,omitempty"`
 // 	ListenerUsername string   `json:"listener_username,omitempty"`
 // 	ListenerPassword password `json:"-"`
-// 	KamarIP          string   `json:"kamar_ip,omitempty"`
 // 	Details          bool     `json:"details,omitempty"`
 // 	Passwords        bool     `json:"passwords,omitempty"`
 // 	Photos           bool     `json:"photos,omitempty"`
@@ -36,7 +35,7 @@ import (
 // TODO: Add port
 // "calendar" is an option from KAMAR, but it isn't particularly useful and its data structure is messy - to allow calendars to be received from KAMAR, a new data structure needs to be built and implemented before adding "calendar" to this list
 // UPDATE: calendars should be fine - it's just a long string - add later
-var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "kamar_ip", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learningsupport", "recognitions", "classefforts", "subjects", "notices", "bookings"}
+var ConfigKeySafeList = []string{"service_name", "info_url", "privacy_statement", "listener_username", "listener_password", "details", "passwords", "photos", "groups", "awards", "timetables", "attendance", "assessments", "pastoral", "learningsupport", "recognitions", "classefforts", "subjects", "notices", "bookings", "calendar"}
 
 type ConfigEntry struct {
 	Key         string `json:"key"`
