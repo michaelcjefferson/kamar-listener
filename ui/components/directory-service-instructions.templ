@@ -6,11 +6,104 @@ templ DirectoryServiceInstructions() {
 
     <div class="intro">
       <p>
-        
+        Now that your KAMAR Listener is running, open KAMAR and follow the steps below to set up Directory Services.
       </p>
       <p>
-        KAMAR's official documentation can be found <a href="https://directoryservices.kamar.nz/">here</a>.
+        <strong>Note:</strong> KAMAR's official documentation can be found <a href="https://directoryservices.kamar.nz/">here</a>.
       </p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Step 1: Ensure KAMAR Listener configuration is set</h3>
+        <p>In this app, go to the Config page, and ensure that you have set and noted the listener_username and listener_password:</p>
+        <div class="image-container">
+        	<img src="/listener-config.png" alt="KAMAR Listener configuration." />
+        </div>
+        <p>Now would be a good time to personalise the service_name, info_url, and privacy_statement as well - though as this is not a public-facing application, they are not as important.</p>
+      </div>
+
+      <div class="step">
+        <h3>Step 2: Create a new Directory Service in KAMAR</h3>
+        <p>In KAMAR, open the Setup menu, and click on "Server":</p>
+        <div class="image-container">
+        	<img src="/kamar-server-menu-location.png" alt="KAMAR Server menu location." />
+        </div>
+        <p>Navigate to "Directory Services" on the left, and click "New Service":</p>
+        <div class="image-container">
+        	<img src="/new-directory-service-button.png" alt="New Directory Service button." />
+        </div>
+        <p>Give a name to your new service, eg. "KAMAR Listener Service".</p>
+      </div>
+
+      <div class="step">
+        <h3>Step 3: Configure the service</h3>
+        <p>First, the IP address, port, and authentication need to be set up in Directory Services. You can find your local IP address on the KAMAR Listener homepage:</p>
+        <div class="image-container">
+        	<img src="/ip-address-on-dashboard.png" alt="IP address on dashboard." />
+        </div>
+        <p>Back in KAMAR, enter this IP address in the "Address" section. <strong>Then, add /kamar-listener at the end of the IP address.</strong> It should look similar to <code>192.168.1.79/kamar-listener</code> - without /kamar-listener at the end, the service will not work.</p>
+        <p>In the "Port" section, enter 8085.</p>
+        <p>Finally, enter the "Username" and "Password" that you set up in KAMAR Listener (these can be changed on the KAMAR Listener Config page). Your KAMAR Directory Service should so far look like this:</p>
+        <div class="image-container">
+        	<img src="/kamar-ip-port-auth-config.png" alt="KAMAR IP, port, and auth configuration." />
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Step 4: Check and Enable</h3>
+        <p>Now that the service has been configured with the correct address, port, and credentials, KAMAR should be able to connect to it. Click the "Check and Enable" button in the top right:</p>
+        <div class="image-container">
+        	<img src="/check-and-enable-button.png" alt="Check and Enable button." />
+        </div>
+        <p>If anything isn't set correctly, this will fail with a message like the following:</p>
+        <div class="image-container">
+        	<img src="/kamar-forbidden-error.png" alt="Error message from KAMAR - Forbidden (403)." />
+        </div>
+        <p>If this happens, return to Step 3 and ensure that all values are correct.</p>
+        <p>If the Check and Enable succeeds, you will see a message like this:</p>
+        <div class="image-container">
+        	<img src="/kamar-check-success.png" alt="Successful Check message from KAMAR." />
+        </div>
+        <p>KAMAR will now send data via Directory Services every day at the specified time, until it fails or the service is stopped. You can click the checkbox next to Check and Enable to disable the service.</p>
+      </div>
+
+      <div class="step">
+        <h3>Step 5: Select desired data</h3>
+        <p>There should be a set of checkboxes in your Directory Service reflecting the data you have enabled on the KAMAR Listener config page:</p>
+        <div class="image-container">
+        	<img src="/kamar-config-options.png" alt="KAMAR Directory Service configuration options." />
+        </div>
+        <p>Check each one that you want to have sent to your KAMAR Listener database.</p>
+        <p><strong>Note:</strong> Bookings, Calendar, and Photos are currently unavailable for KAMAR Listener to consume.</p>
+        <p>For some data types, such as Pastoral and Assessments, you will have the option to configure dates - when you first set up this service, it is recommended that you set the Directory Service to "Send All" (this will only happen the first time the service is run):</p>
+        <div class="image-container">
+        	<img src="/kamar-all-entries-option-pastoral.png" alt="Pastoral entries - Send All option." />
+        </div>
+      </div>
+
+      <div class="step">
+        <h3>Step 6: Run the service</h3>
+        <p>You are now ready to send KAMAR's data to KAMAR Listener. This will happen automatically on the schedule set for this service, but it is a good idea to Run Now and check for issues.</p>
+        <p><strong>Note:</strong>: the first run will likely take a long time to complete - do this outside of school hours.</p>
+        <div class="image-container">
+        	<img src="/kamar-run-now-button.png" alt="KAMAR Run Now button." />
+        </div>
+        <p>After you click Update on the confirmation pop-up, KAMAR will start sending data to the listener in chunks. Confusingly, the red alert that pops up is actually just a confirmation message that the service has started:</p>
+        <div class="image-container">
+        	<img src="/kamar-update-started.png" alt="KAMAR Update Started message." />
+        </div>
+        <p>You can see logs of each chunk being processed in the terminal that opened when you started listenerService.exe. You can also view these logs on the Dashboard and Logs pages:</p>
+        <div class="image-container">
+        	<img src="/successful-insert-logs.png" alt="Successful insert logs." />
+        </div>
+        <p>The Dashboard will also update (though there is currently a ~1 hour delay) to show you the total number of each data type written to the database:</p>
+        <div class="image-container">
+        	<img src="/subject-record-count.png" alt="Subject record count on dashboard." />
+        </div>
+        <p>You hopefully now have an SQLite database full of KAMAR data! Next, connect this to PowerBI or another data analytics tool of your choice.</p>
+        <p>If you had any issues, check the Troubleshooting page, or email the developer at <strong>michaelcjefferson@gmail.com</strong>.</p>
+      </div>
     </div>
   </div>
 }

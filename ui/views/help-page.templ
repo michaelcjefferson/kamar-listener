@@ -8,10 +8,11 @@ templ HelpPage(u *data.User) {
     // <h2 class="header">Help</h2>
 
     @components.SidebarMenu([]components.MenuItem{
-      {ID: "mkcert-instructions", Label: "SSL Certificate Setup", Content: components.MkCertInstructions(), Active: true, IconName: ""},
-      {ID: "directory-service-instructions", Label: "KAMAR Directory Service", Content: components.DirectoryServiceInstructions(), Active: false, IconName: ""},
+      {ID: "directory-service-instructions", Label: "KAMAR Directory Service", Content: components.DirectoryServiceInstructions(), Active: true, IconName: ""},
+      {ID: "troubleshooting-instructions", Label: "Troubleshooting", Content: components.TroubleshootingInstructions(), Active: false, IconName: ""},
       {ID: "sqlite-instructions", Label: "SQLite", Content: components.SQLiteInstructions(), Active: false, IconName: ""},
       {ID: "powerbi-instructions", Label: "Linking to PowerBI", Content: components.PowerBIInstructions(), Active: false, IconName: ""},
+      {ID: "mkcert-instructions", Label: "SSL Certificate Setup", Content: components.MkCertInstructions(), Active: false, IconName: ""},
     })
   }
 }
