@@ -46,20 +46,10 @@ templ ConfigPage(config []data.ConfigEntry, jsonEnabled bool, u *data.User) {
                     data-config-type={ entry.Type }
                     class="config-input styled-checkbox"
                     onchange="handleConfigChange(this)"
+                    if entry.Key == "bookings" || entry.Key == "calendar" || entry.Key == "photos" {
+                      disabled
+                    }
                   />
-                  // <div class="checkbox-wrapper">
-                  //   <input
-                  //     type="checkbox"
-                  //     id={ "config-" + entry.Key }
-                  //     name={ entry.Key }
-                  //     checked?={ entry.Value == "true" }
-                  //     data-config-key={ entry.Key }
-                  //     data-config-type={ entry.Type }
-                  //     class="config-input"
-                  //     onchange="handleConfigChange(this)"
-                  //   />
-                  //   <label for={ "config-" + entry.Key }></label>
-                  // </div>
                 } else if entry.Type == "int" {
                   <input
                     type="number"

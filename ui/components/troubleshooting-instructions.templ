@@ -5,50 +5,50 @@ templ TroubleshootingInstructions() {
   <h3>How to Troubleshoot</h3>
   <div class="intro">
     <p>
-      Power BI doesn't natively support SQLite files, but you can connect to your <code>listener.db</code> database using a third-party ODBC driver. Once connected, you can integrate the data into existing Power BI data models.
+      For now, just email <strong>michaelcjefferson@gmail.com</strong> - this page is yet to be built out!
     </p>
   </div>
 
-  <h2>Using Power BI with SQLite on Windows</h2>
-  <div class="steps">
+  // <h2>Using Power BI with SQLite on Windows</h2>
+  // <div class="steps">
 
-    <div class="step">
-      <h3>1. Install SQLite ODBC Driver</h3>
-      <p>Download and install the SQLite ODBC driver for Windows from the official page:</p>
-      <div class="code-block">
-        <code>https://www.ch-werner.de/sqliteodbc/</code>
-      </div>
-      <p class="note">Install the correct version (32-bit or 64-bit) to match your Power BI installation.</p>
-    </div>
+  //   <div class="step">
+  //     <h3>1. Install SQLite ODBC Driver</h3>
+  //     <p>Download and install the SQLite ODBC driver for Windows from the official page:</p>
+  //     <div class="code-block">
+  //       <code>https://www.ch-werner.de/sqliteodbc/</code>
+  //     </div>
+  //     <p class="note">Install the correct version (32-bit or 64-bit) to match your Power BI installation.</p>
+  //   </div>
 
-    <div class="step">
-      <h3>2. Set Up an ODBC Data Source</h3>
-      <p>Open <strong>ODBC Data Sources</strong> (search in the Start menu) and go to the <strong>System DSN</strong> or <strong>User DSN</strong> tab.</p>
-      <p>Click <strong>Add</strong>, choose <code>SQLite3 ODBC Driver</code>, and click <strong>Finish</strong>.</p>
-      <p>Give it a name (e.g., <code>ListenerDB</code>), and under <strong>Database Name</strong>, select your <code>listener.db</code> file.</p>
-    </div>
+  //   <div class="step">
+  //     <h3>2. Set Up an ODBC Data Source</h3>
+  //     <p>Open <strong>ODBC Data Sources</strong> (search in the Start menu) and go to the <strong>System DSN</strong> or <strong>User DSN</strong> tab.</p>
+  //     <p>Click <strong>Add</strong>, choose <code>SQLite3 ODBC Driver</code>, and click <strong>Finish</strong>.</p>
+  //     <p>Give it a name (e.g., <code>ListenerDB</code>), and under <strong>Database Name</strong>, select your <code>listener.db</code> file.</p>
+  //   </div>
 
-    <div class="step">
-      <h3>3. Connect in Power BI</h3>
-      <p>Open Power BI Desktop and go to <strong>Home &gt; Get Data &gt; ODBC</strong>.</p>
-      <p>Select the DSN you created (e.g., <code>ListenerDB</code>).</p>
-      <p>Click <strong>OK</strong> and choose the tables you want to import.</p>
-    </div>
+  //   <div class="step">
+  //     <h3>3. Connect in Power BI</h3>
+  //     <p>Open Power BI Desktop and go to <strong>Home &gt; Get Data &gt; ODBC</strong>.</p>
+  //     <p>Select the DSN you created (e.g., <code>ListenerDB</code>).</p>
+  //     <p>Click <strong>OK</strong> and choose the tables you want to import.</p>
+  //   </div>
 
-    <div class="step">
-      <h3>4. Integrate with Existing Data Model</h3>
-      <p>Once the SQLite data is loaded:</p>
-      <p>Use the <strong>Model</strong> view in Power BI to create relationships between your new SQLite tables and existing tables.</p>
-      <p>Drag and drop fields in <strong>Report</strong> view to build visuals using both new and existing data.</p>
-      <p>Use <code>Merge Queries</code> or <code>Append Queries</code> in Power Query Editor for deeper integration.</p>
-    </div>
-  </div>
+  //   <div class="step">
+  //     <h3>4. Integrate with Existing Data Model</h3>
+  //     <p>Once the SQLite data is loaded:</p>
+  //     <p>Use the <strong>Model</strong> view in Power BI to create relationships between your new SQLite tables and existing tables.</p>
+  //     <p>Drag and drop fields in <strong>Report</strong> view to build visuals using both new and existing data.</p>
+  //     <p>Use <code>Merge Queries</code> or <code>Append Queries</code> in Power Query Editor for deeper integration.</p>
+  //   </div>
+  // </div>
 
-  <div class="troubleshooting">
-    <h3>Troubleshooting</h3>
-    <p>Check <a href="https://www.youtube.com/watch?v=n5ELoULhQIo">this video</a> for a visual walkthrough of the process.</p>
-    <p>If the ODBC driver doesn't appear, ensure you're using the same bitness (32/64-bit) as Power BI.</p>
-    <p>If Power BI can't read the file, verify that <code>listener.db</code> is a valid SQLite file and not open in another application.</p>
-  </div>
+  // <div class="troubleshooting">
+  //   <h3>Troubleshooting</h3>
+  //   <p>Check <a href="https://www.youtube.com/watch?v=n5ELoULhQIo">this video</a> for a visual walkthrough of the process.</p>
+  //   <p>If the ODBC driver doesn't appear, ensure you're using the same bitness (32/64-bit) as Power BI.</p>
+  //   <p>If Power BI can't read the file, verify that <code>listener.db</code> is a valid SQLite file and not open in another application.</p>
+  // </div>
 </div>
 }
