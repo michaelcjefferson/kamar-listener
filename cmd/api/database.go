@@ -335,6 +335,27 @@ func createSMSTables(db *sql.DB) error {
 
 	_, err = db.Exec(attendanceValuesTableStmt)
 
+	bookingsTableStmt := `CREATE TABLE IF NOT EXISTS bookings (
+		room TEXT NOT NULL,
+		date TEXT NOT NULL,
+		slot INTEGER NOT NULL,
+		group TEXT,
+		notes TEXT,
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+		UNIQUE(room, date, slot)
+	);`
+
+	_, err = db.Exec(bookingsTableStmt)
+
+	calendarTableStmt := `CREATE TABLE IF NOT EXISTS calendar (
+		timestructure TEXT,
+		days TEXT,
+		events TEXT,
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+	);`
+
+	_, err = db.Exec(calendarTableStmt)
+
 	// While there are performance benefits to creating a secondary effortsIndices table as below, updates will be safer and more consistent if they are held in an array in the base classEfforts table
 	// TODO: efforts - how does SQLite best store arrays (of integers?)
 	classEffortsTableStmt := `CREATE TABLE IF NOT EXISTS class_efforts (
@@ -413,6 +434,17 @@ func createSMSTables(db *sql.DB) error {
 	);`
 
 	_, err = db.Exec(pastoralTableStmt)
+
+	photosTableStmt := `CREATE TABLE IF NOT EXISTS photos (
+		id TEXT PRIMARY KEY,
+		schoolindex TEXT,
+		type TEXT,
+		filename TEXT,
+		photo TEXT,
+		listener_updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+	);`
+
+	_, err = db.Exec(photosTableStmt)
 
 	// TODO: values - how does SQLite best store arrays (of integers?)
 	recognitionsTableStmt := `CREATE TABLE IF NOT EXISTS recognitions (
