@@ -3,11 +3,11 @@ A secure, local-network, browser-based application that receives your school's d
 This data can then be consumed by PowerBI or any other data analytics system used by your school's data team.
 
 ## To get started:
-1. Download the most recent release.
-2. Run the .exe on a machine on the same local network as your instance of KAMAR - click "More Info" --> "Run Anyway" --> "Yes".
-3. Open a browser and navigate to `https://localhost:8085`.
-4. Conigure both a user account for KAMAR Listener and authentication details for Directory Services.
-5. Open KAMAR, go to Directory Services in the Admin menu, and fill in the required details.
+1. Download the [most recent release](https://github.com/michaelcjefferson/kamar-listener/releases).
+2. Run listenerService.exe on a machine on the same local network as your instance of KAMAR. Click "More Info" --> "Run Anyway" --> "Yes" when prompted.
+3. Open a browser and navigate to [https://localhost:8085](https://localhost:8085).
+4. Conigure both a user account for KAMAR Listener and authentication details for Directory Services when prompted.
+5. Open KAMAR, go to Directory Services in the Setup menu, and fill in the required details.
 6. Press Check & Enable.  
 
 [Detailed set-up instructions below](#setting-things-up).
@@ -27,6 +27,7 @@ To enable the application, click on More Info, and you will see the following (d
 <img src="/ui/assets/unrecognised-app-expanded.png" alt="Windows Unrecognised App warning expanded" width="450">  
 Click "Run Anyway" to allow the application to run on your device.
 
+
 2. KAMAR Directory Services requires an HTTPS connection for security. To enable this, KAMAR Listener automatically downloads [mkcert](https://github.com/FiloSottile/mkcert) to generate and trust a local development certificate for use in this application. You will need to allow this when you first run KAMAR Listener:
 <img src="/ui/assets/ca-warning.png" alt="Certificate Authority warning" width="450">  
 Instead of HERBERT-THE-AVE\LENOVO@Herbert-the-Avenger, you will see your device name, which will act as the SSL certificate authority. Click "Yes" to approve - this is required in order for Directory Services to connect.
@@ -39,6 +40,7 @@ It will then prompt you to set up a username and password for Directory Services
 5. Two SQLite databases (.db files) are automatically created and used by this service:  
     - app.db, which stores information such as logs, user credentials etc. for KAMAR Listener
     - listener.db, which stores all data received from Directory Services
+
 These databases perpetuate - if you restart your computer or end KAMAR Listener, this data will not be lost unless you delete these two database files. To view the data, click on "Open Database Folder" on the KAMAR Listener dashboard.
 
 6. Open KAMAR, and go to Setup --> Server --> Directory Services. Fill out the details there (refer to [this page](https://directoryservices.kamar.nz/?listening-service) for help):  
@@ -57,7 +59,7 @@ In order to ensure security, this application does not connect to the world outs
 To run an updated version of KAMAR Listener but keep your data intact, just delete the old version of listenerService.exe and download and run the new one - it will integrate with the databases that were previously created.
 
 
-To start over with a fresh database, open the database folder (via "Open Database Folder" on the dashboard), stop listenerService.exe if it is running, and delete **both** app.db **and** listener.db. Then, run listenerService.exe again.
+To start over with fresh, empty databases, open the database folder (via "Open Database Folder" on the dashboard), stop listenerService.exe if it is running, and delete **both** app.db **and** listener.db. Then, run listenerService.exe again.
 
 ## Development
 ### Setting up your dev environment
