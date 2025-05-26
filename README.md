@@ -1,86 +1,68 @@
-# WHS KAMAR Refresh
-This repository allows for a binary to be built that when executed, runs a server that listens for connections from KAMAR's directory services. It is able to receive datasets and save them to an SQLite database for consumption by PowerBI or another service.
+# KAMAR Listener
+A secure, local-network, browser-based application that receives your school's data from KAMAR's Directory Services and stores them in a structured SQLite database.
+This data can then be consumed by PowerBI or any other data analytics system used by your school's data team.
 
-## Day-to-day Operation
-1. Install mkcert by following the instructions below.
-2. Go to your Documents folder and create a new folder there called "listener" (ensure "listener" is all lowercase).
-3. Download the latest release of this application, and move it to the "listener" folder in your Documents.
-4. Run the .exe file - a terminal will open representing the running server. DO NOT CLOSE THIS - it will stop the listener service.
-5. Open a browser and navigate to https://localhost:8085 - this is the user interface for this application. You will be prompted to create an admin account, allowing you to view logs etc. from the listener service.
-6. If you want to end the listener service, go to the terminal that opened when you started the .exe, and either close it or press Ctrl+C to stop the process.
-7. To restart the service again, open the .exe.
+## To get started:
+1. Download the most recent release
+2. Run the .exe on a machine on the same local network as your instance of KAMAR - click "More Info" --> "Run Anyway" --> "Yes"
+3. Open a browser and navigate to `https://localhost:8085`
+4. Conigure both a user account for KAMAR Listener and authentication details for Directory Services
+5. Open KAMAR, go to Directory Services in the Admin menu, and fill in the required details
+6. Press Check & Enable
+[Detailed set-up instructions below](#setting-things-up)
 
-## Development
-### Setting things up
-1. Build a new .exe file, by following the steps in **To build a new .exe binary**.
-2. Copy the kamarRefresh.exe across to C:\\KamarListener\ on whichever computer will be running the listener service. Please also download SQLite Studio and install:
-[SQLite Studio Download Link](https://sqlitestudio.pl/). You can open kamar-directory-service.db with this program and view the data it contains.
-3. Create a folder in C:\\KamarListener\ called "tls". Copy key.pem and cert.pem files from the development folder into the tls folder you created. IDEALLY, however, you will create your own trusted certs following the [instructions here](https://github.com/FiloSottile/mkcert).
-4. Double-click kamarRefresh.exe to begin. It will automatically create a database file called kamar-directory-service.db in the same folder, and set up a results table inside it. It will also open a terminal window which will log any requests that it receives. kamarRefresh.exe is a web server - it will receive HTTP requests from KAMAR, process them, and then push them to the database.
-5. Open KAMAR, and go to Setup --> Server --> Directory Services. Fill out the details there (refer to [this page](https://directoryservices.kamar.nz/?listening-service) for help), then click Check and Run, then tick required fields (eg. Results, setting it up with the timeframe required), then click Update to start the preliminary upload. You should see logs appearing in the terminal window running kamarRefresh.exe, as well as rows of results starting to appear in SQLite Studio (need to click the blue refresh button on the Data tab).
-6. To connect PowerBI to this data, first download and install the [SQLite ODBC Driver](http://ch-werner.de/sqliteodbc/). Then, follow the instructions in [this video](https://www.youtube.com/watch?v=n5ELoULhQIo).
+## Privacy
+This application is configured to run on a local network - all data remains local, and the application is not publicly accessible unless your school's IT team forwards the application port to the outside world.
+In case students are using the same internal network as your device, robust user authentication has been set up for KAMAR Listener, and the database itself is not viewable through the application - the weakest entrypoint is the Basic Auth used by Directory Services itself, so ensure you use a complex and secure password for this.
+Directory Services can include sensitive information such as NSNs as part of its service, and these are written to a .db file. Please ensure that KAMAR Listener is run on a secure device.
 
-### If there was an issue
-1. If the .exe process stopped (or you need to reset the computer or something), just double-click it to start again - it will reconnect to the same database without overwriting anything.
-2. If the problem persists, check IP addresses - kamarRefresh.exe is currently configured to only accept requests from either localhost or IP addresses beginning with 10.100. If this needs to be changed, you can do so on line 139 of middleware.go.
+## Setting things up
+These steps assume you are running listenerService.exe on a Windows machine, which is on the same local network as your instance of KAMAR.
+1. Download the [most recent release]() of KAMAR Listener and run it. Windows will display a warning:
+![Windows Unrecognised App warning](./ui/assets/unrecognised-app-warning.png)
+To enable the application, click on More Info, and you will see the following (double-check that it says "Application: listenerService.exe"):
+![Windows Unrecognised App warning expanded](./ui/assets/unrecognised-app-expanded.png)
+Click "Run Anyway" to allow the application to run on your device
+2. KAMAR Directory Services requires an HTTPS connection for security. To enable this, KAMAR Listener automatically downloads [mkcert](https://github.com/FiloSottile/mkcert) to generate and trust a local development certificate for use in this application. You will need to allow this when you first run KAMAR Listener:
+![Certificate Authority warning](./ui/assets/ca-warning.png)
+Instead of HERBERT-THE-AVE\LENOVO@Herbert-the-Avenger, you will see your device name, which will act as the SSL certificate authority. Click "Yes" to approve - this is required in order for Directory Services to connect
+3. Run the listenerService.exe file - a terminal will open representing the running server. DO NOT CLOSE THIS - it will stop the listener service
+4. Open a browser and navigate to https://localhost:8085 - this is the user interface for this application. You will be prompted to create an admin account, allowing you to view logs, create new users, configure settings etc. for the listener service.
+It will then prompt you to set up a username and password for Directory Services - these are the credentials you will also need to provide on the KAMAR Directory Services set-up page
+5. Two SQLite databases (.db files) are automatically created and used by this service:
+- app.db, which stores information such as logs, user credentials etc. for KAMAR Listener
+- listener.db, which stores all data received from Directory Services
+These databases perpetuate - if you restart your computer or end KAMAR Listener, this data will not be lost unless you delete these two database files. To view the data, click on "Open Database Folder" on the KAMAR Listener dashboard
+6. Open KAMAR, and go to Setup --> Server --> Directory Services. Fill out the details there (refer to [this page](https://directoryservices.kamar.nz/?listening-service) for help):
+- Username and password need to be the same as the ones you set up (go to config page of KAMAR Listener to change)
+- Port needs to be 8085
+- **URL needs to be accurate**: "your IP address/kamar-listener", eg. `178.168.50.104/kamar-listener`. Your IP address should be visible on the dashboard - if this is not accurate, open a terminal and run `ipconfig` to find it.
+Click Check and Run, then tick required fields (eg. Results, setting it up with the timeframe required), then click Update to start the preliminary upload. You should see logs appearing in the terminal window running kamarRefresh.exe, as well as rows of results starting to appear in SQLite Studio (need to click the blue refresh button on the Data tab)
+7. If you want to end the listener service, go to the terminal that opened when you started the .exe, and either close it or press Ctrl+C to stop the process. 
+8. To restart the service, run listenerService.exe again
+In order to ensure security, this application does not connect to the world outside of your local network - if you want a remotely accessible service (not advised), this can be easily achieved by running it on a cloud instance (eg. [Google Cloud](https://console.cloud.google.com/))
 
-### Starting over
-1. To start over with a fresh database, go to C:\\KamarListener\, and delete **both** kamarRefresh.exe **and** kamar-directory-service.db.
-2. Follow the steps in **To build a new .exe binary**.
-3. Copy kamarRefresh.exe over to C:\\KamarListener\ (ensure that you still have a tls folder here with key and cert inside), and run it - it will create a fresh database for you.
+## Starting over/updating
+- To run an updated version of KAMAR Listener but keep your data intact, just delete the old version of listenerService.exe and download and run the new one - it will integrate with the databases that were previously created
+- To start over with a fresh database, open the database folder (via "Open Database Folder" on the dashboard), stop listenerService.exe if it is runnin. and delete **both** app.db **and** listener.db. Then, run listenerService.exe again
 
 ## Development
 ### Setting up your dev environment
-1. Download a copy of this repository to your computer (or clone it).
-2. Please download Go v1.20 (or a later version) from the following link and install on your computer:
-[Go Download Link](https://go.dev/dl/go1.20.14.windows-amd64.msi)
-3. Please also download SQLite Studio and install:
-[SQLite Studio Download Link](https://sqlitestudio.pl/)
-4. Once SQLite Studio is installed, open this (listener) directory in Windows Explorer, and open the /db folder. Copy and paste the template-kamar-directory-service.db file, then rename it to kamar-directory-service.db.
-5. Open SQLite Studio, then in the top left click Add Database, and add kamar-directory-service.db. Connect to it by double-clicking on it in the sidebar on the left. Double click on the Results table - you should now see its structure in the main window. Click on the data tab - for now it will be empty, but this is where data from KAMAR will be populated. You will most likely need to click the Refresh button (blue icon) to see new data once an upload has been completed.
-6. Create a folder in C:\\KamarListener\ called "tls". Generate key.pem and cert.pem files - [instructions can be found here](https://medium.com/@yakuphanbilgic3/create-self-signed-certificates-and-keys-with-openssl-4064f9165ea3). Move key.pem and cert.pem into the tls folder you created.
-7. Make a copy of the .envrc.template file, rename it to .envrc, and populate it appropriately, using values that reflect those of your instance of KAMAR.
-**IMPORTANT**
-If you're testing or building the source code on your own computer, you need GCC installed and in your PATH. This is required in order for the Go program to connect to SQLite. If you are on Windows, the easiest way to do this is to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/articles/2021-05/10.3.0-release).
-**Also important**
-When running `go run ./cmd/api` to test the project, you first need to ensure that CGO is enabled. To do this in PowerShell, run the command `$env:CGO_ENABLED=1`. This will ensure CGO is enabled for the lifespan of that PowerShell instance.
-
-### To build a new .exe binary
-1. Ensure that [TDM-GCC](https://jmeubank.github.io/tdm-gcc/articles/2021-05/10.3.0-release) is installed on your computer.
-2. Open PowerShell, navigate to this directory, and use the following command:
-`set CGO_ENABLED=1&& set goos=windows&& go build -o ./bin/kamarRefresh.exe ./cmd/api`
-3. Copy this file (which will be in the /bin/ folder in this directory) across to (in this case) Mark's computer, to the C:\\KamarListener\ directory. Also copy the tls folder from this directory into the KamarListener directory. kamarRefresh.exe can then be double-clicked to run - a new terminal will open up, which will log any connections that the server receives.
-
-### To run the program in dev mode
-Open terminal, navigate to this directory, and use the following command:
-`go run ./cmd/api`
-The app runs on port 443 by default - consider including "-port 8084" or similar at the end of the command if there is an issue binding to port 443.
-Use ctrl+c in the terminal to end the process.
-
-### Optional flags for terminal commands
-To see a list of available flags that can be used in either of the above terminal commands, use the following command in this directory:
-`go run ./cmd/api -help`
+1. Clone a copy of this repository to your computer (or download it).
+2. Download Go v1.23.6 (or a later version) from the following link and install on your computer:
+[Go Download Link](https://go.dev/dl/go1.23.6.windows-amd64.msi). Open a terminal and run `go version` - if Go was installed successfully, you should see something similar to "go version go1.23.6 ...."
+3. Install [Taskfile](https://taskfile.dev/) by running `go install github.com/go-task/task/v3/cmd/task@latest` - this tool simplifies the run and build processes. Run `task --version` in the terminal to ensure installation was successful
+4. Navigate to the /kamar-listener folder in your terminal, then run `task -a` to see a list of available commands (or check the Taskfile.yaml file in a code/text editor)
+5. To run the application in development mode, use `task windows/run/api` (or `task run/api` if developing on Linux)
 
 ### To test endpoints
-If the service is running,  in the terminal navigate to the /test directory inside this folder (from the same computer that the application is running on). Use the following command:
-`curl -k -X POST -d @./**filename**.json -H "Content-Type: application/json" --user "**username**:**password**" localhost:443/kamar-refresh`
-You may need to use https://localhost... if HTTPS is turned on. The "-k" flag prevents the request from failing due to the TLS cert being self-signed (only necessary if HTTPS is turned on).
+With the service running in one terminal, open another terminal. Navigate to /kamar-listener/test. Run `go run . -file *./path_to_file*`, replacing path_to_file with the path to the .json you want to send to KAMAR Listener
 
-### Database
-As only new results will be dumped each day, an SQLite database is used to hold all data, which PowerBI can connect to and consume.
-<!-- 
-### Testing - 10-4-24
-- Had to use desktop IP address rather than localhost as address, and had to remember URL tag, eg. 192.168.1.84/kamar-refresh
-- When trying Check and Enable, server displayed the error "failed at authCredentials", and also logged "received and processed check request". KAMAR displayed the error "ERROR: No service name returned"
-- When trying Check and Enable with incorrect credentials (username:pa55word), server logged "failed at authCredentials" again, but this time didn't display "received and processed...". KAMAR displayed "ERROR: HTTP/1.1 403 Forbidden"
-- Got past "failed at authCredentials" by adding a couple more fields to the SMSDirectoryData field of the response. Now, KAMAR showing this error: "ERROR: Invalid Server - invalid/missing support info URL. Please contact the supplier to update."
-- KAMAR check now working - cause of areas was missing fields in the server response to KAMAR's check request. Final thing to add was a privacy statement that was more than just "none".
-
-### Testing - 11-4-24
-- TODO: Change port, as 443 might be too open by default, and is used for fmtp (required?) -->
+### To run other tests
+Navigate to /kamar-listener/cmd/api, and run `go test -v`
 
 ### Expanding listening service
+- database.go - create new table statement
 - data/ - create new ___.go to represent the new field. Use results.go as a template
 - models.go - add new model
-- refresh.go - create ___Field structs for each new field
-- database.go - create new table statement
+- refresh.go - create ___Field structs for each new field, and add to the switch-case statement

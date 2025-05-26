@@ -83,7 +83,7 @@ func (app *application) routes() http.Handler {
 	kamarAuthSetGroup.GET("/", app.getDashboardPageHandler)
 
 	// Wrap the /kamar-refresh handler in the authenticate middleware, to force an auth check on any request to this endpoint.
-	kamarAuthGroup := router.Group("/kamar-refresh", app.authenticateKAMAR)
+	kamarAuthGroup := router.Group("/kamar-listener", app.authenticateKAMAR)
 	kamarAuthGroup.POST("", app.kamarRefreshHandler)
 
 	// router.HandlerFunc(http.MethodPost, "/tokens/authentication", app.authenticateUser(app.createAuthenticationTokenHandler))
