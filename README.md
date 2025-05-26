@@ -46,7 +46,7 @@ These databases perpetuate - if you restart your computer or end KAMAR Listener,
 6. Open KAMAR, and go to Setup --> Server --> Directory Services. Fill out the details there (refer to [this page](https://directoryservices.kamar.nz/?listening-service) for help):  
     - Username and password need to be the same as the ones you set up (go to config page of KAMAR Listener to change)
     - Port needs to be 8085
-    - **URL needs to be accurate**: "your IP address/kamar-listener", eg. `178.168.50.104/kamar-listener`. Your IP address should be visible on the dashboard - if this is not accurate, open a terminal and run `ipconfig` to find it
+    - **URL needs to be accurate**: "your IP address/kamar-listener", eg. `178.168.50.104/kamar-listener`. Your IP address should be visible on the dashboard - if this is not accurate, open a terminal and run `ipconfig` to find it.  
 Click Check and Run, then tick required fields (eg. Results, setting it up with the timeframe required), then click Update to start the preliminary upload. You should see logs appearing in the terminal window running listenerService.exe, as well as rows of results starting to appear in SQLite Studio (need to click the blue refresh button on the Data tab).
 
 7. If you want to end the listener service, go to the terminal that opened when you started listenerService.exe, and either close it or press Ctrl+C to stop the process. 
