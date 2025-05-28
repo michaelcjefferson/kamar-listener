@@ -13,6 +13,9 @@ import (
 //go:embed assets/*
 var embeddedAssets embed.FS
 
+//go:embed comment-checker-ui/*
+var commentCheckerFiles embed.FS
+
 func (app *application) routes() http.Handler {
 	router := echo.New()
 
@@ -36,6 +39,8 @@ func (app *application) routes() http.Handler {
 	// 3) then, use router.StaticFS to attach the files as static routes
 	assetFS := echo.MustSubFS(embeddedAssets, "assets")
 
+	commentCheckerFS := echo.MustSubFS(commentCheckerFiles, "comment-checker-ui")
+
 	router.GET("/healthcheck", app.healthcheckHandler)
 
 	// Routes that require authentication - clients accessing these routes will pass through authentication, being set as either the user associated with their cookie or an anonymous user
@@ -46,6 +51,9 @@ func (app *application) routes() http.Handler {
 
 	authGroup.GET("/sign-in", app.signInPageHandler)
 	authGroup.POST("/sign-in", app.signInUserHandler)
+
+	authGroup.GET("/comment-checker", echo.StaticFileHandler("index.html", commentCheckerFS))
+	authGroup.StaticFS("/comment-checker", commentCheckerFS)
 
 	// Auth not required to request assets
 	// TODO: Separate assets for authed and unauthed, and only serve unauthed assets to unauthed users
