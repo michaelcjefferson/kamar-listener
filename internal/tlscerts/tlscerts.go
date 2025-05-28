@@ -1,4 +1,4 @@
-package sslcerts
+package tlscerts
 
 import (
 	"fmt"
@@ -106,7 +106,7 @@ func isCATrusted(certPath string) bool {
 }
 
 // generateSSLCert runs mkcert to create a trusted certificate pair in the provided TLS directory path
-func GenerateSSLCert(tlsDirPath, ip string, logger *jsonlog.Logger) error {
+func GenerateTLSCert(tlsDirPath, ip string, logger *jsonlog.Logger) error {
 	var downloadURL, mkcertPath string
 	// TODO: Add architecture checks
 	switch runtime.GOOS {
@@ -163,17 +163,17 @@ func GenerateSSLCert(tlsDirPath, ip string, logger *jsonlog.Logger) error {
 
 	// Check if cert already exists
 	if _, err := os.Stat(certPath); err == nil {
-		logger.PrintInfo("SSL certificate already exists, skipping generation.", nil)
+		logger.PrintInfo("TLS certificate already exists, skipping generation.", nil)
 		return nil
 	}
 
 	// Generate SSL certificate
-	logger.PrintInfo("Generating localhost SSL certificate...", nil)
+	logger.PrintInfo("Generating localhost TLS certificate...", nil)
 	cmd := exec.Command(mkcertPath, "-key-file", keyPath, "-cert-file", certPath, "localhost", ip)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to generate certificate: %w", err)
 	}
 
-	logger.PrintInfo("SSL certificate generated successfully: key.pem & cert.pem", nil)
+	logger.PrintInfo("TLS certificate generated successfully: key.pem & cert.pem", nil)
 	return nil
 }

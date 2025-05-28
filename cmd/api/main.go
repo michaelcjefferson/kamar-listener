@@ -14,7 +14,7 @@ import (
 	"github.com/michaelcjefferson/kamar-listener/internal/getip"
 	"github.com/michaelcjefferson/kamar-listener/internal/jsonlog"
 	"github.com/michaelcjefferson/kamar-listener/internal/setfiledirs"
-	"github.com/michaelcjefferson/kamar-listener/internal/sslcerts"
+	"github.com/michaelcjefferson/kamar-listener/internal/tlscerts"
 
 	// _ "modernc.org/sqlite"
 	_ "github.com/mattn/go-sqlite3"
@@ -190,7 +190,7 @@ func main() {
 	// 	}
 	// }
 
-	err = sslcerts.GenerateSSLCert(app.config.tlsPaths.tlsDir, ip, app.logger)
+	err = tlscerts.GenerateTLSCert(app.config.tlsPaths.tlsDir, ip, app.logger)
 	// If SSL certs couldn't be found or generated, serve over HTTP; otherwise, serve over HTTPS
 	if err != nil {
 		app.logger.PrintError(err, nil)
