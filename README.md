@@ -7,7 +7,7 @@ This data can then be consumed by PowerBI or any other data analytics system use
 2. Run listenerService.exe on a machine on the same local network as your instance of KAMAR. Click "More Info" --> "Run Anyway" --> "Yes" when prompted, to auto-install the required TLS certificates.
 3. Open a browser and navigate to [https://localhost:8085](https://localhost:8085).
 4. Conigure both a user account for KAMAR Listener and authentication details for Directory Services when prompted.
-5. Open KAMAR, go to Directory Services in the Setup menu, and fill in the required details - instructions for this process are on the Help page.
+5. Open KAMAR, go to Directory Services in the Setup menu, and fill in the required details - instructions for this process are on [the KAMAR Listener Help page](https://localhost:8085/help).
 6. Press Check & Enable to connect Directory Services to the KAMAR Listener app.  
 
 [Detailed set-up instructions below](#setting-things-up).
@@ -36,6 +36,7 @@ These steps assume you are running listenerService.exe on a Windows machine, whi
   <img src="/ui/assets/unrecognised-app-expanded.png" alt="Windows Unrecognised App warning expanded" width="450">  
   Click "Run Anyway" to allow the application to run on your device.
 
+
   Alternatively, clone the source code and compile it yourself via the steps outlined in [Development](#development).
 
 
@@ -43,26 +44,27 @@ These steps assume you are running listenerService.exe on a Windows machine, whi
   <img src="/ui/assets/ca-warning.png" alt="Certificate Authority warning" width="450">  
   Instead of HERBERT-THE-AVE\LENOVO@Herbert-the-Avenger, you will see your device name, which will act as the TLS certificate authority. Click "Yes" to approve - this is required in order for Directory Services to connect.
 
+
 3. Run the listenerService.exe file - a terminal will open representing the running server. **DO NOT CLOSE THIS** - it will stop the listener service.
 
-**When prompted to allow the service to communicate over public and private networks, click "Allow"**.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**When prompted to allow the service to communicate over public and private networks, click "Allow"**.
 
 4. Open a browser and navigate to https://localhost:8085 - this is the user interface for this application. You will be prompted to create an admin account, allowing you to view logs, create new users, configure settings etc. for the listener service.
 
-&nbsp;&nbsp;&nbsp;&nbsp;It will then prompt you to set up a username and password for Directory Services - these are the credentials you will also need to provide on the KAMAR Directory Services set-up page.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It will then prompt you to set up a username and password for Directory Services - these are the credentials you will also need to provide on the KAMAR Directory Services set-up page.
 
 5. Two SQLite databases (.db files) are automatically created and used by this service:  
-    - app.db, which stores information such as logs, user credentials, configuration etc. for KAMAR Listener
-    - listener.db, which stores all data received from Directory Services
+    - **app.db**, which stores information such as logs, user credentials, configuration etc. for KAMAR Listener
+    - **listener.db**, which stores all data received from Directory Services
 
-&nbsp;&nbsp;&nbsp;&nbsp;These databases perpetuate - if you restart your computer or end KAMAR Listener, this data will not be lost unless you delete these two database files. To view the data, click on "Open Database Folder" on the KAMAR Listener dashboard.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;These databases perpetuate - if you restart your computer or end KAMAR Listener, this data will not be lost unless you delete these two database files. To view the data, click on "Open Database Folder" on the KAMAR Listener dashboard.
 
 6. Open KAMAR, and go to Setup --> Server --> Directory Services. Fill out the details there (refer to [the KAMAR Listener Help page](https://localhost:8085/help) for guidance):  
     - Username and password need to be the same as the ones you set up (go to the [configuration page](https://localhost:8085/config) of KAMAR Listener to change)
     - Port needs to be **`8085`**
     - **URL needs to be accurate**: "your IP address/kamar-listener", eg. **`178.168.50.104/kamar-listener`**. Your IP address should be visible on the [dashboard](https://localhost:8085) - if this is not accurate, open a terminal and run `ipconfig` to find it.  
 
-&nbsp;&nbsp;&nbsp;&nbsp;Click Check and Run, then tick required fields (eg. Results, setting it up with the timeframe required), then click Update to start the preliminary upload. You should see logs appearing in the terminal window running listenerService.exe. You can view this data in an SQLite Database Viewer - check [the KAMAR Listener Help page](https://localhost:8085/help) for guidance on setting one up.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click Check and Run, then tick required fields (eg. Results, setting it up with the timeframe required), then click Update to start the preliminary upload. You should see logs appearing in the terminal window running listenerService.exe. You can view this data in an SQLite Database Viewer - check [the KAMAR Listener Help page](https://localhost:8085/help) for guidance on setting one up.
 
 7. If you want to end the listener service, go to the terminal that opened when you started listenerService.exe, and either close it or press Ctrl+C to stop the process. 
 
