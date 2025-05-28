@@ -41,8 +41,8 @@ These steps assume you are running listenerService.exe on a Windows machine, whi
 
 
 2. KAMAR Directory Services requires an HTTPS connection for security. To enable this, KAMAR Listener automatically downloads [mkcert](https://github.com/FiloSottile/mkcert) to generate and trust a local development certificate for use in this application. You will need to allow this when you first run KAMAR Listener:
-  <img src="/ui/assets/ca-warning.png" alt="Certificate Authority warning" width="450">  
-  Instead of HERBERT-THE-AVE\LENOVO@Herbert-the-Avenger, you will see your device name, which will act as the TLS certificate authority. Click "Yes" to approve - this is required in order for Directory Services to connect.
+<img src="/ui/assets/ca-warning.png" alt="Certificate Authority warning" width="450">  
+Instead of HERBERT-THE-AVE\LENOVO@Herbert-the-Avenger, you will see your device name, which will act as the TLS certificate authority. Click "Yes" to approve - this is required in order for Directory Services to connect.  
 
 
 3. Run the listenerService.exe file - a terminal will open representing the running server. **DO NOT CLOSE THIS** - it will stop the listener service.
