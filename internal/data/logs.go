@@ -267,36 +267,6 @@ func getAllLogsFilterQueryHelper(q *strings.Builder, args *[]any, filters Filter
 	}
 }
 
-// DELETE
-// tx, err := db.Begin()
-// if err != nil {
-//     log.Fatal(err)
-// }
-// defer tx.Rollback()
-
-// _, err = tx.Exec(`
-//     UPDATE logs_metadata
-//     SET count = count - 1
-//     WHERE (level = ? OR user_id = ?)
-//     AND count > 0;
-// `, level, user_id)
-// if err != nil {
-//     log.Fatal(err)
-// }
-
-// _, err = tx.Exec(`
-//     DELETE FROM logs_metadata
-//     WHERE count = 0;
-// `)
-// if err != nil {
-//     log.Fatal(err)
-// }
-
-// err = tx.Commit()
-// if err != nil {
-//     log.Fatal(err)
-// }
-
 // Get information about how many logs there are total, and how many logs are connected to each level and user
 func GetLogsMetadata(m *LogModel) (*LogsMetadata, error) {
 	query := `
@@ -344,4 +314,172 @@ func GetLogsMetadata(m *LogModel) (*LogsMetadata, error) {
 	}
 
 	return &logsMetadata, nil
+}
+
+type metadataUpdates struct {
+	Levels  map[string]int
+	UserIDs map[int]int
+}
+
+func (m *LogModel) DeleteOne(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	tx, err := m.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var userID int
+	var level string
+
+	log := tx.QueryRowContext(ctx,
+		`SELECT user_id, level FROM logs
+		WHERE id = ?`, id)
+	err = log.Scan(&userID, &level)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrRecordNotFound
+		default:
+			return err
+		}
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		DELETE FROM logs
+		WHERE id = ?`, id)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`
+		UPDATE logs_metadata
+		SET count = count - 1
+		WHERE (level = ? OR user_id = ?)
+		AND count > 0;
+	`, level, userID)
+	if err != nil {
+		return err
+	}
+
+	// Remove rows where count is 0, so that those filters no longer appear on the Logs page
+	_, err = tx.Exec(`
+		DELETE FROM logs_metadata
+		WHERE count = 0;
+	`)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Pointer to time.Time to allow for easy nil value checking
+func (m *LogModel) DeleteAllInTimeRange(endTime, startTime *time.Time) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	tx, err := m.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Build array of optional additions to query, so that start time and end time are not required
+	var where []string
+	var args []any
+
+	if startTime != nil {
+		where = append(where, "time >= ?")
+		args = append(args, *startTime)
+	}
+	if endTime != nil {
+		where = append(where, "time <= ?")
+		args = append(args, *endTime)
+	}
+
+	whereClause := ""
+	if len(where) > 0 {
+		whereClause = "WHERE " + strings.Join(where, " AND ")
+	}
+
+	query := fmt.Sprintf(`
+	SELECT level, user_id, COUNT(*)
+	FROM logs
+	%s
+	GROUP BY level, user_id`, whereClause)
+
+	rows, err := tx.QueryContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	updates := metadataUpdates{
+		Levels:  make(map[string]int),
+		UserIDs: make(map[int]int),
+	}
+
+	for rows.Next() {
+		var level string
+		var userID int
+		var count int
+		if err := rows.Scan(&level, &userID, &count); err != nil {
+			return err
+		}
+		updates.Levels[level] += count
+		updates.UserIDs[userID] += count
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	delQuery := fmt.Sprintf(`DELETE FROM logs %s`, whereClause)
+	_, err = tx.ExecContext(ctx, delQuery, args...)
+	if err != nil {
+		return err
+	}
+
+	for level, count := range updates.Levels {
+		_, err := tx.ExecContext(ctx, `
+			UPDATE logs_metadata
+			SET count = count - ?
+			WHERE level = ?
+		;`, count, level)
+		if err != nil {
+			return err
+		}
+	}
+	for userID, count := range updates.UserIDs {
+		_, err := tx.ExecContext(ctx, `
+			UPDATE logs_metadata
+			SET count = count - ?
+			WHERE user_id = ?
+		;`, count, userID)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = tx.Exec(`
+		DELETE FROM logs_metadata
+		WHERE count = 0;
+	`)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

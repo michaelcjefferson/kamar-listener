@@ -103,7 +103,7 @@ func openKamarDB(dbpath string) (*sql.DB, error) {
 }
 
 func createLogsTable(db *sql.DB) error {
-	userTableStmt := `CREATE TABLE IF NOT EXISTS logs (
+	logsTableStmt := `CREATE TABLE IF NOT EXISTS logs (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		level TEXT NOT NULL,
 		time DATETIME NOT NULL DEFAULT (datetime('now')),
@@ -112,7 +112,7 @@ func createLogsTable(db *sql.DB) error {
 		trace TEXT
 	);`
 
-	_, err := db.Exec(userTableStmt)
+	_, err := db.Exec(logsTableStmt)
 
 	if err != nil {
 		return err
@@ -159,7 +159,7 @@ func createLogsTable(db *sql.DB) error {
 			type TEXT NOT NULL,
 			level TEXT UNIQUE,
 			user_id INTEGER UNIQUE,
-			count INTEGER NOT NULL DEFAULT 0
+			count INTEGER NOT NULL DEFAULT 0 CHECK (count >= 0)
 		);`
 
 	_, err = db.Exec(createLogsMetadataTableStmt)
