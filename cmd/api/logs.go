@@ -87,6 +87,27 @@ func (app *application) getIndividualLogPageHandler(c echo.Context) error {
 	return app.Render(c, http.StatusAccepted, views.IndividualLogPage(*log, referer, u))
 }
 
+func (app *application) deleteIndividualLogHandler(c echo.Context) error {
+	id, err := app.readIDParam(c)
+	if err != nil {
+		app.notFoundResponse(c)
+		return err
+	}
+
+	err = app.models.Logs.DeleteForID(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(c)
+		default:
+			app.serverErrorResponse(c, err)
+		}
+		return err
+	}
+
+	return app.redirectResponse(c, "/logs", http.StatusAccepted, "log successfully deleted")
+}
+
 func (app *application) getFilteredLogsHandler(c echo.Context) error {
 	var filters data.Filters
 

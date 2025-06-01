@@ -10,7 +10,10 @@ import (
 
 templ LogDetail(log data.Log) {
   <div class="log-detail-container">
-    <p><strong>ID:</strong>{ strconv.Itoa(log.ID) }</p>
+    <div class="container">
+      <p><strong>ID:</strong>{ strconv.Itoa(log.ID) }</p>
+      <button class="fatal-text log-delete-button" data-log-id={ strconv.Itoa(log.ID) }>DELETE</button>
+    </div>
     <p class={ strings.ToLower(log.Level) + "-text" }>{ log.Level }</p>
     <h3>{ log.Message }</h3>
     <h4>{ log.Time.Format("15:04:05.0000, Jan 2 2006") }</h4>

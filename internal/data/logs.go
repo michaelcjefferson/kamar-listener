@@ -321,7 +321,7 @@ type metadataUpdates struct {
 	UserIDs map[int]int
 }
 
-func (m *LogModel) DeleteOne(id int) error {
+func (m *LogModel) DeleteForID(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -331,8 +331,8 @@ func (m *LogModel) DeleteOne(id int) error {
 	}
 	defer tx.Rollback()
 
-	var userID int
-	var level string
+	var userID *int
+	var level *string
 
 	log := tx.QueryRowContext(ctx,
 		`SELECT user_id, level FROM logs
