@@ -10,20 +10,21 @@ import (
 
 templ LogDetail(log data.Log) {
   <div class="log-detail-container">
-    <div class="container">
-      <p><strong>ID:</strong>{ strconv.Itoa(log.ID) }</p>
+    <div class="log-id-time-delete-container">
+      <p><strong>ID: </strong>{ strconv.Itoa(log.ID) }</p>
+      <h4>{ log.Time.Format("15:04:05.0000, Jan 2 2006") }</h4>
       <button class="fatal-text log-delete-button" data-log-id={ strconv.Itoa(log.ID) }>DELETE</button>
     </div>
-    <p class={ strings.ToLower(log.Level) + "-text" }>{ log.Level }</p>
+    <h2 class={ strings.ToLower(log.Level) + "-text" }>{ log.Level }</h2>
     <h3>{ log.Message }</h3>
-    <h4>{ log.Time.Format("15:04:05.0000, Jan 2 2006") }</h4>
     if len(log.Properties) > 0 {
-      <h3>Properties</h3>
+      <h3><u>Properties</u></h3>
       for prop, val := range log.Properties {
         <p><strong>{ prop }:</strong> { fmt.Sprintf("%v", val) }</p>
       }
     }
     if log.Trace != "" {
+      <h3><u>Stack Trace</u></h3>
       <pre class="log-trace">{ log.Trace }</pre>
     }
     if log.UserID > 0 {
