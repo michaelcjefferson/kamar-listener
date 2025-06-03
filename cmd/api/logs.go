@@ -4,12 +4,14 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/michaelcjefferson/kamar-listener/internal/data"
 	"github.com/michaelcjefferson/kamar-listener/internal/validator"
 	"github.com/michaelcjefferson/kamar-listener/ui/components"
 	views "github.com/michaelcjefferson/kamar-listener/ui/views"
+	widgets "github.com/michaelcjefferson/kamar-listener/ui/widgets"
 )
 
 func (app *application) getFilteredLogsPageHandler(c echo.Context) error {
@@ -106,6 +108,61 @@ func (app *application) deleteIndividualLogHandler(c echo.Context) error {
 	}
 
 	return app.redirectResponse(c, "/logs", http.StatusAccepted, "log successfully deleted")
+}
+
+func (app *application) deleteLogsWithinTimeframeHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
+
+	p := new(data.LogDeletionParams)
+
+	if err := c.Bind(&p); err != nil {
+		return app.badRequestResponse(c, err)
+	}
+
+	if err := app.models.Logs.DeleteAllInTimeRange(*p); err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	app.logger.PrintInfo("logs deleted", map[string]any{
+		"start_time": p.StartTime,
+		"end_time":   p.EndTime,
+		"user_id":    u.ID,
+	})
+
+	return app.redirectResponse(c, "/", http.StatusAccepted, nil)
+}
+
+func (app *application) pruneLogsWidgetHandler(c echo.Context) error {
+	u := app.contextGetUser(c)
+
+	p := new(data.LogDeletionParams)
+	// Delete all logs up to 2 weeks prior to now
+	endTime := time.Now().Add(-(time.Hour * 24 * 14)).UTC()
+	p.EndTime = &endTime
+
+	if err := app.models.Logs.DeleteAllInTimeRange(*p); err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	app.logger.PrintInfo("logs deleted", map[string]any{
+		"start_time": p.StartTime,
+		"end_time":   p.EndTime,
+		"user_id":    u.ID,
+	})
+
+	logFilters := data.Filters{
+		LogFilters:   data.LogFilters{},
+		Page:         1,
+		PageSize:     5,
+		Sort:         "-time",
+		SortSafeList: []string{"level", "time", "user_id", "-level", "-time", "-user_id"},
+	}
+	logs, logMeta, _, err := app.models.Logs.GetAll(logFilters)
+	if err != nil {
+		return app.serverErrorResponse(c, err)
+	}
+
+	return app.Render(c, http.StatusAccepted, widgets.Logs(logMeta.TotalRecords, logs))
 }
 
 func (app *application) getFilteredLogsHandler(c echo.Context) error {

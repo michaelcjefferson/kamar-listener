@@ -8,12 +8,34 @@ import (
 )
 
 templ Logs(totalCount int, logs []*data.Log) {
-  <div class="widget">
-    <p>
-      <a href="/logs" class="button-link"><strong>Total Logs:</strong> { fmt.Sprintf("%d", totalCount) }</a>
-    </p>
+  <div class="widget" id="logs-widget">
+    <div class="logs-widget-button-container">
+      <p>
+        <a href="/logs" class="button-link"><strong>Total Logs:</strong> { fmt.Sprintf("%d", totalCount) }</a>
+      </p>
+      <button id="prune-logs-button" class="fatal-text">PRUNE OLD LOGS</button>
+    </div>
     <div class="scroll-window">
       @components.LogList(logs)
     </div>
+
+    <div id="confirm-prune-logs-modal" class="modal hidden">
+      <div class="modal-content">
+        <p>This action will delete all logs that are more than 2 weeks old.</p>
+        <p>Are you sure you want to continue?</p>
+        <button id="confirm-prune-logs" hx-get="/logs/prune" hx-target="#logs-widget" hx-swap="outerHTML">Yes</button>
+        <button id="confirm-cancel-prune-logs">Cancel</button>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById("prune-logs-button").addEventListener("click", () => {
+        document.getElementById("confirm-prune-logs-modal").classList.remove("hidden");
+      });
+
+      document.getElementById("confirm-cancel-prune-logs").addEventListener("click", () => {
+        document.getElementById("confirm-prune-logs-modal").classList.add("hidden");
+      });
+    </script>
   </div>
 }

@@ -78,6 +78,7 @@ func (app *application) routes() http.Handler {
 	isAuthenticatedGroup.GET("/logs/partial", app.getFilteredLogsHandler)
 	isAuthenticatedGroup.GET("/logs/:id", app.getIndividualLogPageHandler)
 	isAuthenticatedGroup.DELETE("/logs/:id", app.deleteIndividualLogHandler)
+	isAuthenticatedGroup.GET("/logs/prune", app.pruneLogsWidgetHandler)
 	isAuthenticatedGroup.GET("/logs", app.getFilteredLogsPageHandler)
 
 	isAuthenticatedGroup.GET("/users/update/password", app.updateUserPasswordPageHandler)

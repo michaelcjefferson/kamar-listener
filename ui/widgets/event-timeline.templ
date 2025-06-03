@@ -16,11 +16,9 @@ templ EventTimeline(events []data.ListenerEvent) {
     <script>
       const events = JSON.parse(document.getElementById('events').textContent);
 
-      console.log(events);
-
       if (events === null) {
         const noEventsMessage = document.createElement("h2");
-        noEventsMessage.innerHTML = "No events yet.";
+        noEventsMessage.innerHTML = "No requests from Directory Services yet.";
         document.getElementById("event-chart").replaceWith(noEventsMessage);
       } else {
         const grouped = events.reduce((acc, ev) => {

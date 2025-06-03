@@ -381,8 +381,14 @@ func (m *LogModel) DeleteForID(id int) error {
 	return nil
 }
 
+type LogDeletionParams struct {
+	StartTime *time.Time
+	EndTime   *time.Time
+}
+
 // Pointer to time.Time to allow for easy nil value checking
-func (m *LogModel) DeleteAllInTimeRange(endTime, startTime *time.Time) error {
+// TODO: Allow deletion by level and userID too
+func (m *LogModel) DeleteAllInTimeRange(params LogDeletionParams) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -396,13 +402,13 @@ func (m *LogModel) DeleteAllInTimeRange(endTime, startTime *time.Time) error {
 	var where []string
 	var args []any
 
-	if startTime != nil {
+	if params.StartTime != nil {
 		where = append(where, "time >= ?")
-		args = append(args, *startTime)
+		args = append(args, *params.StartTime)
 	}
-	if endTime != nil {
+	if params.EndTime != nil {
 		where = append(where, "time <= ?")
-		args = append(args, *endTime)
+		args = append(args, *params.EndTime)
 	}
 
 	whereClause := ""
@@ -428,14 +434,18 @@ func (m *LogModel) DeleteAllInTimeRange(endTime, startTime *time.Time) error {
 	}
 
 	for rows.Next() {
-		var level string
-		var userID int
+		var level *string
+		var userID *int
 		var count int
 		if err := rows.Scan(&level, &userID, &count); err != nil {
 			return err
 		}
-		updates.Levels[level] += count
-		updates.UserIDs[userID] += count
+		if level != nil {
+			updates.Levels[*level] += count
+		}
+		if userID != nil {
+			updates.UserIDs[*userID] += count
+		}
 	}
 	if err := rows.Err(); err != nil {
 		return err

@@ -236,6 +236,14 @@ nav a.active {
   justify-content: center;
 }
 
+/* WIDGET LOGS */
+.logs-widget-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 /* WIDGET SWITCH */
 /* Container */
 .switch {
@@ -513,7 +521,8 @@ nav a.active {
   justify-content: center;
 }
 .modal-content {
-  background: var(--bg-colour-l2);
+  background: var(--bg-colour);
+  color: var(--font-colour);
   padding: 1rem;
   border-radius: 5px;
 }

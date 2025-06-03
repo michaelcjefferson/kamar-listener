@@ -12,7 +12,7 @@ templ LogCard(log *data.Log) {
     <div class="log-meta-container">
       <p><strong>ID:</strong>{ fmt.Sprintf("%v", log.ID) }
       <br>
-      { log.Time.Format("15:04:05 02-01") }</p>
+      { ConvertToLocalTZ(log.Time).Format("15:04:05 02-01") }</p>
     </div>
   </a>
 }
