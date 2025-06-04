@@ -2,12 +2,50 @@ package components
 
 templ TroubleshootingInstructions() {
   <div class="help-content" id="troubleshooting-instructions">
-  <h3>How to Troubleshoot</h3>
-  <div class="intro">
-    <p>
-      For now, just email <strong>michaelcjefferson@gmail.com</strong> - this page is yet to be built out!
-    </p>
-  </div>
+    <div class="intro">
+      <p>
+        In most instances, just email <strong>michaelcjefferson@gmail.com</strong> with as much information as you can provide on the issue that you're having (related logs, Directory Service configuration, network configuration etc.)
+      </p>
+      <p>The tips below may help you find the information you need to isolate the issue you're having.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Check the Logs</h3>
+        <p>Error logs in particular hold a lot of useful information, including a stack trace - this can be useful for pinpointing the cause of an issue.</p>
+        <p>You can filter logs by keyword, level ("INFO", "WARNING"), and the user ID they're attached to on the <a href="/logs">Logs page</a>.</p>
+      </div>
+
+      <div class="step">
+        <h3>Enable "Write to JSON"</h3>
+        <p>This application includes a level of data-type enforcement that doesn't exist in KAMAR - for this reason, it is possible that a data field can't be written to the database due to a type mismatch.</p>
+        <p>In order to inspect all of the data being sent through by Directory Services, go to the <a href="/config">Config page</a> and enable "Write to JSON". This will write all data received from KAMAR (regardless of its type) to JSON files in the /kamar-json directory, which can be found in the same location as your listenerService.exe file.</p>
+      </div>
+
+      <div class="step">
+        <h3>Check your IP configuration</h3>
+        <p>In order for KAMAR Listener to work:
+          <ol>
+            <li>The device running KAMAR Listener must be on the same local network as the KAMAR server</li>
+            <li>The IP address you enter into Directory Services must be your device's local network IP (can be found on <a href="/">Dashboard</a>, or by running <code>ipconfig</code> in a terminal)</li>
+            <li>URL includes <strong>/kamar-listener</strong></li>
+            <li>Port is set to <strong>8085</strong></li>
+          </ol>
+        </p>
+        <p>Refer to Step 3 on KAMAR Directory Service <a href="/help">Help page</a> for further tips.</p>
+      </div>
+
+      <div class="step">
+        <h3>Experiment with different Directory Services configurations</h3>
+        <p>If a data type is failing to come through, uncheck as many boxes as possible in Directory Services and try running again - error messages may be more informative this way.</p>
+      </div>
+
+      <div class="step">
+        <h3>Ensure the correct Directory Services time period is set</h3>
+        <p>In Directory Services, a couple of fields (pastoral, results) default to only sending the current day's entries.</p>
+        <p>If you want to collect all available data from KAMAR for these fields, ensure that you have set KAMAR to "Send All".</p>
+      </div>
+    </div>
 
   // <h2>Using Power BI with SQLite on Windows</h2>
   // <div class="steps">
