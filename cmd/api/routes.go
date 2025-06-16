@@ -53,7 +53,7 @@ func (app *application) routes() http.Handler {
 	authGroup.POST("/sign-in", app.signInUserHandler)
 
 	authGroup.GET("/comment-checker", echo.StaticFileHandler("index.html", commentCheckerFS))
-	authGroup.StaticFS("/comment-checker", commentCheckerFS)
+	authGroup.StaticFS("/comment-checker/*", commentCheckerFS)
 
 	// Auth not required to request assets
 	// TODO: Separate assets for authed and unauthed, and only serve unauthed assets to unauthed users
